@@ -10,7 +10,13 @@ const debug = require("debug")("anhphat-backend:server");
 const http = require("http");
 
 const sequelize = require("~/services/sequelize.service");
-
+require("~/models/user.model");
+require("~/models/loaihang.model");
+require("~/models/donvi.model");
+require("~/models/quycach.model");
+require("~/models/mathang.model");
+require("~/models/phieunhap.model");
+require("~/models/nhaphanphoi.model");
 async function startServer() {
 	/**
 	 * Get port from environment and store in Express.
