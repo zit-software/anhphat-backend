@@ -12,14 +12,6 @@ class QuantriController {
 			const ten = req.body.ten;
 			const matkhau = req.body.matkhau;
 			const laadmin = req.body.laadmin;
-			const userInDB = await UserModel.findOne({
-				where: { ten },
-			});
-			// Kiểm tra tài khoản với tên này có tồn tại không
-			if (userInDB)
-				return res
-					.status(403)
-					.json("Tên này đã tồn tại");
 
 			await UserModel.create({
 				ten,
