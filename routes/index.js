@@ -14,4 +14,35 @@ router.use(
 	require("./quantri.route")
 );
 
+router.use(
+	"/loaihang",
+	AuthMiddleware,
+	AdminMiddleware,
+	require("./loaihang.route")
+);
+
+router.use(
+	"/donvi",
+	AuthMiddleware,
+	AdminMiddleware,
+	require("./donvi.route")
+);
+router.use(
+	"/quycach",
+	AuthMiddleware,
+	AdminMiddleware,
+	require("./quycach.route")
+);
+router.use(
+	"/nhaphanphoi",
+	AuthMiddleware,
+	AdminMiddleware,
+	require("./nhaphanphoi.route")
+);
+router.use(
+	"/xuathang",
+	AuthMiddleware,
+	require("./xuathang.route")
+);
+
 module.exports = router;
