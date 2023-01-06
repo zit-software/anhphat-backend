@@ -15,6 +15,7 @@ router.use(
 );
 
 router.use(
+<<<<<<< HEAD
 	"/loaihang",
 	AuthMiddleware,
 	AdminMiddleware,
@@ -43,6 +44,38 @@ router.use(
 	"/xuathang",
 	AuthMiddleware,
 	require("./xuathang.route")
+=======
+	"/mathang",
+	AuthMiddleware,
+	require("./mathang.route")
+);
+
+router.use(
+	"/nhaphang",
+	AuthMiddleware,
+	require("./nhaphang.route")
+);
+
+router.use(
+	"/khuyenmagiam",
+	AuthMiddleware,
+	AdminMiddleware,
+	require("./khuyenmaigiam.route")
+);
+
+router.use(
+	"/khuyenmaitang",
+	AuthMiddleware,
+	AdminMiddleware,
+	require("./khuyenmaitang.route")
+);
+
+router.use(
+	"/thongke",
+	AuthMiddleware,
+	AdminMiddleware,
+	require("./thongke.route")
+>>>>>>> 14fa68384cbfb3c3c07df3bf47398a99ee14153a
 );
 
 module.exports = router;

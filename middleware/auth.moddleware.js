@@ -25,6 +25,10 @@ const AuthMiddleware = async (req, res, next) => {
 
 		const userDecoded = TokenUtil.decode(accessToken);
 
+		if (!userDecoded) {
+			throw new Error("Access token is invalid");
+		}
+
 		const user = UserModel.findOne({
 			where: { ma: userDecoded.ma },
 		});
