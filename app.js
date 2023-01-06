@@ -4,15 +4,14 @@ const logger = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
+const config = require("~/config");
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(
 	cors({
-		origin: "*",
+		origin: config.fontend.origin,
 		optionsSuccessStatus: 200,
 	})
 );
@@ -22,7 +21,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+app.use("/", require("~/routes"));
 
 module.exports = app;

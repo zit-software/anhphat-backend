@@ -7,6 +7,9 @@ const config = {
 		password: process.env.DB_PASSWORD,
 		database: process.env.DB_DATABASE,
 	},
+	fontend: {
+		origin: process.env.FRONTEND_ORIGIN || "*",
+	},
 };
 
 module.exports = config;
