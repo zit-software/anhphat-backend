@@ -5,9 +5,9 @@ const { sign } = require("~/utils/token.util");
 class AuthController {
 	async dangnhap(req, res) {
 		try {
-			const { taikhoan, matkhau } = req.body;
+			const { ma, matkhau } = req.body;
 			const user = await UserModel.findOne({
-				where: { ten: taikhoan },
+				where: { ten: ma },
 			});
 
 			if (!user)
@@ -22,7 +22,7 @@ class AuthController {
 				return res.status(404).json("Sai mật khẩu");
 			if (user && isValidPassword) {
 				const accessToken = sign({
-					taikhoan,
+					ma,
 					matkhau,
 				});
 				return res
