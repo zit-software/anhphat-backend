@@ -6,8 +6,9 @@
  */
 const AdminMiddleware = async (req, res, next) => {
 	try {
-		if (!req.currentUser.laadmin)
+		if (!req.currentUser.laAdmin)
 			throw new Error("Permisson denied!");
+
 		next();
 	} catch (error) {
 		res.status(101).send({ message: error.message });

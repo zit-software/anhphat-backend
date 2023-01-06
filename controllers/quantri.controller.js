@@ -11,12 +11,12 @@ class QuantriController {
 		try {
 			const ten = req.body.ten;
 			const matkhau = req.body.matkhau;
-			const laadmin = req.body.laadmin;
+			const laAdmin = req.body.laAdmin;
 
 			await UserModel.create({
 				ten,
 				mk: hash(matkhau),
-				laadmin,
+				laAdmin,
 			});
 			return res.status(200).json("Tạo thành công");
 		} catch (error) {
@@ -34,6 +34,17 @@ class QuantriController {
 	async laytaikhoan(req, res) {
 		try {
 			const ma = req.params.ma;
+			const user = await UserModel.findOne({
+				where: { ma },
+			});
+			if (!user)
+				return res
+					.status(404)
+					.json("Không tồn tại người dùng");
+
+			// Không trả về mật khẩu
+			const { mk, ...rest } = user.dataValues;
+			return res.status(200).json(rest);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -49,6 +60,14 @@ class QuantriController {
 	async suataikhoan(req, res) {
 		try {
 			const ma = req.params.ma;
+			const newUser = req.body;
+
+			// Nếu có mật khẩu trong request thì hash mật khẩu trước khi sửa
+			if (newUser.mk) newUser.mk = hash(newUser.mk);
+			await UserModel.update(newUser, {
+				where: { ma },
+			});
+			return res.status(200).json("Sửa thành công");
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -63,6 +82,16 @@ class QuantriController {
 	 */
 	async laytatcataikhoan(req, res) {
 		try {
+			const allUsers = await UserModel.findAll({
+				attributes: [
+					"ma",
+					"ten",
+					"laAdmin",
+					"createdAt",
+					"updatedAt",
+				],
+			});
+			return res.status(200).json(allUsers);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -77,6 +106,9 @@ class QuantriController {
 	 */
 	async xoataikhoan(req, res) {
 		try {
+			const ma = req.params.ma;
+			await UserModel.destroy({ where: { ma } });
+			return res.status(200).json("Xóa Thành Công");
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
