@@ -1,10 +1,8 @@
-const { request, response } = require("express");
-
 class QuantriController {
 	/**
 	 *
-	 * @param {request} req
-	 * @param {response} res
+	 * @param {Request} req
+	 * @param {Response} res
 	 */
 	async themtaikhoan(req, res) {
 		try {
@@ -20,8 +18,8 @@ class QuantriController {
 
 	/**
 	 *
-	 * @param {request} req
-	 * @param {response} res
+	 * @param {Request} req
+	 * @param {Response} res
 	 */
 	async laytaikhoan(req, res) {
 		try {
@@ -35,8 +33,8 @@ class QuantriController {
 
 	/**
 	 *
-	 * @param {request} req
-	 * @param {response} res
+	 * @param {Request} req
+	 * @param {Response} res
 	 */
 	async suataikhoan(req, res) {
 		try {
@@ -50,8 +48,8 @@ class QuantriController {
 
 	/**
 	 *
-	 * @param {request} req
-	 * @param {response} res
+	 * @param {Request} req
+	 * @param {Response} res
 	 */
 	async laytatcataikhoan(req, res) {
 		try {
@@ -64,8 +62,8 @@ class QuantriController {
 
 	/**
 	 *
-	 * @param {request} req
-	 * @param {response} res
+	 * @param {Request} req
+	 * @param {Response} res
 	 */
 	async xoataikhoan(req, res) {
 		try {
