@@ -1,3 +1,6 @@
+const UserModel = require("~/models/user.model");
+const { hash } = require("~/utils/password.util");
+
 class QuantriController {
 	/**
 	 *
@@ -8,7 +11,14 @@ class QuantriController {
 		try {
 			const ten = req.body.ten;
 			const matkhau = req.body.matkhau;
-			const ladmin = req.body.ladmin;
+			const laadmin = req.body.laadmin;
+
+			await UserModel.create({
+				ten,
+				mk: hash(matkhau),
+				laadmin,
+			});
+			return res.status(200).json("Tạo thành công");
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
