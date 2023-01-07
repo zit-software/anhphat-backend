@@ -1,4 +1,5 @@
 const KhuyenMaiTangModel = require("~/models/khuyenmaitang.model");
+const LoaiHangModel = require("~/models/loaihang.model");
 
 class KhuyenmaitangController {
 	/**
@@ -32,11 +33,20 @@ class KhuyenmaitangController {
 				where.malh = req.query.malh;
 			}
 
-			const kmt = await KhuyenMaiTangModel.findAll({
-				where,
-			});
+			const kmt = (
+				await KhuyenMaiTangModel.findAll({
+					where,
+					include: LoaiHangModel,
+				})
+			).map((e) => e.toJSON());
 
-			res.send(kmt.map((e) => e.toJSON()));
+			for (const km of kmt) {
+				km.lh = km.loaihang;
+				delete km.loaihang;
+				delete km.malh;
+			}
+
+			res.send(kmt);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
