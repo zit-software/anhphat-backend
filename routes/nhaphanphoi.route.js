@@ -6,6 +6,7 @@ const {
 	suamotnpp,
 	xoamotnpp,
 } = require("~/controllers/nhaphanphoi.controller");
+
 const router = Router();
 
 router.route("/").post(themnpp).get(laytatcanpp);

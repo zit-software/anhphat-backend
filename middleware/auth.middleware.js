@@ -32,7 +32,7 @@ const AuthMiddleware = async (req, res, next) => {
 			where: { ma: userDecoded.ma },
 		});
 
-		req.currentUser = user;
+		req.currentUser = user.toJSON();
 
 		next();
 	} catch (error) {

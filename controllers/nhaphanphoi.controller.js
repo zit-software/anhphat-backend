@@ -1,3 +1,5 @@
+const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
+
 class NhaPhanPhoiControler {
 	/**
 	 *
@@ -6,7 +8,17 @@ class NhaPhanPhoiControler {
 	 */
 	async themnpp(req, res) {
 		try {
-			return res.status(200);
+			const ten = req.body.ten;
+			const chietkhau = req.body.chietkhau;
+
+			const newNpp = await NhaPhanPhoiModel.create({
+				ten,
+				chietkhau,
+			});
+
+			return res.send({
+				data: newNpp.toJSON(),
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -20,7 +32,9 @@ class NhaPhanPhoiControler {
 	 */
 	async laytatcanpp(req, res) {
 		try {
-			return res.status(200);
+			const allNpp = await NhaPhanPhoiModel.findAll();
+
+			res.send(allNpp.map((e) => e.toJSON()));
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -35,7 +49,19 @@ class NhaPhanPhoiControler {
 	async laymotnpp(req, res) {
 		try {
 			const ma = req.params.ma;
-			return res.status(200);
+			const npp = await NhaPhanPhoiModel.findOne({
+				where: {
+					ma,
+				},
+			});
+
+			if (!npp) {
+				throw new Error(
+					"Nhà phân phối không tồn tại"
+				);
+			}
+
+			res.send(npp.toJSON());
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -50,7 +76,26 @@ class NhaPhanPhoiControler {
 	async suamotnpp(req, res) {
 		try {
 			const ma = req.params.ma;
-			return res.status(200);
+			const npp = await NhaPhanPhoiModel.findOne({
+				where: {
+					ma,
+				},
+			});
+
+			if (!npp) {
+				throw new Error(
+					"Nhà phân phối không tồn tại"
+				);
+			}
+
+			await NhaPhanPhoiModel.update(req.body, {
+				where: { ma },
+			});
+
+			return res.send({
+				message:
+					"Cập nhật thông tin nhà phân phối thành công",
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -65,7 +110,25 @@ class NhaPhanPhoiControler {
 	async xoamotnpp(req, res) {
 		try {
 			const ma = req.params.ma;
-			return res.status(200);
+			const npp = await NhaPhanPhoiModel.findOne({
+				where: {
+					ma,
+				},
+			});
+
+			if (!npp) {
+				throw new Error(
+					"Nhà phân phối không tồn tại"
+				);
+			}
+
+			await NhaPhanPhoiModel.destroy({
+				where: { ma },
+			});
+
+			res.send({
+				message: "Xóa nhà phân phối thành công",
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,

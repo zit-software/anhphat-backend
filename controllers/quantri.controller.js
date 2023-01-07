@@ -18,7 +18,9 @@ class QuantriController {
 				mk: hash(matkhau),
 				laAdmin,
 			});
-			return res.status(200).json("Tạo thành công");
+			return res
+				.status(200)
+				.json({ message: "Tạo thành công" });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -38,11 +40,12 @@ class QuantriController {
 				where: { ma },
 			});
 			if (!user)
-				return res
-					.status(404)
-					.json("Không tồn tại người dùng");
+				return res.status(404).json({
+					message: "Không tồn tại người dùng",
+				});
 
 			// Không trả về mật khẩu
+			// eslint-disable-next-line no-unused-vars
 			const { mk, ...rest } = user.dataValues;
 			return res.status(200).json(rest);
 		} catch (error) {
@@ -60,6 +63,16 @@ class QuantriController {
 	async suataikhoan(req, res) {
 		try {
 			const ma = req.params.ma;
+
+			const existingUser = await UserModel.findOne({
+				where: { ma },
+			});
+
+			if (!existingUser)
+				throw new Error(
+					"Tài khoản này không tồn lại"
+				);
+
 			const newUser = req.body;
 
 			// Nếu có mật khẩu trong request thì hash mật khẩu trước khi sửa
@@ -67,7 +80,9 @@ class QuantriController {
 			await UserModel.update(newUser, {
 				where: { ma },
 			});
-			return res.status(200).json("Sửa thành công");
+			return res
+				.status(200)
+				.json({ message: "Sửa thành công" });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -107,8 +122,19 @@ class QuantriController {
 	async xoataikhoan(req, res) {
 		try {
 			const ma = req.params.ma;
+			const existingUser = await UserModel.findOne({
+				where: { ma },
+			});
+
+			if (!existingUser)
+				throw new Error(
+					"Tài khoản này không tồn lại"
+				);
+
 			await UserModel.destroy({ where: { ma } });
-			return res.status(200).json("Xóa Thành Công");
+			return res
+				.status(200)
+				.json({ message: "Xóa Thành Công" });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
