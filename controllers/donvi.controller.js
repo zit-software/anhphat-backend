@@ -51,7 +51,26 @@ class DonViController {
 	 */
 	async laytatcadonvi(req, res) {
 		try {
-			return res.status(200);
+			const malh = req.query.loaihang;
+			if (malh) {
+				const allDonVi = await DonViModel.findAll({
+					attributes: ["ma", "ten"],
+					include: {
+						model: LoaiHangModel,
+						attributes: ["ma", "ten"],
+					},
+					where: { malh },
+				});
+				return res.status(200).json(allDonVi);
+			}
+			const allDonVi = await DonViModel.findAll({
+				attributes: ["ma", "ten"],
+				include: {
+					model: LoaiHangModel,
+					attributes: ["ma", "ten"],
+				},
+			});
+			return res.status(200).json(allDonVi);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -61,7 +80,15 @@ class DonViController {
 	async suadonvi(req, res) {
 		try {
 			const ma = req.params.ma;
-			return res.status(200);
+			const currentDonVi = await DonViModel.findAll({
+				where: { ma },
+			});
+			if (!currentDonVi)
+				throw new Error("Không tồn tại đơn vị này");
+			await DonViModel.update(req.body, {
+				where: { ma },
+			});
+			return res.status(200).json("Sửa thành công");
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -71,7 +98,15 @@ class DonViController {
 	async xoadonvi(req, res) {
 		try {
 			const ma = req.params.ma;
-			return res.status(200);
+			const currentDonVi = await DonViModel.findAll({
+				where: { ma },
+			});
+			if (!currentDonVi)
+				throw new Error("Không tồn tại đơn vị này");
+			await DonViModel.destroy({ where: { ma } });
+			return res
+				.status(200)
+				.json("Xóa thành công đơn vị");
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
