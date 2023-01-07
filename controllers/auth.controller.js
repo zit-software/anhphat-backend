@@ -7,7 +7,7 @@ class AuthController {
 		try {
 			const { ma, matkhau } = req.body;
 			const user = await UserModel.findOne({
-				where: { ten: ma },
+				where: { ma },
 			});
 
 			if (!user)
@@ -21,10 +21,7 @@ class AuthController {
 			if (!isValidPassword)
 				return res.status(404).json("Sai mật khẩu");
 			if (user && isValidPassword) {
-				const accessToken = sign({
-					ma,
-					matkhau,
-				});
+				const accessToken = sign(user.dataValues);
 				return res
 					.status(200)
 					.json({ accessToken });

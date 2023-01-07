@@ -29,7 +29,7 @@ const AuthMiddleware = async (req, res, next) => {
 		}
 
 		const user = await UserModel.findOne({
-			where: { ten: userDecoded.ma },
+			where: { ma: userDecoded.ma },
 		});
 
 		req.currentUser = user;

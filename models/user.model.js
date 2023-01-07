@@ -24,7 +24,7 @@ const UserModel = sequelize.define(
 			defaultValue: false,
 		},
 	},
-	{ timestamps: true }
+	{ initialAutoIncrement: 1000, timestamps: true }
 );
 
 module.exports = UserModel;
