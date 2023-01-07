@@ -58,7 +58,7 @@ router.use(
 );
 
 router.use(
-	"/khuyenmagiam",
+	"/khuyenmaigiam",
 	AuthMiddleware,
 	AdminMiddleware,
 	require("./khuyenmaigiam.route")
