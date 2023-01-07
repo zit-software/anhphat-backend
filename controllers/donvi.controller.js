@@ -37,7 +37,7 @@ class DonViController {
 			await DonViModel.destroy({ where: {} });
 			return res
 				.status(200)
-				.json("Đã xóa tất cả đơn vị");
+				.json({ message: "Đã xóa tất cả đơn vị" });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -88,7 +88,9 @@ class DonViController {
 			await DonViModel.update(req.body, {
 				where: { ma },
 			});
-			return res.status(200).json("Sửa thành công");
+			return res
+				.status(200)
+				.json({ message: "Sửa thành công đơn vị" });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -104,9 +106,9 @@ class DonViController {
 			if (!currentDonVi)
 				throw new Error("Không tồn tại đơn vị này");
 			await DonViModel.destroy({ where: { ma } });
-			return res
-				.status(200)
-				.json("Xóa thành công đơn vị");
+			return res.status(200).json({
+				message: "Xóa thành công đơn vị",
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
