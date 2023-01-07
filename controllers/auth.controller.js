@@ -5,7 +5,7 @@ const { sign } = require("~/utils/token.util");
 class AuthController {
 	async dangnhap(req, res) {
 		try {
-			const { ma, matkhau } = req.body;
+			const { ten, matkhau } = req.body;
 			const user = await UserModel.findOne({
 				where: { ma },
 			});
