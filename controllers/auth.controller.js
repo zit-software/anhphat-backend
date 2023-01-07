@@ -33,7 +33,8 @@ class AuthController {
 	}
 	async xacthucnguoidung(req, res) {
 		try {
-			return res.status(200);
+			delete req.currentUser.password;
+			res.send(req.currentUser);
 		} catch (error) {
 			console.log(error);
 			return res.status(500).json(error);
