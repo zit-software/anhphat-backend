@@ -44,9 +44,9 @@ class LoaiHangController {
 	async xoatatcaloaihang(req, res) {
 		try {
 			await LoaiHangModel.destroy({ where: {} });
-			return res
-				.status(200)
-				.json("Đã Xóa Tất Cả Loại Hàng");
+			return res.status(200).json({
+				message: "Đã Xóa Tất Cả Loại Hàng",
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -94,7 +94,7 @@ class LoaiHangController {
 			});
 			return res
 				.status(200)
-				.json("Cập nhật thành công");
+				.json({ message: "Cập nhật thành công" });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
