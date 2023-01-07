@@ -4,9 +4,7 @@ const config = require("~/config");
 
 const TokenUtil = {
 	sign(data) {
-		return jwt.sign(data, config.security.jwtSecret, {
-			expiresIn: "2h",
-		});
+		return jwt.sign(data, config.security.jwtSecret);
 	},
 
 	decode(token) {
