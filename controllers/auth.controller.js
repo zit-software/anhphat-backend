@@ -11,15 +11,19 @@ class AuthController {
 			});
 
 			if (!user)
-				return res
-					.status(404)
-					.json("Sai Tài Khoản");
+				throw new Error(
+					"Tài khoản hoặc mật khẩu không đúng"
+				);
+
 			const isValidPassword = compare(
 				matkhau,
 				user.mk
 			);
 			if (!isValidPassword)
-				return res.status(404).json("Sai mật khẩu");
+				throw new Error(
+					"Tài khoản hoặc mật khẩu không đúng"
+				);
+
 			if (user && isValidPassword) {
 				const accessToken = sign(user.dataValues);
 				return res
@@ -33,7 +37,7 @@ class AuthController {
 	}
 	async xacthucnguoidung(req, res) {
 		try {
-			delete req.currentUser.password;
+			delete req.currentUser.mk;
 			res.send(req.currentUser);
 		} catch (error) {
 			console.log(error);
