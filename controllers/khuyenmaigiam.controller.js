@@ -1,4 +1,5 @@
 const KhuyenMaiGiamModel = require("~/models/khuyenmaigiam.model");
+const LoaiHangModel = require("~/models/loaihang.model");
 
 class KhuyenmaigiamController {
 	/**
@@ -32,11 +33,20 @@ class KhuyenmaigiamController {
 				where.malh = req.query.malh;
 			}
 
-			const kmg = await KhuyenMaiGiamModel.findAll({
-				where,
-			});
+			const kmg = (
+				await KhuyenMaiGiamModel.findAll({
+					where,
+					include: LoaiHangModel,
+				})
+			).map((e) => e.toJSON());
 
-			res.send(kmg.map((e) => e.toJSON()));
+			for (const km of kmg) {
+				km.lh = km.loaihang;
+				delete km.loaihang;
+				delete km.malh;
+			}
+
+			res.send(kmg);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -56,6 +66,7 @@ class KhuyenmaigiamController {
 			const km = await KhuyenMaiGiamModel.findOne({
 				where: { ma },
 			});
+
 			if (!km) {
 				throw new Error(
 					"Mã khuyến mãi không tồn tại"
