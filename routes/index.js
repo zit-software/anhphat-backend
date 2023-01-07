@@ -34,7 +34,7 @@ router.use(
 	require("./quycach.route")
 );
 router.use(
-	"/nhaphanphoi",
+	"/npp",
 	AuthMiddleware,
 	AdminMiddleware,
 	require("./nhaphanphoi.route")
