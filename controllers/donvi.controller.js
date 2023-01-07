@@ -1,3 +1,6 @@
+const DonViModel = require("~/models/donvi.model");
+const LoaiHangModel = require("~/models/loaihang.model");
+
 class DonViController {
 	/**
 	 *
@@ -6,7 +9,18 @@ class DonViController {
 	 */
 	async taodonvi(req, res) {
 		try {
-			return res.status(200);
+			const newDonVi = await DonViModel.create(
+				req.body
+			);
+			const loaiHang = await LoaiHangModel.findOne({
+				where: { ma: req.body.malh },
+			});
+			const result = {
+				ma: newDonVi.dataValues.ma,
+				ten: newDonVi.dataValues.ten,
+				lh: loaiHang.dataValues,
+			};
+			return res.status(200).json(result);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -20,7 +34,10 @@ class DonViController {
 	 */
 	async xoatatcadonvi(req, res) {
 		try {
-			return res.status(200);
+			await DonViModel.destroy({ where: {} });
+			return res
+				.status(200)
+				.json("Đã xóa tất cả đơn vị");
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
