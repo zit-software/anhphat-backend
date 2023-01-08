@@ -11,6 +11,20 @@ const LoaiHangModel = sequelize.define(
 			primaryKey: true,
 			allowNull: false,
 		},
+		gianhap: {
+			type: DataTypes.BIGINT,
+			allowNull: false,
+			validate: {
+				min: 0,
+			},
+		},
+		giaban: {
+			type: DataTypes.BIGINT,
+			allowNull: false,
+			validate: {
+				min: 0,
+			},
+		},
 		ten: {
 			type: DataTypes.TEXT,
 			allowNull: false,
