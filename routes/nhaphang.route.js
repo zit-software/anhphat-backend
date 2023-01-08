@@ -5,6 +5,7 @@ const {
 	xoaphieunhap,
 	laymotphieunhap,
 	chinhsuaphieunhap,
+	themsanpham,
 } = require("~/controllers/nhaphang.controller");
 
 const router = Router();
@@ -13,6 +14,8 @@ router
 	.route("/phieunhap")
 	.post(taophieunhap)
 	.get(laytatcaphieunhap);
+
+router.post("/phieunhap/themsp", themsanpham);
 
 router
 	.route("/phieunhap/:ma")

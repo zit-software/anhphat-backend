@@ -17,6 +17,7 @@ require("~/models/quycach.model");
 require("~/models/mathang.model");
 require("~/models/phieunhap.model");
 require("~/models/nhaphanphoi.model");
+require("~/models/chitietphieunhap.model");
 async function startServer() {
 	/**
 	 * Get port from environment and store in Express.
