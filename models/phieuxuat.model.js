@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 
 const sequelize = require("~/services/sequelize.service");
 const KhuyenMaiGiamModel = require("./khuyenmaigiam.model");
+const KhuyenMaiTangModel = require("./khuyenmaitang.model");
 const NhaPhanPhoiModel = require("./nhaphanphoi.model");
 const UserModel = require("./user.model");
 
@@ -45,16 +46,25 @@ PhieuXuatModel.belongsTo(UserModel, {
 		name: "mauser",
 		allowNull: false,
 	},
+	as: "nguoinhap",
 });
 PhieuXuatModel.belongsTo(NhaPhanPhoiModel, {
 	foreignKey: {
 		name: "manpp",
 		allowNull: false,
 	},
+	as: "npp",
 });
 PhieuXuatModel.belongsTo(KhuyenMaiGiamModel, {
 	foreignKey: {
 		name: "makmg",
 	},
+	as: "kmg",
+});
+PhieuXuatModel.belongsTo(KhuyenMaiTangModel, {
+	foreignKey: {
+		name: "makmt",
+	},
+	as: "kmt",
 });
 module.exports = PhieuXuatModel;

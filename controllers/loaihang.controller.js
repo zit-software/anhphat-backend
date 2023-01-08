@@ -8,10 +8,9 @@ class LoaiHangController {
 	 */
 	async themloaihang(req, res) {
 		try {
-			const ten = req.body.ten;
-			const newLoaiHang = await LoaiHangModel.create({
-				ten,
-			});
+			const newLoaiHang = await LoaiHangModel.create(
+				req.body
+			);
 			return res.status(200).json(newLoaiHang);
 		} catch (error) {
 			res.status(400).send({

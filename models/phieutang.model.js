@@ -23,12 +23,7 @@ const PhieuTangModel = sequelize.define(
 	},
 	{ timestamps: true }
 );
-PhieuTangModel.belongsTo(KhuyenMaiTangModel, {
-	foreignKey: {
-		name: "makmt",
-		allowNull: false,
-	},
-});
+
 PhieuTangModel.belongsTo(PhieuXuatModel, {
 	foreignKey: {
 		name: "maphieuxuat",

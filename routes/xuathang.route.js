@@ -10,13 +10,18 @@ const {
 } = require("~/controllers/xuathang.controller");
 const router = Router();
 
-router.route("/").get(laytatcaphieuxuat).post(taophieuxuat);
 router
-	.route("/:ma")
+	.route("/phieuxuat")
+	.get(laytatcaphieuxuat)
+	.post(taophieuxuat);
+router
+	.route("/phieuxuat/:ma")
 	.put(suaphieuxuat)
 	.delete(xoaphieuxuat)
 	.get(layphieuxuat);
-router.route("/:ma/loaihang").post(themloaihangvaophieu);
-router.route("/:ma/luu").get(luuphieuxuat);
+router
+	.route("/phieuxuat/:ma/loaihang")
+	.post(themloaihangvaophieu);
+router.route("/phieuxuat/:ma/luu").get(luuphieuxuat);
 
 module.exports = router;
