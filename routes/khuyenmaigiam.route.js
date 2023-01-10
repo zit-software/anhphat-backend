@@ -8,8 +8,8 @@ const {
 
 const router = Router();
 
-router.route("/").post(taokhuyenmai).get(laytatca);
-
 router.route("/:ma").put(chinhsua).delete(xoa);
+
+router.route("/").post(taokhuyenmai).get(laytatca);
 
 module.exports = router;

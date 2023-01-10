@@ -1,3 +1,5 @@
+const LoaiHangModel = require("~/models/loaihang.model");
+
 class LoaiHangController {
 	/**
 	 *
@@ -6,7 +8,10 @@ class LoaiHangController {
 	 */
 	async themloaihang(req, res) {
 		try {
-			return res.status(200);
+			const newLoaiHang = await LoaiHangModel.create(
+				req.body
+			);
+			return res.status(200).json(newLoaiHang);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -21,7 +26,9 @@ class LoaiHangController {
 	 */
 	async laytatcaloaihang(req, res) {
 		try {
-			return res.status(200);
+			const allLoaiHang =
+				await LoaiHangModel.findAll();
+			return res.status(200).json(allLoaiHang);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -35,7 +42,10 @@ class LoaiHangController {
 	 */
 	async xoatatcaloaihang(req, res) {
 		try {
-			return res.status(200);
+			await LoaiHangModel.destroy({ where: {} });
+			return res.status(200).json({
+				message: "Đã Xóa Tất Cả Loại Hàng",
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -51,8 +61,10 @@ class LoaiHangController {
 	async layloaihang(req, res) {
 		try {
 			const ma = req.params.ma;
-
-			return res.status(200);
+			const loaiHang = await LoaiHangModel.findOne({
+				where: { ma },
+			});
+			return res.status(200).json(loaiHang);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -67,8 +79,21 @@ class LoaiHangController {
 	async sualoaihang(req, res) {
 		try {
 			const ma = req.params.ma;
-
-			return res.status(200);
+			const currentLoaiHang =
+				await LoaiHangModel.findOne({
+					where: { ma },
+				});
+			if (!currentLoaiHang)
+				throw new Error(
+					"Không tồn tại mã loại hàng"
+				);
+			const newLoaiHang = req.body;
+			await LoaiHangModel.update(newLoaiHang, {
+				where: { ma },
+			});
+			return res
+				.status(200)
+				.json({ message: "Cập nhật thành công" });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -83,8 +108,18 @@ class LoaiHangController {
 	async xoaloaihang(req, res) {
 		try {
 			const ma = req.params.ma;
-
-			return res.status(200);
+			const currentLoaiHang =
+				await LoaiHangModel.findOne({
+					where: { ma },
+				});
+			if (!currentLoaiHang)
+				throw new Error(
+					"Không tồn tại mã loại hàng"
+				);
+			await LoaiHangModel.destroy({ where: { ma } });
+			return res.status(200).json({
+				message: "Xóa Thành Công",
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
