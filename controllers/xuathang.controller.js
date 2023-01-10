@@ -109,7 +109,55 @@ class XuatHangController {
 	 */
 	async laytatcaphieuxuat(req, res) {
 		try {
-			return res.status(200);
+			let allPhieuXuat = await PhieuXuatModel.findAll(
+				{
+					attributes: {
+						exclude: [
+							"createdAt",
+							"updatedAt",
+							"manpp",
+							"mauser",
+							"makmg",
+						],
+					},
+					include: [
+						{
+							model: NhaPhanPhoiModel,
+							attributes: {
+								exclude: [
+									"updatedAt",
+									"createdAt",
+								],
+							},
+							as: "npp",
+						},
+						{
+							model: UserModel,
+							attributes: ["ma", "ten"],
+							as: "nguoinhap",
+						},
+						{
+							model: KhuyenMaiGiamModel,
+							attributes: ["ma"],
+							as: "kmg",
+							include: {
+								model: LoaiHangModel,
+								attributes: ["ma", "ten"],
+							},
+						},
+						{
+							model: KhuyenMaiTangModel,
+							attributes: ["ma"],
+							as: "kmt",
+							include: {
+								model: LoaiHangModel,
+								attributes: ["ma", "ten"],
+							},
+						},
+					],
+				}
+			);
+			return res.status(200).json(allPhieuXuat);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
