@@ -9,10 +9,13 @@ const {
 
 const router = Router();
 
-router.route("/").post(themtaikhoan).get(laytatcataikhoan);
+router
+	.route("/taikhoan")
+	.post(themtaikhoan)
+	.get(laytatcataikhoan);
 
 router
-	.route("/:ma")
+	.route("/taikhoan/:ma")
 	.get(laytaikhoan)
 	.put(suataikhoan)
 	.delete(xoataikhoan);
