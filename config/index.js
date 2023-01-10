@@ -10,6 +10,9 @@ const config = {
 	fontend: {
 		origin: process.env.FRONTEND_ORIGIN || "*",
 	},
+	security: {
+		jwtSecret: process.env.JWT_SECRET || "JWT_SECRET",
+	},
 };
 
 module.exports = config;

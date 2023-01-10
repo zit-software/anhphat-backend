@@ -51,12 +51,14 @@ PhieuNhapModel.belongsTo(UserModel, {
 		name: "mauser",
 		allowNull: false,
 	},
+	as: "nguoinhap",
 });
 PhieuNhapModel.belongsTo(NhaPhanPhoiModel, {
 	foreignKey: {
 		name: "manpp",
 		allowNull: false,
 	},
+	as: "npp",
 });
 
 module.exports = PhieuNhapModel;
