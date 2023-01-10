@@ -13,16 +13,19 @@ const ThongKeModel = sequelize.define(
 			primaryKey: true,
 			allowNull: false,
 		},
+		ngay: {
+			type: DataTypes.DATE,
+			allowNull: false,
+			defaultValue: new Date(),
+		},
 		thu: {
 			type: DataTypes.BIGINT,
-			allowNull: false,
 			validate: {
 				min: 0,
 			},
 		},
 		chi: {
 			type: DataTypes.BIGINT,
-			allowNull: false,
 			validate: {
 				min: 0,
 			},
@@ -41,13 +44,11 @@ const ThongKeModel = sequelize.define(
 ThongKeModel.belongsTo(PhieuNhapModel, {
 	foreignKey: {
 		name: "maphieunhap",
-		allowNull: false,
 	},
 });
 ThongKeModel.belongsTo(PhieuXuatModel, {
 	foreignKey: {
 		name: "maphieuxuat",
-		allowNull: false,
 	},
 });
 module.exports = ThongKeModel;

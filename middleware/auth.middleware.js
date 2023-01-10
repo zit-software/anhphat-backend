@@ -10,7 +10,6 @@ const TokenUtil = require("~/utils/token.util");
 const AuthMiddleware = async (req, res, next) => {
 	try {
 		const authorization = req.headers.authorization;
-
 		if (!authorization) {
 			throw new Error("Access token is required");
 		}
@@ -25,11 +24,15 @@ const AuthMiddleware = async (req, res, next) => {
 
 		const userDecoded = TokenUtil.decode(accessToken);
 
-		const user = UserModel.findOne({
+		if (!userDecoded) {
+			throw new Error("Access token is invalid");
+		}
+
+		const user = await UserModel.findOne({
 			where: { ma: userDecoded.ma },
 		});
 
-		req.currentUser = user;
+		req.currentUser = user.toJSON();
 
 		next();
 	} catch (error) {

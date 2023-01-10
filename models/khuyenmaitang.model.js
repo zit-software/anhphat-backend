@@ -1,5 +1,5 @@
 const sequelize = require("~/services/sequelize.service");
-const { DataTypes, Op } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const LoaiHangModel = require("./loaihang.model");
 
 const KhuyenMaiTangModel = sequelize.define(
@@ -38,7 +38,10 @@ const KhuyenMaiTangModel = sequelize.define(
 			defaultValue: new Date(),
 			validate: {
 				lonHonNgayBatDau(value) {
-					if (Op.gte(value, this.ngaynhap)) {
+					if (
+						new Date(value) <
+						new Date(this.ngaybd)
+					) {
 						throw new Error(
 							"Ngày kết thúc không được sớm hơn ngày bắt đầu"
 						);
