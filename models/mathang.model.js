@@ -1,4 +1,4 @@
-const { DataTypes, Op } = require("sequelize");
+const { DataTypes } = require("sequelize");
 
 const sequelize = require("~/services/sequelize.service");
 const DonViModel = require("./donvi.model");
@@ -23,7 +23,7 @@ const MatHangModel = sequelize.define(
 			allowNull: false,
 			validate: {
 				lonHonNgayNhap(value) {
-					if (Op.gte(value, this.ngaynhap)) {
+					if (value <= this.ngaynhap) {
 						throw new Error(
 							"Hạn sử dụng không được sớm hơn ngày nhập"
 						);

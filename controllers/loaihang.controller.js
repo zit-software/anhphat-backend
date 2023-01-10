@@ -8,10 +8,9 @@ class LoaiHangController {
 	 */
 	async themloaihang(req, res) {
 		try {
-			const ten = req.body.ten;
-			const newLoaiHang = await LoaiHangModel.create({
-				ten,
-			});
+			const newLoaiHang = await LoaiHangModel.create(
+				req.body
+			);
 			return res.status(200).json(newLoaiHang);
 		} catch (error) {
 			res.status(400).send({
@@ -118,7 +117,9 @@ class LoaiHangController {
 					"Không tồn tại mã loại hàng"
 				);
 			await LoaiHangModel.destroy({ where: { ma } });
-			return res.status(200).json("Xóa thành công");
+			return res.status(200).json({
+				message: "Xóa Thành Công",
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
