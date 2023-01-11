@@ -69,6 +69,16 @@ class ThongkeController {
 						},
 					},
 				});
+			const tongThu = allThongKeThu.reduce(
+				(total, chitiet) =>
+					total + chitiet.dataValues.thu,
+				0
+			);
+			const tongChi = allThongKeChi.reduce(
+				(total, chitiet) =>
+					total + chitiet.dataValues.chi,
+				0
+			);
 			return res.status(200).json({
 				chitietnhap: allThongKeChi.map((thongke) =>
 					thongke.toJSON()
@@ -76,6 +86,10 @@ class ThongkeController {
 				chitietxuat: allThongKeThu.map((thongke) =>
 					thongke.toJSON()
 				),
+				thongke: {
+					thu: tongThu,
+					chi: tongChi,
+				},
 			});
 		} catch (error) {
 			res.status(400).send({
