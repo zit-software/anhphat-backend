@@ -130,6 +130,10 @@ class QuantriController {
 				throw new Error(
 					"Tài khoản này không tồn lại"
 				);
+			if (existingUser.dataValues.isAdmin)
+				throw new Error(
+					"Bạn không được phép xóa tài khoản admin"
+				);
 
 			await UserModel.destroy({ where: { ma } });
 			return res
