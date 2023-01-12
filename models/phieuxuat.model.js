@@ -38,6 +38,10 @@ const PhieuXuatModel = sequelize.define(
 			type: DataTypes.DATE,
 			defaultValue: null,
 		},
+		daluu: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+		},
 	},
 	{ timestamps: true }
 );

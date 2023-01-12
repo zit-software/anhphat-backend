@@ -5,7 +5,6 @@ const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 const PhieuNhapModel = require("~/models/phieunhap.model");
 const UserModel = require("~/models/user.model");
-const sequelize = require("~/services/sequelize.service");
 
 class NhaphangController {
 	/**
@@ -93,6 +92,10 @@ class NhaphangController {
 			// Kiểm tra phiếu nhập tồn tại không
 			if (!phieunhap)
 				throw new Error("Không tồn tại phiếu nhập");
+			if (phieunhap.dataValues.daluu)
+				throw new Error(
+					"Không thể thêm sản phẩm vào phiếu đã lưu"
+				);
 
 			// Tạo các mặt hàng vào kho
 			const matHangDaTao = [];
@@ -282,6 +285,22 @@ class NhaphangController {
 			});
 			return res.status(200).json({
 				message: "Sửa phiếu nhập thành công",
+			});
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	async luuphieunhap(req, res) {
+		try {
+			const ma = req.params.ma;
+			await PhieuNhapModel.update(
+				{ daluu: true },
+				{ where: { ma } }
+			);
+			return res.status(200).json({
+				message: "Phiếu đã được lưu",
 			});
 		} catch (error) {
 			res.status(400).send({
