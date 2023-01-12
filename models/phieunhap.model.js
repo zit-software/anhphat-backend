@@ -56,7 +56,6 @@ PhieuNhapModel.belongsTo(UserModel, {
 PhieuNhapModel.belongsTo(NhaPhanPhoiModel, {
 	foreignKey: {
 		name: "manpp",
-		allowNull: false,
 	},
 	as: "npp",
 });

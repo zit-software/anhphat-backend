@@ -15,26 +15,29 @@ class NhaphangController {
 	 */
 	async taophieunhap(req, res) {
 		try {
+			const user = req.currentUser;
 			const phieunhap = await PhieuNhapModel.create({
 				...req.body,
+				mauser: user.ma,
 				tongsl: 1,
 				tongtien: 0,
 			});
-			const nguoilap = await UserModel.findOne({
-				where: { ma: req.body.mauser },
-				attributes: ["ma", "ten"],
-			});
-			const nhapp = await NhaPhanPhoiModel.findOne({
-				where: { ma: req.body.manpp },
-				attributes: ["ma", "ten", "chietkhau"],
-			});
+			let nhapp = {};
+			if (req.body.manpp) {
+				nhapp = await NhaPhanPhoiModel.findOne({
+					where: { ma: req.body.manpp },
+					attributes: ["ma", "ten", "chietkhau"],
+				});
+				nhapp = nhapp.toJSON();
+			}
+
 			const result = {
 				ma: phieunhap.dataValues.ma,
 				nguon: phieunhap.dataValues.nguon,
 				ngaynhap: phieunhap.dataValues.ngaynhap,
 				nguoigiao: phieunhap.dataValues.nguoigiao,
-				nguoilap: nguoilap.dataValues,
-				manpp: nhapp.dataValues,
+				nguoilap: { ma: user.ma, ten: user.ten },
+				npp: nhapp,
 			};
 			return res.status(200).json(result);
 		} catch (error) {
