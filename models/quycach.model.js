@@ -6,6 +6,12 @@ const DonViModel = require("./donvi.model");
 const QuyCachModel = sequelize.define(
 	"quycach",
 	{
+		ma: {
+			type: DataTypes.INTEGER,
+			autoIncrement: true,
+			primaryKey: true,
+			allowNull: false,
+		},
 		soluong: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
