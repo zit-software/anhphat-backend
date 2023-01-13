@@ -162,8 +162,15 @@ class NhaphangController {
 	 */
 	async laytatcaphieunhap(req, res) {
 		try {
+			const limit = parseInt(req.query.limit || 10);
+			const offset =
+				limit * parseInt(req.query.page || 0);
+
 			const allphieunhap =
 				await PhieuNhapModel.findAll({
+					limit,
+					offset,
+					order: [["updatedAt", "desc"]],
 					attributes: {
 						exclude: [
 							"xoavao",
@@ -204,7 +211,12 @@ class NhaphangController {
 					),
 				});
 			}
-			return res.status(200).json(result);
+
+			const total = await PhieuNhapModel.count({});
+
+			return res
+				.status(200)
+				.json({ data: result, total });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
