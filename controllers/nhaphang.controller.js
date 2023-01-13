@@ -89,12 +89,26 @@ class NhaphangController {
 				where: { ma: maphieunhap },
 			});
 
-			// Kiểm tra phiếu nhập tồn tại không
+			// Kiểm tra phiếu nhập
 			if (!phieunhap)
 				throw new Error("Không tồn tại phiếu nhập");
 			if (phieunhap.dataValues.daluu)
 				throw new Error(
 					"Không thể thêm sản phẩm vào phiếu đã lưu"
+				);
+
+			// Lấy dữ liệu loại hàng và đơn vị để trả về
+			const loaiHang = await LoaiHangModel.findOne({
+				attributes: ["ma", "ten"],
+				where: { ma: malh },
+			});
+			const donvi = await DonViModel.findOne({
+				attributes: ["ma", "ten"],
+				where: { ma: madv, malh },
+			});
+			if (!donvi || !loaiHang)
+				throw new Error(
+					"Kiểm tra lại mã đơn vị và mã loại hàng"
 				);
 
 			// Tạo các mặt hàng vào kho
@@ -131,16 +145,6 @@ class NhaphangController {
 					mamathang: chitietNhap.mamathang,
 				});
 			}
-
-			// Lấy dữ liệu loại hàng và đơn vị trả về
-			const loaiHang = await LoaiHangModel.findOne({
-				attributes: ["ma", "ten"],
-				where: { ma: malh },
-			});
-			const donvi = await DonViModel.findOne({
-				attributes: ["ma", "ten"],
-				where: { ma: madv, malh },
-			});
 
 			const result = {
 				maphieunhap,
