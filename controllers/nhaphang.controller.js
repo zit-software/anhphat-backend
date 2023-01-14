@@ -174,7 +174,7 @@ class NhaphangController {
 			const offset =
 				limit * parseInt(req.query.page || 0);
 
-			const daluu = !!req.query.daluu;
+			const daluu = !!JSON.parse(req.query.daluu);
 
 			const allphieunhap =
 				await PhieuNhapModel.findAll({
