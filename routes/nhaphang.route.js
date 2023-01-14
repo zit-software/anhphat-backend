@@ -6,6 +6,7 @@ const {
 	laymotphieunhap,
 	chinhsuaphieunhap,
 	themsanpham,
+	luuphieunhap,
 } = require("~/controllers/nhaphang.controller");
 
 const router = Router();
@@ -22,5 +23,7 @@ router
 	.delete(xoaphieunhap)
 	.get(laymotphieunhap)
 	.put(chinhsuaphieunhap);
+
+router.route("/phieunhap/:ma/luu").put(luuphieunhap);
 
 module.exports = router;
