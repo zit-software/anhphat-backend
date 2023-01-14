@@ -5,6 +5,7 @@ const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 const PhieuNhapModel = require("~/models/phieunhap.model");
 const UserModel = require("~/models/user.model");
+const sequelize = require("~/services/sequelize.service");
 
 class NhaphangController {
 	/**
@@ -265,16 +266,46 @@ class NhaphangController {
 				throw new Error("Phiếu nhập không tồn tại");
 			const allChiTiet =
 				await ChiTietPhieuNhapModel.findAll({
+					attributes: [
+						"mathang.*",
+						[
+							sequelize.fn(
+								"COUNT",
+								"mathang.*"
+							),
+							"soluong",
+						],
+					],
 					where: {
 						maphieunhap:
 							phieunhap.dataValues.ma,
 					},
+					include: [
+						{
+							foreignKey: "mamathang",
+							model: MatHangModel,
+							as: "mathang",
+							include: [
+								{
+									model: LoaiHangModel,
+								},
+								{
+									model: DonViModel,
+								},
+							],
+						},
+					],
+					group: [
+						"mathang.loaihang.ma",
+						"mathang.madv",
+					],
 				});
+
 			return res.status(200).json({
 				...phieunhap.toJSON(),
-				chitiet: allChiTiet.map((chitiet) =>
-					chitiet.toJSON()
-				),
+				chitiet: allChiTiet.map((chitiet) => {
+					return chitiet.toJSON();
+				}),
 			});
 		} catch (error) {
 			res.status(400).send({
