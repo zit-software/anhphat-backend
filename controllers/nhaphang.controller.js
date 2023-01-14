@@ -5,7 +5,6 @@ const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 const PhieuNhapModel = require("~/models/phieunhap.model");
 const UserModel = require("~/models/user.model");
-const sequelize = require("~/services/sequelize.service");
 
 class NhaphangController {
 	/**
@@ -90,9 +89,27 @@ class NhaphangController {
 				where: { ma: maphieunhap },
 			});
 
-			// Kiểm tra phiếu nhập tồn tại không
+			// Kiểm tra phiếu nhập
 			if (!phieunhap)
 				throw new Error("Không tồn tại phiếu nhập");
+			if (phieunhap.dataValues.daluu)
+				throw new Error(
+					"Không thể thêm sản phẩm vào phiếu đã lưu"
+				);
+
+			// Lấy dữ liệu loại hàng và đơn vị để trả về
+			const loaiHang = await LoaiHangModel.findOne({
+				attributes: ["ma", "ten"],
+				where: { ma: malh },
+			});
+			const donvi = await DonViModel.findOne({
+				attributes: ["ma", "ten"],
+				where: { ma: madv, malh },
+			});
+			if (!donvi || !loaiHang)
+				throw new Error(
+					"Kiểm tra lại mã đơn vị và mã loại hàng"
+				);
 
 			// Tạo các mặt hàng vào kho
 			const matHangDaTao = [];
@@ -128,16 +145,6 @@ class NhaphangController {
 					mamathang: chitietNhap.mamathang,
 				});
 			}
-
-			// Lấy dữ liệu loại hàng và đơn vị trả về
-			const loaiHang = await LoaiHangModel.findOne({
-				attributes: ["ma", "ten"],
-				where: { ma: malh },
-			});
-			const donvi = await DonViModel.findOne({
-				attributes: ["ma", "ten"],
-				where: { ma: madv, malh },
-			});
 
 			const result = {
 				maphieunhap,
@@ -294,6 +301,22 @@ class NhaphangController {
 			});
 			return res.status(200).json({
 				message: "Sửa phiếu nhập thành công",
+			});
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	async luuphieunhap(req, res) {
+		try {
+			const ma = req.params.ma;
+			await PhieuNhapModel.update(
+				{ daluu: true },
+				{ where: { ma } }
+			);
+			return res.status(200).json({
+				message: "Phiếu đã được lưu",
 			});
 		} catch (error) {
 			res.status(400).send({
