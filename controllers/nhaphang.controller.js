@@ -174,6 +174,8 @@ class NhaphangController {
 			const offset =
 				limit * parseInt(req.query.page || 0);
 
+			const daluu = req.query.daluu || false;
+
 			const allphieunhap =
 				await PhieuNhapModel.findAll({
 					limit,
@@ -202,6 +204,7 @@ class NhaphangController {
 							as: "npp",
 						},
 					],
+					where: { daluu },
 				});
 			const result = [];
 			for (let phieunhap of allphieunhap) {
