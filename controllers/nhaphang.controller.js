@@ -223,7 +223,9 @@ class NhaphangController {
 				});
 			}
 
-			const total = await PhieuNhapModel.count({});
+			const total = await PhieuNhapModel.count({
+				where: { daluu },
+			});
 
 			return res
 				.status(200)
