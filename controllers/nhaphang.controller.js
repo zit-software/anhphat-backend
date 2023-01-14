@@ -270,7 +270,6 @@ class NhaphangController {
 			const allChiTiet =
 				await ChiTietPhieuNhapModel.findAll({
 					attributes: [
-						"mathang.*",
 						[
 							sequelize.fn(
 								"COUNT",
@@ -301,6 +300,7 @@ class NhaphangController {
 					group: [
 						"mathang.loaihang.ma",
 						"mathang.madv",
+						"mathang.hsd",
 					],
 				});
 
