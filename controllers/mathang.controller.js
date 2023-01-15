@@ -50,7 +50,7 @@ class MathangController {
 
 			const limit = req.query.page ? 10 : null;
 			const offset = limit
-				? limit * (req.query.page - 1)
+				? limit * req.query.page
 				: 0;
 
 			// Lấy tất cả mặt hàng
