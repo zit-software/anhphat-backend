@@ -243,7 +243,9 @@ class NhaphangController {
 				});
 			}
 
-			const total = await PhieuNhapModel.count({});
+			const total = await PhieuNhapModel.count({
+				where: { daluu },
+			});
 
 			return res
 				.status(200)
@@ -290,7 +292,6 @@ class NhaphangController {
 			const allChiTiet =
 				await ChiTietPhieuNhapModel.findAll({
 					attributes: [
-						"mathang.*",
 						[
 							sequelize.fn(
 								"COUNT",
