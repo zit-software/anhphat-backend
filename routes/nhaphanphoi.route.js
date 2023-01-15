@@ -15,5 +15,4 @@ router
 	.get(laymotnpp)
 	.put(suamotnpp)
 	.delete(xoamotnpp);
-
 module.exports = router;

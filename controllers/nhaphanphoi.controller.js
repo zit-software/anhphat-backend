@@ -10,10 +10,14 @@ class NhaPhanPhoiControler {
 		try {
 			const ten = req.body.ten;
 			const chietkhau = req.body.chietkhau;
+			const sdt = req.body.sdt || null;
+			const tinh = req.body.tinh;
 
 			const newNpp = await NhaPhanPhoiModel.create({
 				ten,
 				chietkhau,
+				sdt,
+				tinh,
 			});
 
 			return res.send({
@@ -33,8 +37,11 @@ class NhaPhanPhoiControler {
 	async laytatcanpp(req, res) {
 		try {
 			const allNpp = await NhaPhanPhoiModel.findAll();
-
-			res.send(allNpp.map((e) => e.toJSON()));
+			const total = NhaPhanPhoiModel.count({});
+			return res.status(200).json({
+				data: allNpp.map((npp) => npp.toJSON()),
+				total,
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,

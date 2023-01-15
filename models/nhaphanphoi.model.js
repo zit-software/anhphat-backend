@@ -15,6 +15,10 @@ const NhaPhanPhoiModel = sequelize.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 		},
+		sdt: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+		},
 		chietkhau: {
 			type: DataTypes.FLOAT,
 			validate: {
@@ -23,8 +27,26 @@ const NhaPhanPhoiModel = sequelize.define(
 			},
 			defaultValue: 0,
 		},
+		tinh: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			validate: {
+				min: 0,
+				max: 97,
+			},
+		},
+		diem: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			validate: { min: 0 },
+			defaultValue: 0,
+		},
 	},
-	{ timestamps: true }
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	}
 );
 
 module.exports = NhaPhanPhoiModel;
