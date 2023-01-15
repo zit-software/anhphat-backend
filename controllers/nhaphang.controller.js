@@ -244,7 +244,7 @@ class NhaphangController {
 			}
 
 			const total = await PhieuNhapModel.count({
-				where: { daluu },
+				where: { daluu, xoavao },
 			});
 
 			return res
