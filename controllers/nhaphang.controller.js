@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const ChiTietPhieuNhapModel = require("~/models/chitietphieunhap.model");
 const DonViModel = require("~/models/donvi.model");
 const LoaiHangModel = require("~/models/loaihang.model");
@@ -55,12 +56,30 @@ class NhaphangController {
 	async xoaphieunhap(req, res) {
 		try {
 			const ma = req.params.ma;
-			// lấy ngày hiện tại và lưu vào ngày xóa
+			// Thực hiện xóa mềm phiếu nhập
 			const date = new Date();
 			await PhieuNhapModel.update(
 				{ xoavao: date },
 				{ where: { ma } }
 			);
+			// Thực hiện xóa mềm các chi tiết phiếu nhập
+			await ChiTietPhieuNhapModel.destroy({
+				where: { maphieunhap: ma },
+			});
+			const allChiTiet =
+				await ChiTietPhieuNhapModel.findAll({
+					where: {
+						maphieunhap: ma,
+					},
+				});
+			console.log(allChiTiet);
+			// Thực hiện xóa mềm các mặt hàng
+			for (let chitiet of allChiTiet) {
+				chitiet = chitiet.toJSON();
+				await MatHangModel.destroy({
+					where: { ma: chitiet.mamathang },
+				});
+			}
 			return res.status(200).json({
 				message: "Xóa thành công",
 			});
@@ -175,6 +194,7 @@ class NhaphangController {
 				limit * parseInt(req.query.page || 0);
 
 			const daluu = !!JSON.parse(req.query.daluu);
+			const xoavao = req.query.xoavao || null;
 
 			const allphieunhap =
 				await PhieuNhapModel.findAll({
@@ -204,7 +224,7 @@ class NhaphangController {
 							as: "npp",
 						},
 					],
-					where: { daluu },
+					where: { daluu, xoavao },
 				});
 			const result = [];
 			for (let phieunhap of allphieunhap) {
@@ -278,6 +298,7 @@ class NhaphangController {
 							),
 							"soluong",
 						],
+						"mathang.hsd",
 					],
 					where: {
 						maphieunhap:
@@ -301,6 +322,7 @@ class NhaphangController {
 					group: [
 						"mathang.loaihang.ma",
 						"mathang.madv",
+						"mathang.hsd",
 					],
 				});
 
