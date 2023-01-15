@@ -12,4 +12,7 @@ const sequelize = new Sequelize(
 	}
 );
 
+// Chạy câu lệnh này với mysql
+// "SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"
+
 module.exports = sequelize;

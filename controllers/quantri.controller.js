@@ -104,6 +104,7 @@ class QuantriController {
 					"laAdmin",
 					"createdAt",
 					"updatedAt",
+					"sdt",
 				],
 			});
 			return res.status(200).json(allUsers);
