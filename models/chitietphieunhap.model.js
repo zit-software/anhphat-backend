@@ -5,7 +5,11 @@ const PhieuNhapModel = require("./phieunhap.model");
 const ChiTietPhieuNhapModel = sequelize.define(
 	"ChiTietPhieuNhap",
 	{},
-	{ timestamps: true }
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	}
 );
 ChiTietPhieuNhapModel.belongsTo(PhieuNhapModel, {
 	foreignKey: {

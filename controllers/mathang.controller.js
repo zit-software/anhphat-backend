@@ -31,7 +31,8 @@ class MathangController {
 			const ngaynhapQuery = req.query.ngaynhap;
 			const orderQuery = req.query.order;
 			const where = {
-				daxuat: { [Op.ne]: null },
+				daxuat: false,
+				xoavao: { [Op.eq]: null },
 			};
 			if (loaihangQuery) where.malh = loaihangQuery;
 			if (donviQuery) where.madv = donviQuery;
@@ -47,7 +48,7 @@ class MathangController {
 			else if (orderQuery == "soluong")
 				order.push([orderQuery, "ASC"]);
 
-			const limit = req.query.page ? 2 : null;
+			const limit = req.query.page ? 10 : null;
 			const offset = limit
 				? limit * (req.query.page - 1)
 				: 0;
@@ -94,6 +95,7 @@ class MathangController {
 				limit,
 				offset,
 			});
+			console.log(allMH);
 			const total = await MatHangModel.count({
 				where,
 				group: [

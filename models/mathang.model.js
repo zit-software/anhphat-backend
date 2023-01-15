@@ -50,7 +50,11 @@ const MatHangModel = sequelize.define(
 			defaultValue: false,
 		},
 	},
-	{ timestamps: true }
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	}
 );
 MatHangModel.belongsTo(LoaiHangModel, {
 	foreignKey: {
