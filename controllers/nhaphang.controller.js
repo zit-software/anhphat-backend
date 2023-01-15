@@ -72,7 +72,6 @@ class NhaphangController {
 						maphieunhap: ma,
 					},
 				});
-			console.log(allChiTiet);
 			// Thực hiện xóa mềm các mặt hàng
 			for (let chitiet of allChiTiet) {
 				chitiet = chitiet.toJSON();
