@@ -19,6 +19,9 @@ const UserModel = sequelize.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 		},
+		sdt: {
+			type: DataTypes.STRING,
+		},
 		laAdmin: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,

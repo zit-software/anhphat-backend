@@ -296,10 +296,7 @@ class XuatHangController {
 			const ma = +req.params.ma;
 
 			const mamh = req.body.mamh;
-			console.log({
-				maphieuxuat: ma,
-				mamathang: mamh,
-			});
+
 			const mathang = await MatHangModel.findOne({
 				where: { ma: mamh },
 				attributes: ["ma", "giaban"],
