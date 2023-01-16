@@ -1,3 +1,5 @@
+const ChiTietKMT = require("~/models/chitietkmt.model");
+const DonViModel = require("~/models/donvi.model");
 const KhuyenMaiTangModel = require("~/models/khuyenmaitang.model");
 const LoaiHangModel = require("~/models/loaihang.model");
 
@@ -7,11 +9,143 @@ class KhuyenmaitangController {
 	 * @param {Request} req
 	 * @param {Response} res
 	 */
+	async laymotkhuyenmai(req, res) {
+		try {
+			const ma = req.params.ma;
+			const kmt = await KhuyenMaiTangModel.findOne({
+				attributes: {
+					exclude: [
+						"createdAt",
+						"updatedAt",
+						"xoavao",
+					],
+				},
+				where: { ma },
+			}).then((kmt) => kmt.toJSON());
+			const allChiTiet = (
+				await ChiTietKMT.findAll({
+					attributes: [
+						"soluongmua",
+						"soluongtang",
+					],
+					where: { makmt: ma },
+					include: [
+						{
+							model: LoaiHangModel,
+							attributes: ["ma", "ten"],
+							as: "lh",
+						},
+						{
+							model: DonViModel,
+							attributes: ["ma", "ten"],
+							as: "dvmua",
+						},
+						{
+							model: DonViModel,
+							attributes: ["ma", "ten"],
+							as: "dvtang",
+						},
+					],
+				})
+			).map((chitiet) => chitiet.toJSON());
+			return res.status(200).json({
+				...kmt,
+				chitiet: allChiTiet,
+			});
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+
+	/**
+	 *
+	 * @param {Request} req
+	 * @param {Response} res
+	 */
 	async taokhuyenmai(req, res) {
 		try {
-			await KhuyenMaiTangModel.create(req.body);
-			res.send({
-				message: "Thêm khuyến mãi thành công",
+			const kmtData = req.body.kmt;
+			const chitietKMT = req.body.chitiet;
+			const newKMT = await KhuyenMaiTangModel.create(
+				kmtData
+			);
+			for (let chitiet of chitietKMT) {
+				await ChiTietKMT.create({
+					...chitiet,
+					makmt: newKMT.ma,
+				});
+			}
+			return res.status(200).json({
+				message: "Tạo khuyến mãi nhập thành công",
+			});
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+
+	/**
+	 *
+	 * @param {Request} req
+	 * @param {Response} res
+	 */
+	async themchitiet(req, res) {
+		try {
+			const makmt = req.params.ma;
+			const kmt = KhuyenMaiTangModel.findOne({
+				where: { ma: makmt },
+			});
+			if (!kmt)
+				throw new Error(
+					"Không tồn tại khuyến mãi tặng này"
+				);
+
+			const chitietKMT = req.body.chitiet;
+			for (let chitiet of chitietKMT) {
+				await ChiTietKMT.create({
+					...chitiet,
+					makmt,
+				});
+			}
+			return res.status(200).json({
+				message:
+					"Thêm các chi tiết khuyến mãi thành công",
+			});
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+
+	/**
+	 *
+	 * @param {Request} req
+	 * @param {Response} res
+	 */
+	async chinhsuachitiet(req, res) {
+		try {
+			const makmt = req.params.ma;
+			const kmt = KhuyenMaiTangModel.findOne({
+				attributes: ["ma"],
+				where: { ma: makmt },
+			});
+			if (!kmt)
+				throw new Error(
+					"Không tồn tại khuyến mãi tặng này"
+				);
+
+			const chitietKMT = req.body.chitiet;
+			const malh = req.body.malh;
+			await ChiTietKMT.update(chitietKMT, {
+				where: { makmt, malh },
+			});
+			return res.status(200).json({
+				message:
+					"Cập nhật chi tiết khuyến mãi thành công",
 			});
 		} catch (error) {
 			res.status(400).send({
@@ -36,15 +170,8 @@ class KhuyenmaitangController {
 			const kmt = (
 				await KhuyenMaiTangModel.findAll({
 					where,
-					include: LoaiHangModel,
 				})
 			).map((e) => e.toJSON());
-
-			for (const km of kmt) {
-				km.lh = km.loaihang;
-				delete km.loaihang;
-				delete km.malh;
-			}
 
 			res.send(kmt);
 		} catch (error) {
@@ -108,6 +235,9 @@ class KhuyenmaitangController {
 
 			await KhuyenMaiTangModel.destroy({
 				where: { ma },
+			});
+			await ChiTietKMT.destroy({
+				where: { makmt: ma },
 			});
 
 			res.send({
