@@ -45,7 +45,11 @@ const KhuyenMaiGiamModel = sequelize.define(
 		},
 	},
 
-	{ timestamps: true }
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	}
 );
 
 KhuyenMaiGiamModel.belongsTo(LoaiHangModel, {

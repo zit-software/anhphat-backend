@@ -1,6 +1,5 @@
 const sequelize = require("~/services/sequelize.service");
 const { DataTypes } = require("sequelize");
-const LoaiHangModel = require("./loaihang.model");
 
 const KhuyenMaiTangModel = sequelize.define(
 	"khuyenmaitang",
@@ -14,20 +13,6 @@ const KhuyenMaiTangModel = sequelize.define(
 		ten: {
 			type: DataTypes.TEXT,
 			allowNull: false,
-		},
-		soluongmua: {
-			type: DataTypes.INTEGER,
-			validate: {
-				min: 0,
-			},
-			defaultValue: 0,
-		},
-		soluongtang: {
-			type: DataTypes.INTEGER,
-			validate: {
-				min: 1,
-			},
-			defaultValue: 1,
 		},
 		ngaybd: {
 			type: DataTypes.DATE,
@@ -51,14 +36,11 @@ const KhuyenMaiTangModel = sequelize.define(
 		},
 	},
 
-	{ timestamps: true }
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	}
 );
-
-KhuyenMaiTangModel.belongsTo(LoaiHangModel, {
-	foreignKey: {
-		name: "malh",
-		allowNull: false,
-	},
-});
 
 module.exports = KhuyenMaiTangModel;
