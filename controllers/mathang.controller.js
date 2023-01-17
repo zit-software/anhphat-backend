@@ -59,15 +59,9 @@ class MathangController {
 				include: [
 					{
 						model: LoaiHangModel,
-						attributes: [
-							"gianhap",
-							"giaban",
-							"ten",
-						],
 					},
 					{
 						model: DonViModel,
-						attributes: ["ma", "ten"],
 					},
 				],
 				order,

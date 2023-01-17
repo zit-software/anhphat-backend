@@ -56,20 +56,16 @@ class DonViController {
 			const malh = req.query.loaihang;
 			if (malh) {
 				const allDonVi = await DonViModel.findAll({
-					attributes: ["ma", "ten"],
 					include: {
 						model: LoaiHangModel,
-						attributes: ["ma", "ten"],
 					},
 					where: { malh },
 				});
 				return res.status(200).json(allDonVi);
 			}
 			const allDonVi = await DonViModel.findAll({
-				attributes: ["ma", "ten"],
 				include: {
 					model: LoaiHangModel,
-					attributes: ["ma", "ten"],
 				},
 			});
 			return res.status(200).json(allDonVi);
