@@ -55,27 +55,6 @@ class MathangController {
 
 			// Lấy tất cả mặt hàng
 			const allMH = await MatHangModel.findAll({
-				attributes: [
-					"ngaynhap",
-					"hsd",
-					"malh",
-					"madv",
-					"gianhap",
-					[
-						sequelize.fn(
-							"count",
-							sequelize.col("mathang.ma")
-						),
-						"soluong",
-					],
-				],
-				group: [
-					"ngaynhap",
-					"hsd",
-					"malh",
-					"madv",
-					"gianhap",
-				],
 				where,
 				include: [
 					{
@@ -95,20 +74,12 @@ class MathangController {
 				limit,
 				offset,
 			});
-			console.log(allMH);
 			const total = await MatHangModel.count({
 				where,
-				group: [
-					"ngaynhap",
-					"hsd",
-					"malh",
-					"madv",
-					"gianhap",
-				],
 			});
 			return res.status(200).json({
 				data: allMH.map((mh) => mh.toJSON()),
-				total: total.length,
+				total,
 			});
 		} catch (error) {
 			res.status(400).send({

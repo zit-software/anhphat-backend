@@ -84,7 +84,9 @@ class QuyCachController {
 					soluong: quycach.soluong,
 				});
 			}
-			return res.status(200).json(result);
+			return res
+				.status(200)
+				.json(result.filter((e) => e.lh));
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,

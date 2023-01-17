@@ -116,7 +116,10 @@ class LoaiHangController {
 				throw new Error(
 					"Không tồn tại mã loại hàng"
 				);
-			await LoaiHangModel.destroy({ where: { ma } });
+			await LoaiHangModel.update(
+				{ xoavao: new Date() },
+				{ where: { ma } }
+			);
 			return res.status(200).json({
 				message: "Xóa Thành Công",
 			});

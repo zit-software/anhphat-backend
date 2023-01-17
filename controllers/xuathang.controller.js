@@ -93,6 +93,7 @@ class XuatHangController {
 				npp,
 				kmg,
 				kmt,
+				ma: phieuxuat.ma,
 			};
 
 			return res.status(200).json(result);
@@ -109,6 +110,9 @@ class XuatHangController {
 	 */
 	async laytatcaphieuxuat(req, res) {
 		try {
+			const page = parseInt(req.query.page || 0);
+			const limit = parseInt(req.query.limit || 10);
+
 			let allPhieuXuat = await PhieuXuatModel.findAll(
 				{
 					attributes: {
@@ -145,19 +149,27 @@ class XuatHangController {
 								attributes: ["ma", "ten"],
 							},
 						},
-						{
-							model: KhuyenMaiTangModel,
-							attributes: ["ma"],
-							as: "kmt",
-							include: {
-								model: LoaiHangModel,
-								attributes: ["ma", "ten"],
-							},
-						},
+						// {
+						// 	model: KhuyenMaiTangModel,
+						// 	attributes: ["ma"],
+						// 	as: "kmt",
+						// 	include: {
+						// 		model: LoaiHangModel,
+						// 		attributes: ["ma", "ten"],
+						// 	},
+						// },
 					],
+					where: { xoavao: null },
+					limit,
+					offset: limit * page,
 				}
 			);
-			return res.status(200).json(allPhieuXuat);
+			return res.status(200).json({
+				data: allPhieuXuat,
+				total: await PhieuXuatModel.count({
+					where: { xoavao: null },
+				}),
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -261,10 +273,10 @@ class XuatHangController {
 						model: KhuyenMaiTangModel,
 						attributes: ["ma"],
 						as: "kmt",
-						include: {
-							model: LoaiHangModel,
-							attributes: ["ma", "ten"],
-						},
+						// include: {
+						// 	model: LoaiHangModel,
+						// 	attributes: ["ma", "ten"],
+						// },
 					},
 				],
 			});

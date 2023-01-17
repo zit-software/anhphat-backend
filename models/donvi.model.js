@@ -16,6 +16,20 @@ const DonViModel = sequelize.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 		},
+		gianhap: {
+			type: DataTypes.BIGINT,
+			allowNull: false,
+			validate: {
+				min: 0,
+			},
+		},
+		giaban: {
+			type: DataTypes.BIGINT,
+			allowNull: false,
+			validate: {
+				min: 0,
+			},
+		},
 	},
 	{ timestamps: true }
 );

@@ -19,6 +19,8 @@ class DonViController {
 				ma: newDonVi.dataValues.ma,
 				ten: newDonVi.dataValues.ten,
 				lh: loaiHang.dataValues,
+				gianhap: newDonVi.dataValues.gianhap,
+				giaban: newDonVi.dataValues.giaban,
 			};
 			return res.status(200).json(result);
 		} catch (error) {
