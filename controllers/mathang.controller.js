@@ -70,12 +70,13 @@ class MathangController {
 				group = [
 					"ngaynhap",
 					"hsd",
-					"malh",
+					"mathang.malh",
 					"madv",
-					"gianhap",
+					"donvi.gianhap",
 				];
 				attributes = [
-					"*",
+					"hsd",
+					"ngaynhap",
 					[
 						sequelize.fn(
 							"count",

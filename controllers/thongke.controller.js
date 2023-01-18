@@ -97,6 +97,20 @@ class ThongkeController {
 			});
 		}
 	}
+	async thongkeloaihangban() {
+		try {
+			// Thống kê số lượng bán theo từng loại hàng (ở đơn vị nhỏ nhất)
+		} catch (error) {
+			console.log(error);
+		}
+	}
+	async thongkeloaihangnhap() {
+		try {
+			// Thống kê số lượng nhập theo từng loại hàng (ở đơn vị nhỏ nhất)
+		} catch (error) {
+			console.log(error);
+		}
+	}
 }
 
 module.exports = new ThongkeController();

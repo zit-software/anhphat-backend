@@ -34,16 +34,16 @@ const PhieuXuatModel = sequelize.define(
 				min: 0,
 			},
 		},
-		xoavao: {
-			type: DataTypes.DATE,
-			defaultValue: null,
-		},
 		daluu: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,
 		},
 	},
-	{ timestamps: true }
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	}
 );
 PhieuXuatModel.belongsTo(UserModel, {
 	foreignKey: {

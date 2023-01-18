@@ -1,9 +1,11 @@
 const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
+const DonViModel = require("~/models/donvi.model");
 const KhuyenMaiGiamModel = require("~/models/khuyenmaigiam.model");
 const KhuyenMaiTangModel = require("~/models/khuyenmaitang.model");
 const LoaiHangModel = require("~/models/loaihang.model");
 const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
+const PhieuNhapModel = require("~/models/phieunhap.model");
 const PhieuXuatModel = require("~/models/phieuxuat.model");
 const UserModel = require("~/models/user.model");
 const sequelize = require("~/services/sequelize.service");
@@ -56,15 +58,6 @@ class XuatHangController {
 					where: { ma: makmt },
 					attributes: {
 						exclude: ["updatedAt", "createdAt"],
-					},
-					include: {
-						model: LoaiHangModel,
-						attributes: {
-							exclude: [
-								"updatedAt",
-								"createdAt",
-							],
-						},
 					},
 				});
 			}
@@ -149,15 +142,11 @@ class XuatHangController {
 								attributes: ["ma", "ten"],
 							},
 						},
-						// {
-						// 	model: KhuyenMaiTangModel,
-						// 	attributes: ["ma"],
-						// 	as: "kmt",
-						// 	include: {
-						// 		model: LoaiHangModel,
-						// 		attributes: ["ma", "ten"],
-						// 	},
-						// },
+						{
+							model: KhuyenMaiTangModel,
+							attributes: ["ma"],
+							as: "kmt",
+						},
 					],
 					where: { xoavao: null },
 					limit,
@@ -273,10 +262,6 @@ class XuatHangController {
 						model: KhuyenMaiTangModel,
 						attributes: ["ma"],
 						as: "kmt",
-						// include: {
-						// 	model: LoaiHangModel,
-						// 	attributes: ["ma", "ten"],
-						// },
 					},
 				],
 			});
@@ -387,6 +372,212 @@ class XuatHangController {
 		try {
 			const ma = req.params.ma;
 			return res.status(200);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	/**
+	 *
+	 * @param {Request} req
+	 * @param {Response} res
+	 */
+	async taophieuxuatAuto(req, res) {
+		const t = await sequelize.transaction();
+		try {
+			const ma = req.params.ma;
+
+			const madv = req.body.madv;
+			const malh = req.body.malh;
+			const soluong = req.body.soluong;
+
+			const allAvailables =
+				await MatHangModel.findAll({
+					where: { daxuat: false, madv, malh },
+					attributes: [
+						"ma",
+						"ngaynhap",
+						"hsd",
+						"mathang.malh",
+						"madv",
+						"donvi.gianhap",
+					],
+					include: [
+						{ model: DonViModel, as: "donvi" },
+					],
+					order: [["hsd", "ASC"]],
+				}).then((data) =>
+					data.map((e) => e.toJSON())
+				);
+			console.log(allAvailables);
+			if (allAvailables.length < soluong)
+				throw new Error({
+					message:
+						"Không đủ mặt hàng để lập phiếu",
+				});
+			const savedMH = [];
+			let tongtien = 0;
+			for (let mathang of allAvailables) {
+				savedMH.push(mathang);
+				tongtien += mathang.donvi.giaban;
+
+				await ChiTietPhieuXuatModel.create({
+					maphieuxuat: ma,
+					mamathang: mathang.ma,
+				});
+			}
+			await PhieuXuatModel.update(
+				{
+					tongsl: soluong,
+					tongtien,
+				},
+				{ where: { ma } }
+			);
+
+			const phieuxuat = await PhieuXuatModel.findOne({
+				where: { ma },
+				attributes: [
+					"ngayxuat",
+					"tongsl",
+					"tongtien",
+				],
+				include: [
+					{
+						model: NhaPhanPhoiModel,
+						attributes: [
+							"ma",
+							"ten",
+							"chietkhau",
+						],
+						as: "npp",
+					},
+					{
+						model: KhuyenMaiGiamModel,
+						attributes: ["tile", "malh"],
+						as: "kmg",
+					},
+					{
+						model: KhuyenMaiTangModel,
+						attributes: ["ma", "ten"],
+						as: "kmt",
+					},
+				],
+			}).then((data) => data.toJSON());
+			if (!phieuxuat)
+				throw new Error("Phiếu xuất không tồn tại");
+
+			await t.commit();
+			return res.status(200).json({
+				...phieuxuat,
+				chitiet: savedMH.map((mathang) => {
+					const giamgia = Math.max(
+						phieuxuat.npp.chietkhau,
+						phieuxuat.kmg.tile
+					);
+					return {
+						...mathang,
+						giamgia,
+						giathuc:
+							mathang.giaban -
+							giamgia * mathang.giaban,
+					};
+				}),
+			});
+		} catch (error) {
+			await t.rollback();
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	/**
+	 *
+	 * @param {Request} req
+	 * @param {Response} res
+	 */
+	async taophieuxuatManual(req, res) {
+		try {
+			// Ma phieu xuat
+			const ma = +req.params.ma;
+
+			let tongtien = 0;
+			const mathangArr = req.body.mh;
+			const savedMH = [];
+
+			for (let mamh of mathangArr) {
+				const mathang = await MatHangModel.findOne({
+					where: { ma: mamh },
+					attributes: ["ma", "giaban"],
+					include: {
+						model: LoaiHangModel,
+						attributes: ["ma", "ten"],
+					},
+				});
+				savedMH.push(mathang.toJSON());
+				tongtien += mathang.dataValues.giaban;
+
+				await ChiTietPhieuXuatModel.create({
+					maphieuxuat: ma,
+					mamathang: mamh,
+				});
+			}
+			await PhieuXuatModel.update(
+				{
+					tongsl: mathangArr.length,
+					tongtien,
+				},
+				{ where: { ma } }
+			);
+
+			const phieuxuat = await PhieuXuatModel.findOne({
+				where: { ma },
+				attributes: [
+					"ngayxuat",
+					"tongsl",
+					"tongtien",
+				],
+				include: [
+					{
+						model: NhaPhanPhoiModel,
+						attributes: [
+							"ma",
+							"ten",
+							"chietkhau",
+						],
+						as: "npp",
+					},
+					{
+						model: KhuyenMaiGiamModel,
+						attributes: ["tile", "malh"],
+						as: "kmg",
+					},
+					{
+						model: KhuyenMaiTangModel,
+						attributes: ["ma", "ten"],
+						as: "kmt",
+					},
+				],
+			}).then((data) => data.toJSON());
+			if (!phieuxuat)
+				throw new Error("Phiếu xuất không tồn tại");
+
+			return res.status(200).json({
+				...phieuxuat,
+				chitiet: savedMH.map((mathang) => {
+					const giamgia = Math.max(
+						phieuxuat.npp.chietkhau,
+						phieuxuat.kmg.tile
+					);
+					return {
+						...mathang,
+						giamgia,
+						giathuc:
+							mathang.giaban -
+							giamgia * mathang.giaban,
+					};
+				}),
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,

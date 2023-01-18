@@ -39,16 +39,17 @@ const PhieuNhapModel = sequelize.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 		},
-		xoavao: {
-			type: DataTypes.DATE,
-			defaultValue: null,
-		},
+
 		daluu: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,
 		},
 	},
-	{ timestamps: true }
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	}
 );
 PhieuNhapModel.belongsTo(UserModel, {
 	foreignKey: {
