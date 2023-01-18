@@ -1,18 +1,18 @@
-const { Op } = require("sequelize");
 const ChiTietPhieuNhapModel = require("~/models/chitietphieunhap.model");
 const DonViModel = require("~/models/donvi.model");
 const LoaiHangModel = require("~/models/loaihang.model");
 const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 const PhieuNhapModel = require("~/models/phieunhap.model");
+const ThongKeModel = require("~/models/thongke.model");
 const UserModel = require("~/models/user.model");
 const sequelize = require("~/services/sequelize.service");
 
 class NhaphangController {
 	/**
 	 * Tạo phiếu nhập hàng
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async taophieunhap(req, res) {
 		try {
@@ -50,8 +50,8 @@ class NhaphangController {
 
 	/**
 	 * Xóa phiếu nhập hàng
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async xoaphieunhap(req, res) {
 		try {
@@ -91,8 +91,8 @@ class NhaphangController {
 
 	/**
 	 * Thêm sản phẩm vào phiếu nhập
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async themsanpham(req, res) {
 		try {
@@ -122,7 +122,6 @@ class NhaphangController {
 				where: { ma: malh },
 			});
 			const donvi = await DonViModel.findOne({
-				attributes: ["ma", "ten"],
 				where: { ma: madv, malh },
 			});
 			if (!donvi || !loaiHang)
@@ -137,7 +136,7 @@ class NhaphangController {
 					ngaynhap: phieunhap.dataValues.ngaynhap,
 					hsd: new Date(hsd),
 					gianhap,
-					giaban: 0,
+					giaban: donvi.dataValues.giaban,
 					malh,
 					madv,
 				});
@@ -183,8 +182,8 @@ class NhaphangController {
 
 	/**
 	 * Lấy tất cả phiếu nhập
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatcaphieunhap(req, res) {
 		try {
@@ -258,12 +257,14 @@ class NhaphangController {
 
 	/**
 	 * Lấy một phiếu nhập
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laymotphieunhap(req, res) {
 		try {
 			const ma = req.params.ma;
+			const chitiet = req.query.chitiet;
+
 			const phieunhap = await PhieuNhapModel.findOne({
 				where: { ma },
 				attributes: {
@@ -288,43 +289,48 @@ class NhaphangController {
 			});
 			if (!phieunhap)
 				throw new Error("Phiếu nhập không tồn tại");
-			const allChiTiet =
-				await ChiTietPhieuNhapModel.findAll({
-					attributes: [
-						[
-							sequelize.fn(
-								"COUNT",
-								"mathang.*"
-							),
-							"soluong",
+
+			const options = {
+				where: {
+					maphieunhap: phieunhap.dataValues.ma,
+				},
+				include: [
+					{
+						foreignKey: "mamathang",
+						model: MatHangModel,
+						as: "mathang",
+						include: [
+							{
+								model: LoaiHangModel,
+							},
+							{
+								model: DonViModel,
+							},
 						],
-						"mathang.hsd",
-					],
-					where: {
-						maphieunhap:
-							phieunhap.dataValues.ma,
 					},
-					include: [
-						{
-							foreignKey: "mamathang",
-							model: MatHangModel,
-							as: "mathang",
-							include: [
-								{
-									model: LoaiHangModel,
-								},
-								{
-									model: DonViModel,
-								},
-							],
-						},
+				],
+			};
+
+			if (!chitiet) {
+				options.attributes = [
+					[
+						sequelize.fn("COUNT", "mathang.*"),
+						"soluong",
 					],
-					group: [
-						"mathang.loaihang.ma",
-						"mathang.madv",
-						"mathang.hsd",
-					],
-				});
+					"mathang.hsd",
+				];
+
+				options.group = [
+					"mathang.loaihang.ma",
+					"mathang.madv",
+					"mathang.hsd",
+				];
+			}
+
+			const allChiTiet =
+				await ChiTietPhieuNhapModel.findAll(
+					options
+				);
 
 			return res.status(200).json({
 				...phieunhap.toJSON(),
@@ -341,8 +347,8 @@ class NhaphangController {
 
 	/**
 	 * Chỉnh sửa phiếu nhập
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async chinhsuaphieunhap(req, res) {
 		try {
@@ -365,16 +371,54 @@ class NhaphangController {
 		}
 	}
 	async luuphieunhap(req, res) {
+		const t = await sequelize.transaction();
 		try {
 			const ma = req.params.ma;
+
+			const chitiets =
+				await ChiTietPhieuNhapModel.findAll({
+					where: {
+						maphieunhap: ma,
+					},
+					include: [
+						{
+							model: MatHangModel,
+						},
+					],
+				});
+
+			const tongtien = chitiets
+				.map((e) => e.toJSON())
+				.reduce(
+					(prev, curr) =>
+						prev + curr.mathang.gianhap,
+					0
+				);
+
 			await PhieuNhapModel.update(
-				{ daluu: true },
+				{ daluu: true, tongtien },
 				{ where: { ma } }
 			);
+
+			const lastThongke = await ThongKeModel.findOne({
+				order: [["ma", "desc"]],
+			});
+
+			await ThongKeModel.create({
+				maphieunhap: ma,
+				chi: tongtien,
+				conlai:
+					(lastThongke ? lastThongke.conlai : 0) -
+					tongtien,
+			});
+
+			t.commit();
+
 			return res.status(200).json({
 				message: "Phiếu đã được lưu",
 			});
 		} catch (error) {
+			t.rollback();
 			res.status(400).send({
 				message: error.message,
 			});

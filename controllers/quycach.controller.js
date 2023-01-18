@@ -5,8 +5,8 @@ const QuyCachModel = require("~/models/quycach.model");
 class QuyCachController {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async themquycach(req, res) {
 		try {
@@ -45,8 +45,8 @@ class QuyCachController {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatcaquycach(req, res) {
 		try {

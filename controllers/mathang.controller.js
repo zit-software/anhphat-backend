@@ -6,8 +6,8 @@ const DonViModel = require("~/models/donvi.model");
 class MathangController {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async themmathang(req, res) {
 		try {
@@ -20,8 +20,8 @@ class MathangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatcamathang(req, res) {
 		try {
@@ -84,8 +84,8 @@ class MathangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async chinhsuamathang(req, res) {
 		try {
@@ -98,11 +98,68 @@ class MathangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async xoamathang(req, res) {
 		try {
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async layMotMathang(req, res) {
+		try {
+			res.send(
+				(
+					await MatHangModel.findOne({
+						where: { ma: req.params.ma },
+						include: [
+							{
+								model: DonViModel,
+							},
+							{
+								model: LoaiHangModel,
+							},
+						],
+					})
+				).toJSON()
+			);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+
+	async laySoLuong(req, res) {
+		try {
+			const madv = req.params.madv;
+
+			const result = await MatHangModel.count({
+				where: {
+					madv,
+					xoavao: null,
+					daxuat: false,
+				},
+			});
+
+			res.send({
+				soluong: result,
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,

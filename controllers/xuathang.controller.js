@@ -11,8 +11,8 @@ const sequelize = require("~/services/sequelize.service");
 class XuatHangController {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async taophieuxuat(req, res) {
 		try {
@@ -105,8 +105,8 @@ class XuatHangController {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatcaphieuxuat(req, res) {
 		try {
@@ -178,8 +178,8 @@ class XuatHangController {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async suaphieuxuat(req, res) {
 		try {

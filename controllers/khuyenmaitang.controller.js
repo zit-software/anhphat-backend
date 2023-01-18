@@ -6,8 +6,8 @@ const LoaiHangModel = require("~/models/loaihang.model");
 class KhuyenmaitangController {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laymotkhuyenmai(req, res) {
 		try {
@@ -61,8 +61,8 @@ class KhuyenmaitangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async taokhuyenmai(req, res) {
 		try {
@@ -89,8 +89,8 @@ class KhuyenmaitangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async themchitiet(req, res) {
 		try {
@@ -123,8 +123,8 @@ class KhuyenmaitangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async chinhsuachitiet(req, res) {
 		try {
@@ -156,8 +156,8 @@ class KhuyenmaitangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatca(req, res) {
 		try {
@@ -183,8 +183,8 @@ class KhuyenmaitangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async chinhsua(req, res) {
 		try {
@@ -216,8 +216,8 @@ class KhuyenmaitangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async xoa(req, res) {
 		try {

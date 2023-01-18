@@ -5,8 +5,8 @@ const { addDays } = require("~/utils/common.util");
 class ThongkeController {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async thongke(req, res) {
 		try {
