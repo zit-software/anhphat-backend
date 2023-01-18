@@ -50,26 +50,18 @@ class QuyCachController {
 	 */
 	async laytatcaquycach(req, res) {
 		try {
-			const allQuyCach = await QuyCachModel.findAll({
-				attributes: [
-					"ma",
-					"soluong",
-					"madv1",
-					"madv2",
-				],
-			});
+			const allQuyCach = await QuyCachModel.findAll(
+				{}
+			);
 			const result = [];
 			for (let quycach of allQuyCach) {
 				let dv1 = await DonViModel.findOne({
-					attributes: ["ma", "ten"],
 					where: { ma: quycach.dataValues.madv1 },
 					include: {
 						model: LoaiHangModel,
-						attributes: ["ma", "ten"],
 					},
 				});
 				let dv2 = await DonViModel.findOne({
-					attributes: ["ma", "ten"],
 					where: { ma: quycach.dataValues.madv2 },
 				});
 				let loaihang = dv1.dataValues.loaihang;
@@ -82,6 +74,9 @@ class QuyCachController {
 					},
 					dv2: dv2.dataValues,
 					soluong: quycach.soluong,
+					malh: loaihang?.ma,
+					madv1: dv1.dataValues.ma,
+					madv2: dv2.dataValues.ma,
 				});
 			}
 			return res
