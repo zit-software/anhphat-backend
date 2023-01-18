@@ -14,11 +14,7 @@ class KhuyenmaitangController {
 			const ma = req.params.ma;
 			const kmt = await KhuyenMaiTangModel.findOne({
 				attributes: {
-					exclude: [
-						"createdAt",
-						"updatedAt",
-						"xoavao",
-					],
+					exclude: ["createdAt", "xoavao"],
 				},
 				where: { ma },
 			}).then((kmt) => kmt.toJSON());
