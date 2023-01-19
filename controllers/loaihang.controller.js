@@ -3,8 +3,8 @@ const LoaiHangModel = require("~/models/loaihang.model");
 class LoaiHangController {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async themloaihang(req, res) {
 		try {
@@ -21,8 +21,8 @@ class LoaiHangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatcaloaihang(req, res) {
 		try {
@@ -37,8 +37,8 @@ class LoaiHangController {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async xoatatcaloaihang(req, res) {
 		try {
@@ -55,8 +55,8 @@ class LoaiHangController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async layloaihang(req, res) {
 		try {
@@ -73,8 +73,8 @@ class LoaiHangController {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async sualoaihang(req, res) {
 		try {
@@ -102,8 +102,8 @@ class LoaiHangController {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async xoaloaihang(req, res) {
 		try {

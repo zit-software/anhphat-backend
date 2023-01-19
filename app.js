@@ -3,11 +3,20 @@ const path = require("path");
 const logger = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const { queryParser } = require("express-query-parser");
 
 const config = require("~/config");
 
 const app = express();
 
+app.use(
+	queryParser({
+		parseNull: true,
+		parseUndefined: true,
+		parseBoolean: true,
+		parseNumber: true,
+	})
+);
 app.use(bodyParser.json());
 app.use(
 	cors({

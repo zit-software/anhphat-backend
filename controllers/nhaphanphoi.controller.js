@@ -3,8 +3,8 @@ const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 class NhaPhanPhoiControler {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async themnpp(req, res) {
 		try {
@@ -31,8 +31,8 @@ class NhaPhanPhoiControler {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatcanpp(req, res) {
 		try {
@@ -50,8 +50,8 @@ class NhaPhanPhoiControler {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laymotnpp(req, res) {
 		try {
@@ -77,8 +77,8 @@ class NhaPhanPhoiControler {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async suamotnpp(req, res) {
 		try {
@@ -111,8 +111,8 @@ class NhaPhanPhoiControler {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async xoamotnpp(req, res) {
 		try {

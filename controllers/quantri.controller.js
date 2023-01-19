@@ -4,8 +4,8 @@ const { hash } = require("~/utils/password.util");
 class QuantriController {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async themtaikhoan(req, res) {
 		try {
@@ -30,8 +30,8 @@ class QuantriController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytaikhoan(req, res) {
 		try {
@@ -57,8 +57,8 @@ class QuantriController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async suataikhoan(req, res) {
 		try {
@@ -92,8 +92,8 @@ class QuantriController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatcataikhoan(req, res) {
 		try {
@@ -117,8 +117,8 @@ class QuantriController {
 
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async xoataikhoan(req, res) {
 		try {

@@ -4,8 +4,8 @@ const LoaiHangModel = require("~/models/loaihang.model");
 class DonViController {
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async taodonvi(req, res) {
 		try {
@@ -29,10 +29,11 @@ class DonViController {
 			});
 		}
 	}
+
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async xoatatcadonvi(req, res) {
 		try {
@@ -48,8 +49,8 @@ class DonViController {
 	}
 	/**
 	 *
-	 * @param {Request} req
-	 * @param {Response} res
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
 	 */
 	async laytatcadonvi(req, res) {
 		try {
@@ -75,6 +76,12 @@ class DonViController {
 			});
 		}
 	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
 	async suadonvi(req, res) {
 		try {
 			const ma = req.params.ma;
@@ -95,6 +102,12 @@ class DonViController {
 			});
 		}
 	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
 	async xoadonvi(req, res) {
 		try {
 			const ma = req.params.ma;

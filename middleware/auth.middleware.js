@@ -3,8 +3,8 @@ const TokenUtil = require("~/utils/token.util");
 
 /**
  *
- * @param {Request} req
- * @param {Response} res
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
  * @param {Function} next
  */
 const AuthMiddleware = async (req, res, next) => {

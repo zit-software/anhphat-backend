@@ -30,6 +30,14 @@ const DonViModel = sequelize.define(
 				min: 0,
 			},
 		},
+		diem: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 1,
+			validate: {
+				min: 0,
+			},
+		},
 	},
 	{ timestamps: true }
 );
