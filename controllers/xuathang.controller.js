@@ -220,9 +220,16 @@ class XuatHangController {
 			});
 		}
 	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 * @returns
+	 */
 	async layphieuxuat(req, res) {
 		try {
 			const ma = req.params.ma;
+			const chitiet = req.query.chitiet;
 			let phieuxuat = await PhieuXuatModel.findOne({
 				where: { ma },
 				attributes: {
@@ -271,11 +278,53 @@ class XuatHangController {
 				throw new Error("Phiếu xuất không tồn tại");
 			phieuxuat = phieuxuat.toJSON();
 
+			const options = {
+				where: { maphieuxuat: ma },
+				include: [
+					{
+						model: MatHangModel,
+						include: [
+							{
+								model: LoaiHangModel,
+							},
+							{
+								model: DonViModel,
+							},
+						],
+					},
+				],
+			};
+
+			if (!chitiet) {
+				options.group = [
+					"mathang.madv",
+					"mathang.malh",
+				];
+
+				options.attributes = [
+					"*",
+					[
+						sequelize.fn(
+							"count",
+							sequelize.col("*")
+						),
+						"soluong",
+					],
+					[
+						sequelize.fn(
+							"sum",
+							sequelize.col("mathang.giaban")
+						),
+						"thanhtien",
+					],
+				];
+			}
+
 			// Lấy tất cả chi tiết thuộc phiếu xuất
 			let allChiTiet =
-				await ChiTietPhieuXuatModel.findAll({
-					where: { maphieuxuat: ma },
-				});
+				await ChiTietPhieuXuatModel.findAll(
+					options
+				);
 			const result = {
 				...phieuxuat,
 				chitiet: allChiTiet.map((chitiet) =>
@@ -308,7 +357,6 @@ class XuatHangController {
 
 			// Xử lý các mặt hàng manual
 			for (let mathang of manual) {
-				console.log(mathang);
 				const matHangFound =
 					await MatHangModel.findOne({
 						where: {
@@ -423,14 +471,13 @@ class XuatHangController {
 				{ where: { ma }, transaction: t }
 			);
 			const previousLog = await ThongKeModel.findOne({
-				order: [["createdAt", "DESC"]],
+				order: [["ngay", "DESC"]],
 				transaction: t,
 			}).then((data) => data?.toJSON());
 
 			if (!previousLog) {
 				await ThongKeModel.create(
 					{
-						ngay: new Date(),
 						thu: tongtien,
 						conlai: tongtien,
 						maphieuxuat: ma,

@@ -170,7 +170,7 @@ class ThongkeController {
 					],
 					[
 						sequelize.fn(
-							"sum",
+							"max",
 							sequelize.col("conlai")
 						),
 						"conlai",
@@ -182,10 +182,46 @@ class ThongkeController {
 					},
 				},
 
-				group: ["ngay"],
+				group: [
+					sequelize.fn(
+						"date",
+						sequelize.col("ngay")
+					),
+				],
 			});
 
-			res.send(thongke);
+			const max = thongke.reduce(
+				(prev, current) =>
+					Math.max(
+						prev,
+						current.thu,
+						current.chi,
+						current.conlai
+					),
+				-Infinity
+			);
+
+			const tongthu = thongke.reduce(
+				(prev, current) => prev + current.thu,
+				0
+			);
+
+			const tongchi = thongke.reduce(
+				(prev, current) => prev + current.chi,
+				0
+			);
+
+			const doanhthu =
+				thongke[thongke.length - 1]?.conlai -
+					thongke[0]?.conlai || 0;
+
+			res.send({
+				data: thongke,
+				max,
+				tongthu,
+				tongchi,
+				doanhthu,
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
