@@ -5,13 +5,18 @@ const {
 	laytatcamathang,
 	chinhsuamathang,
 	xoamathang,
+	laymotmathang,
 	laySoLuong,
 	layMotMathang,
 } = require("~/controllers/mathang.controller");
 
 const router = Router();
 
-router.route("/").post(themmathang).get(laytatcamathang);
+router
+	.route("/")
+	.post(themmathang)
+	.get(laytatcamathang)
+	.get(laymotmathang);
 
 router
 	.route("/:ma")

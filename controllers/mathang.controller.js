@@ -1,8 +1,8 @@
 const MatHangModel = require("~/models/mathang.model");
-const sequelize = require("~/services/sequelize.service");
 const { Op } = require("sequelize");
 const LoaiHangModel = require("~/models/loaihang.model");
 const DonViModel = require("~/models/donvi.model");
+const sequelize = require("~/services/sequelize.service");
 class MathangController {
 	/**
 	 *
@@ -23,6 +23,40 @@ class MathangController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
+	async laymotmathang(req, res) {
+		try {
+			const ma = req.query.ma;
+			if (ma) {
+				const mathang = await MatHangModel.findOne({
+					where: { ma },
+				});
+				return res.status(200).json(mathang);
+			}
+			const ngaynhap = req.query.ngaynhap;
+			const hsd = req.query.hsd;
+			const malh = req.query.malh;
+			const madv = req.query.madv;
+			const mathang = await MatHangModel.findOne({
+				where: {
+					ngaynhap,
+					hsd,
+					malh,
+					madv,
+				},
+			});
+			return res.status(200).json(mathang);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+
+	/**
+	 *
+	 * @param {Request} req
+	 * @param {Response} res
+	 */
 	async laytatcamathang(req, res) {
 		try {
 			// Xử lý tham số query
@@ -30,6 +64,29 @@ class MathangController {
 			const donviQuery = req.query.donvi;
 			const ngaynhapQuery = req.query.ngaynhap;
 			const orderQuery = req.query.order;
+			let group = null;
+			let attributes = null;
+			if (req.query.group) {
+				group = [
+					"ngaynhap",
+					"hsd",
+					"mathang.malh",
+					"madv",
+					"donvi.gianhap",
+				];
+				attributes = [
+					"hsd",
+					"ngaynhap",
+					[
+						sequelize.fn(
+							"count",
+							sequelize.col("mathang.ma")
+						),
+						"soluong",
+					],
+				];
+			}
+
 			const where = {
 				daxuat: false,
 				xoavao: { [Op.eq]: null },
@@ -55,6 +112,7 @@ class MathangController {
 
 			// Lấy tất cả mặt hàng
 			const allMH = await MatHangModel.findAll({
+				attributes,
 				where,
 				include: [
 					{
@@ -67,6 +125,7 @@ class MathangController {
 				order,
 				limit,
 				offset,
+				group,
 			});
 			const total = await MatHangModel.count({
 				where,
