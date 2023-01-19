@@ -45,9 +45,10 @@ const MatHangModel = sequelize.define(
 				min: 0,
 			},
 		},
-		daxuat: {
-			type: DataTypes.BOOLEAN,
-			defaultValue: false,
+		xuatvao: {
+			type: DataTypes.DATE,
+			allowNull: true,
+			defaultValue: null,
 		},
 	},
 	{

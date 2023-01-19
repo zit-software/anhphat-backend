@@ -387,7 +387,7 @@ class XuatHangController {
 				);
 				await MatHangModel.update(
 					{
-						daxuat: true,
+						daxuat: phieuxuat.ngayxuat,
 						giaban: mathang.giaban,
 					},
 					{
@@ -450,7 +450,7 @@ class XuatHangController {
 					);
 					await MatHangModel.update(
 						{
-							daxuat: true,
+							daxuat: phieuxuat.ngayxuat,
 							giaban,
 						},
 						{

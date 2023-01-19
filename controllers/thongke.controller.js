@@ -1,6 +1,9 @@
 const { Op } = require("sequelize");
+const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
 const DonViModel = require("~/models/donvi.model");
 const LoaiHangModel = require("~/models/loaihang.model");
+const MatHangModel = require("~/models/mathang.model");
+const PhieuXuatModel = require("~/models/phieuxuat.model");
 const QuyCachModel = require("~/models/quycach.model");
 const ThongKeModel = require("~/models/thongke.model");
 const sequelize = require("~/services/sequelize.service");
@@ -110,10 +113,14 @@ class ThongkeController {
 	async thongkeloaihangban(req, res) {
 		try {
 			// Thống kê số lượng bán theo từng loại hàng (ở đơn vị nhỏ nhất)
+			const ngaybd = req.query.ngaybd;
+			const ngaykt = req.query.ngaykt;
 
 			// Lấy tất cả loại hàng và đơn vị của chúng
 			const allLoaiHangInfo =
-				await LoaiHangModel.findAll().then((data) =>
+				await LoaiHangModel.findAll({
+					attributes: ["ma", "ten"],
+				}).then((data) =>
 					data.map((e) => e.toJSON())
 				);
 			const allLoaiHang = [];
@@ -129,7 +136,31 @@ class ThongkeController {
 				});
 			}
 
-			return res.status(200);
+			const result = {};
+			const allMatHang = await MatHangModel.findAll({
+				where: {
+					xuatvao: {
+						[Op.between]: [ngaybd, ngaykt],
+					},
+				},
+			});
+			for (let mathang of allMatHang) {
+				const soluongDonViNhoNhat =
+					await QuyCachUtil.convertToSmallestUnit(
+						mathang.madv,
+						1
+					);
+				if (mathang.malh in result) {
+					result[mathang.malh] =
+						result[mathang.malh] +
+						soluongDonViNhoNhat;
+				} else {
+					result[mathang.malh] =
+						soluongDonViNhoNhat;
+				}
+			}
+
+			return res.status(200).json(result);
 		} catch (error) {
 			console.log(error);
 		}

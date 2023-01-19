@@ -23,11 +23,13 @@ const QuyCachUtil = {
 	},
 	async convertToSmallestUnit(bigUnitMa, soluong) {
 		const bigUnit = await DonViModel.findOne({
+			attributes: ["ma", "ten", "malh"],
 			where: { ma: bigUnitMa },
 		});
 		if (!bigUnit) return 0;
 		const malh = bigUnit.malh;
 		const smallestUnit = await this.smallestUnit(malh);
+		if (bigUnit.ma === smallestUnit.ma) return 1;
 		const quycach = await (
 			await QuyCachModel.findOne({
 				where: {
