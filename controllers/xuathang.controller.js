@@ -349,7 +349,7 @@ class XuatHangController {
 			let tongtien = 0;
 			let tongsl = 0;
 			// Kiểm tra phiếu nhập có tồn tại không
-			const phieuxuat = PhieuXuatModel.findOne({
+			const phieuxuat = await PhieuXuatModel.findOne({
 				where: { ma },
 				transaction: t,
 			});
@@ -388,7 +388,8 @@ class XuatHangController {
 				);
 				await MatHangModel.update(
 					{
-						daxuat: phieuxuat.ngayxuat,
+						xuatvao:
+							phieuxuat.dataValues.ngayxuat,
 						giaban: mathang.giaban,
 					},
 					{
@@ -451,7 +452,9 @@ class XuatHangController {
 					);
 					await MatHangModel.update(
 						{
-							daxuat: phieuxuat.ngayxuat,
+							xuatvao:
+								phieuxuat.dataValues
+									.ngayxuat,
 							giaban,
 						},
 						{

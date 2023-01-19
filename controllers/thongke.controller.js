@@ -144,6 +144,7 @@ class ThongkeController {
 					},
 				},
 			});
+			console.log(allMatHang);
 			for (let mathang of allMatHang) {
 				const soluongDonViNhoNhat =
 					await QuyCachUtil.convertToSmallestUnit(
