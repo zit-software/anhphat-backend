@@ -5,8 +5,8 @@ const KhuyenMaiTangModel = require("~/models/khuyenmaitang.model");
 const LoaiHangModel = require("~/models/loaihang.model");
 const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
-const PhieuNhapModel = require("~/models/phieunhap.model");
 const PhieuXuatModel = require("~/models/phieuxuat.model");
+const ThongKeModel = require("~/models/thongke.model");
 const UserModel = require("~/models/user.model");
 const sequelize = require("~/services/sequelize.service");
 
@@ -80,6 +80,7 @@ class XuatHangController {
 			});
 			npp = npp.toJSON();
 			const result = {
+				ma: phieuxuat.ma,
 				ngayxuat: phieuxuat.ngayxuat,
 				tongtien: phieuxuat.tongtien,
 				tongsl: phieuxuat.tongsl,
@@ -288,91 +289,172 @@ class XuatHangController {
 			});
 		}
 	}
-	async themloaihangvaophieu(req, res) {
-		try {
-			const ma = +req.params.ma;
-
-			const mamh = req.body.mamh;
-
-			const mathang = await MatHangModel.findOne({
-				where: { ma: mamh },
-				attributes: ["ma", "giaban"],
-				include: {
-					model: LoaiHangModel,
-					attributes: ["ma", "ten"],
-				},
-			});
-			const giaban = mathang.dataValues.giaban;
-
-			await ChiTietPhieuXuatModel.create({
-				maphieuxuat: ma,
-				mamathang: mamh,
-			});
-			await PhieuXuatModel.update(
-				{
-					tongsl: sequelize.literal("tongsl + 1"),
-					tongtien: sequelize.literal(
-						`tongtien + ${giaban}`
-					),
-				},
-				{ where: { ma } }
-			);
-
-			const phieuxuat = await PhieuXuatModel.findOne({
-				where: { ma },
-				attributes: [
-					"ngayxuat",
-					"tongsl",
-					"tongtien",
-				],
-				include: [
-					{
-						model: NhaPhanPhoiModel,
-						attributes: [
-							"ma",
-							"ten",
-							"chietkhau",
-						],
-						as: "npp",
-					},
-					{
-						model: KhuyenMaiGiamModel,
-						attributes: ["tile"],
-						as: "kmg",
-					},
-					{
-						model: KhuyenMaiTangModel,
-						attributes: [
-							"ma",
-							"ten",
-							"soluongmua",
-							"soluongtang",
-						],
-						as: "kmt",
-					},
-				],
-			});
-			if (!phieuxuat)
-				throw new Error("Phiếu xuất không tồn tại");
-
-			return res.status(200).json({
-				...phieuxuat.toJSON(),
-				chitiet: {
-					...mathang.toJSON(),
-					giamgia: 0,
-				},
-			});
-		} catch (error) {
-			res.status(400).send({
-				message: error.message,
-			});
-		}
-	}
 	async luuphieuxuat(req, res) {
+		const t = await sequelize.transaction();
 		try {
 			const ma = req.params.ma;
-			return res.status(200);
+			const manual = req.body.manual;
+			const auto = req.body.auto;
+			const savedMH = [];
+			let tongtien = 0;
+			let tongsl = 0;
+			// Kiểm tra phiếu nhập có tồn tại không
+			const phieuxuat = PhieuXuatModel.findOne({
+				where: { ma },
+				transaction: t,
+			});
+			if (!phieuxuat)
+				throw new Error("Không tồn tại phiếu nhập");
+
+			// Xử lý các mặt hàng manual
+			for (let mathang of manual) {
+				console.log(mathang);
+				const matHangFound =
+					await MatHangModel.findOne({
+						where: {
+							ma: mathang.mh,
+							daxuat: false,
+						},
+						attributes: ["ma", "giaban"],
+						include: {
+							model: LoaiHangModel,
+							attributes: ["ma", "ten"],
+						},
+						transaction: t,
+					}).then((data) => data?.toJSON());
+				if (!matHangFound)
+					throw new Error(
+						`Không tìm thấy mặt hàng với mã ${mathang.mh}`
+					);
+				savedMH.push(matHangFound);
+				tongtien += mathang.giaban;
+				tongsl += 1;
+				// Tạo các chi tiết phiếu xuất và chuyển mặt hàng thành đã xuất
+				await ChiTietPhieuXuatModel.create(
+					{
+						maphieuxuat: ma,
+						mamathang: mathang.mh,
+					},
+					{ transaction: t }
+				);
+				await MatHangModel.update(
+					{
+						daxuat: true,
+						giaban: mathang.giaban,
+					},
+					{
+						where: { ma: matHangFound.ma },
+						transaction: t,
+					}
+				);
+			}
+
+			// Xử lý các mặt hàng auto
+			for (let autoOption of auto) {
+				// Lặp qua các option
+				const malh = autoOption.malh;
+				const madv = autoOption.madv;
+				const soluong = autoOption.soluong;
+				const giaban = autoOption.giaban;
+				const allAvailables =
+					await MatHangModel.findAll({
+						where: {
+							daxuat: false,
+							madv,
+							malh,
+						},
+						attributes: [
+							"ma",
+							"ngaynhap",
+							"hsd",
+							"mathang.malh",
+							"madv",
+							"donvi.gianhap",
+						],
+						include: [
+							{
+								model: DonViModel,
+								as: "donvi",
+							},
+						],
+						order: [["hsd", "ASC"]],
+						transaction: t,
+					}).then((data) => {
+						return data.map((e) => e.toJSON());
+					});
+				if (allAvailables.length < soluong)
+					throw new Error({
+						message:
+							"Không đủ mặt hàng để lập phiếu",
+					});
+				// Tạo các chi tiết phiếu xuất và chuyển mặt hàng thành đã xuất
+				for (let i = 0; i < soluong; i++) {
+					let available = allAvailables[i];
+					savedMH.push(available);
+					tongtien += giaban;
+					tongsl += 1;
+					await ChiTietPhieuXuatModel.create(
+						{
+							maphieuxuat: ma,
+							mamathang: available.ma,
+						},
+						{ transaction: t }
+					);
+					await MatHangModel.update(
+						{
+							daxuat: true,
+							giaban,
+						},
+						{
+							where: { ma: available.ma },
+							transaction: t,
+						}
+					);
+				}
+			}
+
+			// Công việc: tạo log thongke, tính lại tổng số lượng và tổng tiền của phiếu, chuyển field da luu thanh true
+			await PhieuXuatModel.update(
+				{
+					tongtien,
+					tongsl,
+					daluu: true,
+				},
+				{ where: { ma }, transaction: t }
+			);
+			const previousLog = await ThongKeModel.findOne({
+				order: [["createdAt", "DESC"]],
+				transaction: t,
+			}).then((data) => data?.toJSON());
+
+			if (!previousLog) {
+				await ThongKeModel.create(
+					{
+						ngay: new Date(),
+						thu: tongtien,
+						conlai: tongtien,
+						maphieuxuat: ma,
+					},
+					{ transaction: t }
+				);
+			} else {
+				const prevConLai = previousLog.conlai;
+				await ThongKeModel.create(
+					{
+						ngay: new Date(),
+						thu: tongtien,
+						conlai: tongtien + prevConLai,
+						maphieuxuat: ma,
+					},
+					{ transaction: t }
+				);
+			}
+			await t.commit();
+			return res.status(200).json({
+				message: "Lưu phiếu xuất thành công",
+			});
 		} catch (error) {
+			await t.rollback();
 			res.status(400).send({
 				message: error.message,
 			});
@@ -410,7 +492,6 @@ class XuatHangController {
 				}).then((data) =>
 					data.map((e) => e.toJSON())
 				);
-			console.log(allAvailables);
 			if (allAvailables.length < soluong)
 				throw new Error({
 					message:
@@ -497,6 +578,8 @@ class XuatHangController {
 	 * @param {Response} res
 	 */
 	async taophieuxuatManual(req, res) {
+		const t = await sequelize.transaction();
+
 		try {
 			// Ma phieu xuat
 			const ma = +req.params.ma;
@@ -562,6 +645,8 @@ class XuatHangController {
 			if (!phieuxuat)
 				throw new Error("Phiếu xuất không tồn tại");
 
+			await t.commit();
+
 			return res.status(200).json({
 				...phieuxuat,
 				chitiet: savedMH.map((mathang) => {
@@ -579,6 +664,7 @@ class XuatHangController {
 				}),
 			});
 		} catch (error) {
+			await t.rollback();
 			res.status(400).send({
 				message: error.message,
 			});

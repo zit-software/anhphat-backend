@@ -23,9 +23,7 @@ router
 	.put(suaphieuxuat)
 	.delete(xoaphieuxuat)
 	.get(layphieuxuat);
-router
-	.route("/phieuxuat/:ma/loaihang")
-	.post(themloaihangvaophieu);
-router.route("/phieuxuat/:ma/luu").get(luuphieuxuat);
+
+router.route("/phieuxuat/:ma/luu").post(luuphieuxuat);
 
 module.exports = router;
