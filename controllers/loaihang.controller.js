@@ -1,3 +1,4 @@
+const DonViModel = require("~/models/donvi.model");
 const LoaiHangModel = require("~/models/loaihang.model");
 
 class LoaiHangController {
@@ -27,8 +28,22 @@ class LoaiHangController {
 	async laytatcaloaihang(req, res) {
 		try {
 			const allLoaiHang =
-				await LoaiHangModel.findAll();
-			return res.status(200).json(allLoaiHang);
+				await LoaiHangModel.findAll().then((data) =>
+					data.map((e) => e.toJSON())
+				);
+			const result = [];
+			for (let loaihang of allLoaiHang) {
+				const allDonvis = await DonViModel.findAll({
+					where: { malh: loaihang.ma },
+				}).then((data) =>
+					data.map((e) => e.toJSON())
+				);
+				result.push({
+					...loaihang,
+					donvi: allDonvis,
+				});
+			}
+			return res.status(200).json(result);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -63,8 +78,15 @@ class LoaiHangController {
 			const ma = req.params.ma;
 			const loaiHang = await LoaiHangModel.findOne({
 				where: { ma },
+			}).then((data) => data.toJSON());
+			const donvis = await DonViModel.findAll({
+				where: { malh: ma },
+			}).then((data) => data.map((e) => e.toJSON()));
+
+			return res.status(200).json({
+				...loaiHang,
+				donvi: donvis,
 			});
-			return res.status(200).json(loaiHang);
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,

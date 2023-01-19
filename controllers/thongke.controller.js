@@ -1,7 +1,11 @@
 const { Op } = require("sequelize");
+const DonViModel = require("~/models/donvi.model");
+const LoaiHangModel = require("~/models/loaihang.model");
+const QuyCachModel = require("~/models/quycach.model");
 const ThongKeModel = require("~/models/thongke.model");
 const sequelize = require("~/services/sequelize.service");
 const { addDays } = require("~/utils/common.util");
+const QuyCachUtil = require("~/utils/QuyCachUtil");
 
 class ThongkeController {
 	/**
@@ -98,9 +102,34 @@ class ThongkeController {
 			});
 		}
 	}
-	async thongkeloaihangban() {
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async thongkeloaihangban(req, res) {
 		try {
 			// Thống kê số lượng bán theo từng loại hàng (ở đơn vị nhỏ nhất)
+
+			// Lấy tất cả loại hàng và đơn vị của chúng
+			const allLoaiHangInfo =
+				await LoaiHangModel.findAll().then((data) =>
+					data.map((e) => e.toJSON())
+				);
+			const allLoaiHang = [];
+			for (let loaihang of allLoaiHangInfo) {
+				const allDonvis = await DonViModel.findAll({
+					where: { malh: loaihang.ma },
+				}).then((data) =>
+					data.map((e) => e.toJSON())
+				);
+				allLoaiHang.push({
+					...loaihang,
+					donvi: allDonvis,
+				});
+			}
+
+			return res.status(200);
 		} catch (error) {
 			console.log(error);
 		}
