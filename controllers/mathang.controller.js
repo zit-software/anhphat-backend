@@ -88,7 +88,7 @@ class MathangController {
 			}
 
 			const where = {
-				daxuat: false,
+				xuatvao: { [Op.eq]: null },
 				xoavao: { [Op.eq]: null },
 			};
 			if (loaihangQuery) where.malh = loaihangQuery;
@@ -212,7 +212,7 @@ class MathangController {
 				where: {
 					madv,
 					xoavao: null,
-					daxuat: false,
+					xuatvao: { [Op.eq]: null },
 				},
 			});
 

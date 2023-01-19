@@ -12,6 +12,7 @@ ChiTietPhieuXuatModel.belongsTo(PhieuXuatModel, {
 		name: "maphieuxuat",
 		allowNull: false,
 	},
+	onDelete: "CASCADE",
 });
 
 ChiTietPhieuXuatModel.belongsTo(MatHangModel, {
@@ -19,6 +20,7 @@ ChiTietPhieuXuatModel.belongsTo(MatHangModel, {
 		name: "mamathang",
 		allowNull: false,
 	},
+	onDelete: "CASCADE",
 });
 
 module.exports = ChiTietPhieuXuatModel;

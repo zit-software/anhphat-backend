@@ -16,6 +16,7 @@ ChiTietPhieuNhapModel.belongsTo(PhieuNhapModel, {
 		name: "maphieunhap",
 		allowNull: false,
 	},
+	onDelete: "CASCADE",
 });
 ChiTietPhieuNhapModel.belongsTo(MatHangModel, {
 	foreignKey: {

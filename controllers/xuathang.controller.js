@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
 const DonViModel = require("~/models/donvi.model");
 const KhuyenMaiGiamModel = require("~/models/khuyenmaigiam.model");
@@ -361,7 +362,7 @@ class XuatHangController {
 					await MatHangModel.findOne({
 						where: {
 							ma: mathang.mh,
-							daxuat: false,
+							xuatvao: { [Op.eq]: null },
 						},
 						attributes: ["ma", "giaban"],
 						include: {
@@ -375,7 +376,7 @@ class XuatHangController {
 						`Không tìm thấy mặt hàng với mã ${mathang.mh}`
 					);
 				savedMH.push(matHangFound);
-				tongtien += mathang.giaban;
+				tongtien += +mathang.giaban;
 				tongsl += 1;
 				// Tạo các chi tiết phiếu xuất và chuyển mặt hàng thành đã xuất
 				await ChiTietPhieuXuatModel.create(
@@ -407,7 +408,7 @@ class XuatHangController {
 				const allAvailables =
 					await MatHangModel.findAll({
 						where: {
-							daxuat: false,
+							xuatvao: { [Op.eq]: null },
 							madv,
 							malh,
 						},
@@ -439,7 +440,7 @@ class XuatHangController {
 				for (let i = 0; i < soluong; i++) {
 					let available = allAvailables[i];
 					savedMH.push(available);
-					tongtien += giaban;
+					tongtien += +giaban;
 					tongsl += 1;
 					await ChiTietPhieuXuatModel.create(
 						{
@@ -460,7 +461,6 @@ class XuatHangController {
 					);
 				}
 			}
-
 			// Công việc: tạo log thongke, tính lại tổng số lượng và tổng tiền của phiếu, chuyển field da luu thanh true
 			await PhieuXuatModel.update(
 				{
@@ -523,7 +523,11 @@ class XuatHangController {
 
 			const allAvailables =
 				await MatHangModel.findAll({
-					where: { daxuat: false, madv, malh },
+					where: {
+						xuatvao: { [Op.eq]: null },
+						madv,
+						malh,
+					},
 					attributes: [
 						"ma",
 						"ngaynhap",
