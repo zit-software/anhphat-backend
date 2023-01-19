@@ -401,7 +401,7 @@ class NhaphangController {
 			);
 
 			const lastThongke = await ThongKeModel.findOne({
-				order: [["ma", "desc"]],
+				order: [["ngay", "desc"]],
 			});
 
 			await ThongKeModel.create(
