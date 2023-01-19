@@ -397,28 +397,32 @@ class NhaphangController {
 
 			await PhieuNhapModel.update(
 				{ daluu: true, tongtien },
-				{ where: { ma } }
+				{ where: { ma }, transaction: t }
 			);
 
 			const lastThongke = await ThongKeModel.findOne({
 				order: [["ma", "desc"]],
 			});
 
-			await ThongKeModel.create({
-				maphieunhap: ma,
-				chi: tongtien,
-				conlai:
-					(lastThongke ? lastThongke.conlai : 0) -
-					tongtien,
-			});
+			await ThongKeModel.create(
+				{
+					maphieunhap: ma,
+					chi: tongtien,
+					conlai:
+						(lastThongke
+							? lastThongke.conlai
+							: 0) - tongtien,
+				},
+				{ transaction: t }
+			);
 
-			t.commit();
+			await t.commit();
 
 			return res.status(200).json({
 				message: "Phiếu đã được lưu",
 			});
 		} catch (error) {
-			t.rollback();
+			await t.rollback();
 			res.status(400).send({
 				message: error.message,
 			});

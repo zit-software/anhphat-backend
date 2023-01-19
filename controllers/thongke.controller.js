@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const ThongKeModel = require("~/models/thongke.model");
+const sequelize = require("~/services/sequelize.service");
 const { addDays } = require("~/utils/common.util");
 
 class ThongkeController {
@@ -109,6 +110,57 @@ class ThongkeController {
 			// Thống kê số lượng nhập theo từng loại hàng (ở đơn vị nhỏ nhất)
 		} catch (error) {
 			console.log(error);
+		}
+	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async thongkeTheoNgay(req, res) {
+		try {
+			const ngaybd = req.query.ngaybd;
+			const ngaykt = req.query.ngaykt;
+
+			const thongke = await ThongKeModel.findAll({
+				attributes: [
+					"ngay",
+					[
+						sequelize.fn(
+							"sum",
+							sequelize.col("thu")
+						),
+						"thu",
+					],
+					[
+						sequelize.fn(
+							"sum",
+							sequelize.col("chi")
+						),
+						"chi",
+					],
+					[
+						sequelize.fn(
+							"sum",
+							sequelize.col("conlai")
+						),
+						"conlai",
+					],
+				],
+				where: {
+					ngay: {
+						[Op.between]: [ngaybd, ngaykt],
+					},
+				},
+
+				group: ["ngay"],
+			});
+
+			res.send(thongke);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
 		}
 	}
 }
