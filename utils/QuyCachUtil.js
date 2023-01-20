@@ -6,6 +6,7 @@ const QuyCachUtil = {
 		try {
 			const donviOfLoaiHang =
 				await DonViModel.findAll({
+					attributes: ["ma", "ten"],
 					where: { malh },
 				}).then((data) =>
 					data.map((e) => e.toJSON())
@@ -26,19 +27,24 @@ const QuyCachUtil = {
 			attributes: ["ma", "ten", "malh"],
 			where: { ma: bigUnitMa },
 		});
-		if (!bigUnit) return 0;
+		if (!bigUnit) return { soluong: 0, donvi: null };
 		const malh = bigUnit.malh;
 		const smallestUnit = await this.smallestUnit(malh);
-		if (bigUnit.ma === smallestUnit.ma) return 1;
+		if (bigUnit.ma === smallestUnit.ma)
+			return { soluong: 1, donvi: smallestUnit };
 		const quycach = await (
 			await QuyCachModel.findOne({
+				attributes: ["soluong"],
 				where: {
 					madv1: bigUnit.ma,
 					madv2: smallestUnit.ma,
 				},
 			})
 		).toJSON();
-		return soluong * quycach.soluong;
+		return {
+			soluong: soluong * quycach.soluong,
+			donvi: smallestUnit,
+		};
 	},
 };
 

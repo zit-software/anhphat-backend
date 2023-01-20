@@ -137,28 +137,45 @@ class ThongkeController {
 				});
 			}
 
-			const result = {};
+			const result = [];
 			const allMatHang = await MatHangModel.findAll({
+				attribute: ["malh", "madv"],
 				where: {
 					xuatvao: {
 						[Op.between]: [ngaybd, ngaykt],
 					},
 				},
-			});
-			console.log(allMatHang);
+				include: { model: LoaiHangModel },
+			}).then((data) => data.map((e) => e.toJSON()));
 			for (let mathang of allMatHang) {
-				const soluongDonViNhoNhat =
+				const dvnnObj =
 					await QuyCachUtil.convertToSmallestUnit(
 						mathang.madv,
 						1
 					);
-				if (mathang.malh in result) {
-					result[mathang.malh] =
-						result[mathang.malh] +
-						soluongDonViNhoNhat;
+				const soluongDonViNhoNhat = dvnnObj.soluong;
+				const donviNhoNhat = dvnnObj.donvi;
+				const foundIndex = result.findIndex(
+					(thongke) =>
+						thongke?.loaihang.ma ===
+						mathang.malh
+				);
+				if (foundIndex !== -1) {
+					result[foundIndex] = {
+						...result[foundIndex],
+						soluong:
+							result[foundIndex].soluong +
+							soluongDonViNhoNhat,
+					};
 				} else {
-					result[mathang.malh] =
-						soluongDonViNhoNhat;
+					result.push({
+						loaihang: {
+							ma: mathang.loaihang.ma,
+							ten: mathang.loaihang.ten,
+						},
+						soluong: soluongDonViNhoNhat,
+						donvi: donviNhoNhat,
+					});
 				}
 			}
 
@@ -193,27 +210,45 @@ class ThongkeController {
 				});
 			}
 
-			const result = {};
+			const result = [];
 			const allMatHang = await MatHangModel.findAll({
 				where: {
-					createdAt: {
+					ngaynhap: {
 						[Op.between]: [ngaybd, ngaykt],
 					},
 				},
-			});
+				include: LoaiHangModel,
+				attributes: ["malh", "madv"],
+			}).then((data) => data.map((e) => e.toJSON()));
 			for (let mathang of allMatHang) {
-				const soluongDonViNhoNhat =
+				const dvnnObj =
 					await QuyCachUtil.convertToSmallestUnit(
 						mathang.madv,
 						1
 					);
-				if (mathang.malh in result) {
-					result[mathang.malh] =
-						result[mathang.malh] +
-						soluongDonViNhoNhat;
+				const soluongDonViNhoNhat = dvnnObj.soluong;
+				const donviNhoNhat = dvnnObj.donvi;
+				const foundIndex = result.findIndex(
+					(thongke) =>
+						thongke?.loaihang.ma ===
+						mathang.malh
+				);
+				if (foundIndex !== -1) {
+					result[foundIndex] = {
+						...result[foundIndex],
+						soluong:
+							result[foundIndex].soluong +
+							soluongDonViNhoNhat,
+					};
 				} else {
-					result[mathang.malh] =
-						soluongDonViNhoNhat;
+					result.push({
+						loaihang: {
+							ma: mathang.loaihang.ma,
+							ten: mathang.loaihang.ten,
+						},
+						soluong: soluongDonViNhoNhat,
+						donvi: donviNhoNhat,
+					});
 				}
 			}
 
@@ -342,25 +377,72 @@ class ThongkeController {
 					})
 				).map((e) => e.toJSON());
 				for (let npp of allNPP) {
-					const soLuongLH = {};
+					const soLuongLH = [];
 					const allChiTiet =
 						await ChiTietPhieuXuatModel.findAll(
 							{
-								include: {
-									model: PhieuXuatModel,
-									attributes: ["ma"],
-									include: {
-										model: NhaPhanPhoiModel,
-										as: "npp",
-										where: {
-											tinh: tinh.tinh,
+								attributes: {
+									exclude: [
+										"createdAt",
+										"updatedAt",
+										"mamathang",
+									],
+								},
+								include: [
+									{
+										model: PhieuXuatModel,
+										attributes: [],
+										include: {
+											attributes: [],
+											model: NhaPhanPhoiModel,
+											as: "npp",
+											where: {
+												tinh: tinh.tinh,
+											},
 										},
 									},
-								},
+									{
+										model: MatHangModel,
+										attributes: [
+											"ma",
+											"malh",
+											"madv",
+										],
+										where: {
+											xuatvao: {
+												[Op.between]:
+													[
+														ngaybd,
+														ngaykt,
+													],
+											},
+										},
+									},
+								],
 							}
 						).then((data) =>
 							data.map((e) => e.toJSON())
 						);
+					for (let chitiet of allChiTiet) {
+						const malh = chitiet.mathang.malh;
+						const madv = chitiet.mathang.madv;
+						const soluong =
+							await QuyCachUtil.convertToSmallestUnit(
+								madv,
+								1
+							);
+						if (malh in soLuongLH) {
+							soLuongLH[malh] += soluong;
+						} else {
+							soLuongLH[malh] = soluong;
+						}
+					}
+
+					result[tinh.tinh].push({
+						manpp: npp.ma,
+						tennpp: npp.ten,
+						lh: soLuongLH,
+					});
 				}
 			}
 

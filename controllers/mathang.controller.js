@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const LoaiHangModel = require("~/models/loaihang.model");
 const DonViModel = require("~/models/donvi.model");
 const sequelize = require("~/services/sequelize.service");
+const QuyCachUtil = require("~/utils/QuyCachUtil");
 class MathangController {
 	/**
 	 *
@@ -220,6 +221,72 @@ class MathangController {
 				soluong: result,
 			});
 		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async phanra(req, res) {
+		const t = await sequelize.transaction();
+		try {
+			const ma = req.params.ma;
+			// Xóa mặt hàng hiện tại, thêm các mặt hàng mới ở đơn vị nhỏ hơn
+
+			// Kiểm tra xem đã xuất chưa
+			const currentMatHang =
+				await MatHangModel.findOne({
+					where: {
+						ma,
+						xuatvao: {
+							[Op.eq]: null,
+						},
+					},
+				}).then((data) => data?.toJSON());
+			if (!currentMatHang)
+				throw new Error(
+					"Mặt hàng không tồn tại, kiếm tra lại đã xuất kho hay chưa"
+				);
+
+			const converted =
+				await QuyCachUtil.convertToSmallestUnit(
+					currentMatHang.madv,
+					1
+				);
+			const soluongDVNN = converted.soluong;
+			if (soluongDVNN === 1)
+				throw new Error(
+					"Mặt Hàng Hiện Đã Ở Đơn Vị Nhỏ Nhất"
+				);
+			const dvnn = converted.donvi;
+			const createdMatHangs = [];
+			for (let i = 0; i < soluongDVNN; i++) {
+				const newMH = await MatHangModel.create(
+					{
+						ngaynhap: currentMatHang.ngaynhap,
+						hsd: currentMatHang.hsd,
+						gianhap: currentMatHang.gianhap,
+						giaban: currentMatHang.giaban,
+						malh: currentMatHang.malh,
+						madv: dvnn.ma,
+					},
+					{ transaction: t }
+				).then((data) => data.toJSON());
+				createdMatHangs.push(newMH);
+			}
+			await MatHangModel.destroy({
+				where: { ma },
+				transaction: t,
+			});
+
+			await t.commit();
+			return res.status(200).json(createdMatHangs);
+		} catch (error) {
+			await t.rollback();
 			res.status(400).send({
 				message: error.message,
 			});
