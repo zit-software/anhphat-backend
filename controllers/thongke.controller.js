@@ -318,12 +318,12 @@ class ThongkeController {
 			);
 
 			const tongthu = thongke.reduce(
-				(prev, current) => prev + +current.thu,
+				(prev, current) => prev + current.thu,
 				0
 			);
 
 			const tongchi = thongke.reduce(
-				(prev, current) => prev + +current.chi,
+				(prev, current) => prev + current.chi,
 				0
 			);
 
