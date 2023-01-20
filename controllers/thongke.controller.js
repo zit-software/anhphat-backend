@@ -213,7 +213,7 @@ class ThongkeController {
 			const result = [];
 			const allMatHang = await MatHangModel.findAll({
 				where: {
-					createdAt: {
+					ngaynhap: {
 						[Op.between]: [ngaybd, ngaykt],
 					},
 				},

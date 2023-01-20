@@ -34,6 +34,7 @@ const QuyCachUtil = {
 			return { soluong: 1, donvi: smallestUnit };
 		const quycach = await (
 			await QuyCachModel.findOne({
+				attributes: ["soluong"],
 				where: {
 					madv1: bigUnit.ma,
 					madv2: smallestUnit.ma,
