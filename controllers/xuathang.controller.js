@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
 const DonViModel = require("~/models/donvi.model");
 const KhuyenMaiGiamModel = require("~/models/khuyenmaigiam.model");
@@ -348,7 +349,7 @@ class XuatHangController {
 			let tongtien = 0;
 			let tongsl = 0;
 			// Kiểm tra phiếu nhập có tồn tại không
-			const phieuxuat = PhieuXuatModel.findOne({
+			const phieuxuat = await PhieuXuatModel.findOne({
 				where: { ma },
 				transaction: t,
 			});
@@ -361,7 +362,7 @@ class XuatHangController {
 					await MatHangModel.findOne({
 						where: {
 							ma: mathang.mh,
-							daxuat: false,
+							xuatvao: { [Op.eq]: null },
 						},
 						attributes: ["ma", "giaban"],
 						include: {
@@ -375,7 +376,7 @@ class XuatHangController {
 						`Không tìm thấy mặt hàng với mã ${mathang.mh}`
 					);
 				savedMH.push(matHangFound);
-				tongtien += mathang.giaban;
+				tongtien += +mathang.giaban;
 				tongsl += 1;
 				// Tạo các chi tiết phiếu xuất và chuyển mặt hàng thành đã xuất
 				await ChiTietPhieuXuatModel.create(
@@ -387,7 +388,8 @@ class XuatHangController {
 				);
 				await MatHangModel.update(
 					{
-						daxuat: true,
+						xuatvao:
+							phieuxuat.dataValues.ngayxuat,
 						giaban: mathang.giaban,
 					},
 					{
@@ -407,7 +409,7 @@ class XuatHangController {
 				const allAvailables =
 					await MatHangModel.findAll({
 						where: {
-							daxuat: false,
+							xuatvao: { [Op.eq]: null },
 							madv,
 							malh,
 						},
@@ -439,7 +441,7 @@ class XuatHangController {
 				for (let i = 0; i < soluong; i++) {
 					let available = allAvailables[i];
 					savedMH.push(available);
-					tongtien += giaban;
+					tongtien += +giaban;
 					tongsl += 1;
 					await ChiTietPhieuXuatModel.create(
 						{
@@ -450,7 +452,9 @@ class XuatHangController {
 					);
 					await MatHangModel.update(
 						{
-							daxuat: true,
+							xuatvao:
+								phieuxuat.dataValues
+									.ngayxuat,
 							giaban,
 						},
 						{
@@ -460,7 +464,6 @@ class XuatHangController {
 					);
 				}
 			}
-
 			// Công việc: tạo log thongke, tính lại tổng số lượng và tổng tiền của phiếu, chuyển field da luu thanh true
 			await PhieuXuatModel.update(
 				{
@@ -523,7 +526,11 @@ class XuatHangController {
 
 			const allAvailables =
 				await MatHangModel.findAll({
-					where: { daxuat: false, madv, malh },
+					where: {
+						xuatvao: { [Op.eq]: null },
+						madv,
+						malh,
+					},
 					attributes: [
 						"ma",
 						"ngaynhap",
