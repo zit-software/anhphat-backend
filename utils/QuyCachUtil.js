@@ -40,7 +40,7 @@ const QuyCachUtil = {
 					madv2: smallestUnit.ma,
 				},
 			})
-		).toJSON();
+		)?.toJSON();
 		return {
 			soluong: soluong * quycach?.soluong || 0,
 			donvi: smallestUnit,
