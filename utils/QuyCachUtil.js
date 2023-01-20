@@ -2,48 +2,24 @@ const DonViModel = require("~/models/donvi.model");
 const QuyCachModel = require("~/models/quycach.model");
 
 const QuyCachUtil = {
-	async smallestUnit(malh) {
-		try {
-			const donviOfLoaiHang =
-				await DonViModel.findAll({
-					attributes: ["ma", "ten"],
-					where: { malh },
-				}).then((data) =>
-					data.map((e) => e.toJSON())
-				);
-			for (let donvi of donviOfLoaiHang) {
-				const result = await QuyCachModel.findOne({
-					where: { madv1: donvi.ma },
-				});
-				if (!result) return donvi;
-			}
-			return {};
-		} catch (error) {
-			console.log(error);
-		}
-	},
 	async convertToSmallestUnit(bigUnitMa, soluong) {
-		const bigUnit = await DonViModel.findOne({
-			attributes: ["ma", "ten", "malh"],
-			where: { ma: bigUnitMa },
-		});
-		if (!bigUnit) return { soluong: 0, donvi: null };
-		const malh = bigUnit.malh;
-		const smallestUnit = await this.smallestUnit(malh);
-		if (bigUnit.ma === smallestUnit.ma)
-			return { soluong: 1, donvi: smallestUnit };
-		const quycach = await (
-			await QuyCachModel.findOne({
-				attributes: ["soluong"],
+		let next = { madv2: bigUnitMa, soluong: 1 };
+		let quycach = null;
+
+		do {
+			quycach = next;
+			next = await QuyCachModel.findOne({
 				where: {
-					madv1: bigUnit.ma,
-					madv2: smallestUnit.ma,
+					madv1: next.madv2,
 				},
-			})
-		)?.toJSON();
+			}).then((res) => res?.toJSON());
+		} while (next);
+
 		return {
-			soluong: soluong * quycach?.soluong || 0,
-			donvi: smallestUnit,
+			soluong: soluong * quycach.soluong,
+			donvi: await DonViModel.findOne({
+				where: { ma: quycach.madv2 },
+			}).then((res) => res.toJSON()),
 		};
 	},
 };

@@ -1,3 +1,4 @@
+const { sortBy, orderBy } = require("lodash");
 const { Op } = require("sequelize");
 const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
 const DonViModel = require("~/models/donvi.model");
@@ -152,23 +153,23 @@ class ThongkeController {
 				],
 				where: {
 					xuatvao: {
-						[Op.between]: [ngaybd, ngaykt],
+						[Op.and]: {
+							[Op.between]: [ngaybd, ngaykt],
+							[Op.not]: null,
+						},
 					},
 				},
 				include: { model: LoaiHangModel },
 				group: ["malh", "madv"],
 			}).then((res) => res.map((e) => e.toJSON()));
 
-			console.log(allMatHang);
-
 			for (let mathang of allMatHang) {
 				const dvnnObj =
 					await QuyCachUtil.convertToSmallestUnit(
 						mathang.madv,
-						1
+						mathang.soluong
 					);
-				const soluongDonViNhoNhat =
-					dvnnObj.soluong * mathang.soluong;
+				const soluongDonViNhoNhat = dvnnObj.soluong;
 				const donviNhoNhat = dvnnObj.donvi;
 				const foundIndex = result.findIndex(
 					(thongke) =>
@@ -233,15 +234,28 @@ class ThongkeController {
 					},
 				},
 				include: LoaiHangModel,
-				attributes: ["malh", "madv"],
+				attributes: [
+					"malh",
+					"madv",
+					[
+						sequelize.fn(
+							"count",
+							sequelize.col("*")
+						),
+						"soluong",
+					],
+				],
+				group: ["malh", "madv"],
 			}).then((data) => data.map((e) => e.toJSON()));
+
 			for (let mathang of allMatHang) {
 				const dvnnObj =
 					await QuyCachUtil.convertToSmallestUnit(
 						mathang.madv,
-						1
+						mathang.soluong
 					);
 				const soluongDonViNhoNhat = dvnnObj.soluong;
+
 				const donviNhoNhat = dvnnObj.donvi;
 				const foundIndex = result.findIndex(
 					(thongke) =>
