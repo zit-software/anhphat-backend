@@ -268,42 +268,11 @@ class ThongkeController {
 			const ngaykt = req.query.ngaykt;
 
 			const thongke = await ThongKeModel.findAll({
-				attributes: [
-					"ngay",
-					[
-						sequelize.fn(
-							"sum",
-							sequelize.col("thu")
-						),
-						"thu",
-					],
-					[
-						sequelize.fn(
-							"sum",
-							sequelize.col("chi")
-						),
-						"chi",
-					],
-					[
-						sequelize.fn(
-							"max",
-							sequelize.col("conlai")
-						),
-						"conlai",
-					],
-				],
 				where: {
 					ngay: {
 						[Op.between]: [ngaybd, ngaykt],
 					},
 				},
-
-				group: [
-					sequelize.fn(
-						"date",
-						sequelize.col("ngay")
-					),
-				],
 			});
 
 			const max = thongke.reduce(
@@ -327,9 +296,18 @@ class ThongkeController {
 				0
 			);
 
+			const lastLast = await ThongKeModel.findOne({
+				where: {
+					ngay: {
+						[Op.lt]: ngaybd,
+					},
+				},
+				order: [["ngay", "desc"]],
+			});
+
 			const doanhthu =
 				thongke[thongke.length - 1]?.conlai -
-					thongke[0]?.conlai || 0;
+				(lastLast?.conlai || 0);
 
 			res.send({
 				data: thongke,

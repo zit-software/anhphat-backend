@@ -42,7 +42,7 @@ const QuyCachUtil = {
 			})
 		).toJSON();
 		return {
-			soluong: soluong * quycach.soluong,
+			soluong: soluong * quycach?.soluong || 0,
 			donvi: smallestUnit,
 		};
 	},
