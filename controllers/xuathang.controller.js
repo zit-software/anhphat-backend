@@ -88,7 +88,6 @@ class XuatHangController {
 				npp,
 				kmg,
 				kmt,
-				ma: phieuxuat.ma,
 			};
 
 			return res.status(200).json(result);
@@ -349,14 +348,13 @@ class XuatHangController {
 			const savedMH = [];
 			let tongtien = 0;
 			let tongsl = 0;
-			// Kiểm tra phiếu nhập có tồn tại không
+			// Kiểm tra phiếu xuất có tồn tại không
 			const phieuxuat = await PhieuXuatModel.findOne({
 				where: { ma },
 				transaction: t,
 			});
 			if (!phieuxuat)
 				throw new Error("Không tồn tại phiếu nhập");
-
 			// Xử lý các mặt hàng manual
 			for (let mathang of manual) {
 				const matHangFound =
