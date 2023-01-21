@@ -37,7 +37,6 @@ const PhieuNhapModel = sequelize.define(
 		},
 		nguoigiao: {
 			type: DataTypes.TEXT,
-			allowNull: false,
 		},
 
 		daluu: {
