@@ -23,16 +23,19 @@ const ThongKeModel = sequelize.define(
 			validate: {
 				min: 0,
 			},
+			defaultValue: 0,
 		},
 		chi: {
 			type: DataTypes.BIGINT,
 			validate: {
 				min: 0,
 			},
+			defaultValue: 0,
 		},
 		conlai: {
 			type: DataTypes.BIGINT,
 			allowNull: false,
+			defaultValue: 0,
 		},
 		xoa: {
 			type: DataTypes.DATE,

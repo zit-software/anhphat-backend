@@ -466,6 +466,16 @@ class XuatHangController {
 				}
 			}
 			// Công việc: tạo log thongke, tính lại tổng số lượng và tổng tiền của phiếu, chuyển field da luu thanh true
+			if (
+				await PhieuXuatModel.findOne({
+					where: { ma, daluu: true },
+				})
+			) {
+				throw new Error(
+					"Hóa đơn này đã được lưu trước đó"
+				);
+			}
+
 			await PhieuXuatModel.update(
 				{
 					tongtien,
@@ -479,28 +489,18 @@ class XuatHangController {
 				transaction: t,
 			}).then((data) => data?.toJSON());
 
-			if (!previousLog) {
-				await ThongKeModel.create(
-					{
-						thu: tongtien,
-						conlai: tongtien,
-						maphieuxuat: ma,
-					},
-					{ transaction: t }
-				);
-			} else {
-				const prevConLai = previousLog.conlai;
-				await ThongKeModel.create(
-					{
-						ngay: new Date(),
-						thu: tongtien,
-						conlai: tongtien + prevConLai,
-						maphieuxuat: ma,
-					},
-					{ transaction: t }
-				);
-			}
+			const prevConLai = previousLog?.conlai || 0;
+			await ThongKeModel.create(
+				{
+					thu: tongtien,
+					conlai: tongtien + prevConLai,
+					maphieuxuat: ma,
+				},
+				{ transaction: t }
+			);
+
 			await t.commit();
+
 			return res.status(200).json({
 				message: "Lưu phiếu xuất thành công",
 			});

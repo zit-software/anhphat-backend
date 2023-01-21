@@ -395,6 +395,16 @@ class NhaphangController {
 					0
 				);
 
+			if (
+				await PhieuNhapModel.findOne({
+					where: { ma, daluu: true },
+				})
+			) {
+				throw new Error(
+					"Hóa đơn này đã được lưu trước đó"
+				);
+			}
+
 			await PhieuNhapModel.update(
 				{ daluu: true, tongtien },
 				{ where: { ma }, transaction: t }
@@ -409,9 +419,8 @@ class NhaphangController {
 					maphieunhap: ma,
 					chi: tongtien,
 					conlai:
-						(lastThongke
-							? lastThongke.conlai
-							: 0) - tongtien,
+						(lastThongke?.conlai || 0) -
+						tongtien,
 				},
 				{ transaction: t }
 			);
