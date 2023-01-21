@@ -65,6 +65,16 @@ class MathangController {
 			const donviQuery = req.query.donvi;
 			const ngaynhapQuery = req.query.ngaynhap;
 			const orderQuery = req.query.order;
+			console.log(req.query.page);
+
+			const limit = req.query.page
+				? 20
+				: req.query.page === 0
+				? 20
+				: null;
+			const offset = limit
+				? limit * req.query.page
+				: 0;
 			let group = null;
 			let attributes = null;
 			if (req.query.group) {
@@ -105,11 +115,6 @@ class MathangController {
 				order.push([orderQuery, "DESC"]);
 			else if (orderQuery == "soluong")
 				order.push([orderQuery, "ASC"]);
-
-			const limit = req.query.page ? 10 : null;
-			const offset = limit
-				? limit * req.query.page
-				: 0;
 
 			// Lấy tất cả mặt hàng
 			const allMH = await MatHangModel.findAll({
