@@ -5,14 +5,17 @@ const PhieuXuatModel = require("./phieuxuat.model");
 const ChiTietPhieuXuatModel = sequelize.define(
 	"chitietphieuxuat",
 	{},
-	{ timestamps: true }
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	}
 );
 ChiTietPhieuXuatModel.belongsTo(PhieuXuatModel, {
 	foreignKey: {
 		name: "maphieuxuat",
 		allowNull: false,
 	},
-	onDelete: "CASCADE",
 });
 
 ChiTietPhieuXuatModel.belongsTo(MatHangModel, {
@@ -20,7 +23,6 @@ ChiTietPhieuXuatModel.belongsTo(MatHangModel, {
 		name: "mamathang",
 		allowNull: false,
 	},
-	onDelete: "CASCADE",
 });
 
 module.exports = ChiTietPhieuXuatModel;

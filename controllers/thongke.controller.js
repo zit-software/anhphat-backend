@@ -140,15 +140,15 @@ class ThongkeController {
 			const result = [];
 			const allMatHang = await MatHangModel.findAll({
 				attributes: [
+					"malh",
+					"madv",
 					[
 						sequelize.fn(
 							"count",
-							sequelize.col("*")
+							sequelize.col("mathang.ma")
 						),
 						"soluong",
 					],
-					"malh",
-					"madv",
 				],
 				where: {
 					xuatvao: {
@@ -158,9 +158,6 @@ class ThongkeController {
 				include: { model: LoaiHangModel },
 				group: ["malh", "madv"],
 			}).then((res) => res.map((e) => e.toJSON()));
-
-			console.log(allMatHang);
-
 			for (let mathang of allMatHang) {
 				const dvnnObj =
 					await QuyCachUtil.convertToSmallestUnit(
@@ -361,82 +358,61 @@ class ThongkeController {
 					],
 				}
 			).then((data) => data.map((e) => e.toJSON()));
-			const result = {};
+			const result = [];
 			for (let tinh of allTinhs) {
-				result[tinh.tinh] = [];
-				const allNPP = (
-					await NhaPhanPhoiModel.findAll({
-						where: { tinh: tinh.tinh },
-					})
-				).map((e) => e.toJSON());
-				for (let npp of allNPP) {
-					const soLuongLH = [];
-					const allChiTiet =
-						await ChiTietPhieuXuatModel.findAll(
-							{
-								attributes: {
-									exclude: [
-										"createdAt",
-										"updatedAt",
-										"mamathang",
-									],
-								},
-								include: [
-									{
-										model: PhieuXuatModel,
-										attributes: [],
-										include: {
-											attributes: [],
-											model: NhaPhanPhoiModel,
-											as: "npp",
-											where: {
-												tinh: tinh.tinh,
-											},
-										},
-									},
-									{
-										model: MatHangModel,
-										attributes: [
-											"ma",
-											"malh",
-											"madv",
-										],
-										where: {
-											xuatvao: {
-												[Op.between]:
-													[
-														ngaybd,
-														ngaykt,
-													],
-											},
-										},
-									},
-								],
-							}
-						).then((data) =>
-							data.map((e) => e.toJSON())
+				const npp = [];
+				let sumDoanhThu = 0;
+				const thongkeLoaiHangNPP =
+					await sequelize.query(
+						`SELECT npp.ma, npp.ten, mh.madv, mh.malh AS 'loaihang.ma', lh.ten AS 'loaihang.ten', COUNT(mh.ma) AS soluongmh FROM nhaphanphois AS npp JOIN phieuxuats AS px ON px.manpp = npp.ma JOIN chitietphieuxuats AS ctpx ON ctpx.maphieuxuat = px.ma JOIN mathangs AS mh ON ctpx.mamathang = mh.ma JOIN loaihangs AS lh ON mh.malh = lh.ma WHERE npp.tinh = ${tinh.tinh} and npp.xoavao is null and px.xoavao is null and ctpx.xoavao is null and mh.xoavao is null and lh.xoavao is null and px.ngayxuat between '${ngaybd}' and '${ngaykt}' GROUP BY mh.malh , mh.madv , npp.ma ORDER BY npp.ma;`,
+						{ nest: true }
+					);
+				for (let thongke of thongkeLoaiHangNPP) {
+					let findIndex = npp.findIndex(
+						(npp) => npp.ma === thongke.ma
+					);
+					const loaihang = {
+						...thongke.loaihang,
+					};
+					const dvnn =
+						await QuyCachUtil.convertToSmallestUnit(
+							thongke.madv,
+							thongke.soluongmh
 						);
-					for (let chitiet of allChiTiet) {
-						const malh = chitiet.mathang.malh;
-						const madv = chitiet.mathang.madv;
-						const soluong =
-							await QuyCachUtil.convertToSmallestUnit(
-								madv,
-								1
-							);
-						if (malh in soLuongLH) {
-							soLuongLH[malh] += soluong;
-						} else {
-							soLuongLH[malh] = soluong;
-						}
-					}
+					loaihang.soluong = dvnn.soluong;
+					loaihang.donvi = dvnn.donvi;
+					if (findIndex === -1) {
+						const thongkeNPP = {
+							ma: thongke.ma,
+							ten: thongke.ten,
+							loaihang: [],
+						};
+						thongkeNPP.loaihang.push(loaihang);
+						npp.push(thongkeNPP);
+					} else {
+						const currentNPP = npp[findIndex];
 
-					result[tinh.tinh].push({
-						manpp: npp.ma,
-						tennpp: npp.ten,
-						lh: soLuongLH,
-					});
+						currentNPP.loaihang.push(loaihang);
+					}
 				}
+				console.log(npp);
+				const thongkeDoanhThuNpp =
+					await sequelize.query(
+						`SELECT npp.ma, sum(px.tongtien) as doanhthu FROM nhaphanphois AS npp JOIN phieuxuats AS px ON npp.ma = px.manpp where px.xoavao is null and npp.xoavao is null and npp.tinh = ${tinh.tinh} and px.daluu = 1 and px.ngayxuat between '${ngaybd}' and '${ngaykt}' group by npp.ma order by npp.ma;`,
+						{ nest: true }
+					);
+				for (let thongke of thongkeDoanhThuNpp) {
+					const currentNPP = npp.find(
+						(npp) => npp.ma === thongke.ma
+					);
+					currentNPP.doanhthu = thongke.doanhthu;
+					sumDoanhThu += +currentNPP.doanhthu;
+				}
+				result.push({
+					tinh: tinh.tinh,
+					npp,
+					doanhthu: sumDoanhThu,
+				});
 			}
 
 			return res.status(200).json(result);
