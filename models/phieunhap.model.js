@@ -44,6 +44,10 @@ const PhieuNhapModel = sequelize.define(
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,
 		},
+		trahang: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+		},
 	},
 	{
 		timestamps: true,

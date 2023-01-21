@@ -65,19 +65,24 @@ class MathangController {
 			const donviQuery = req.query.donvi;
 			const ngaynhapQuery = req.query.ngaynhap;
 			const orderQuery = req.query.order;
+			console.log(req.query.page);
+
+			const limit = req.query.page
+				? 20
+				: req.query.page === 0
+				? 20
+				: null;
+			const offset = limit
+				? limit * req.query.page
+				: 0;
 			let group = null;
 			let attributes = null;
 			if (req.query.group) {
-				group = [
-					"ngaynhap",
-					"hsd",
-					"mathang.malh",
-					"madv",
-					"donvi.gianhap",
-				];
 				attributes = [
 					"hsd",
 					"ngaynhap",
+					"madv",
+					"malh",
 					[
 						sequelize.fn(
 							"count",
@@ -85,6 +90,12 @@ class MathangController {
 						),
 						"soluong",
 					],
+				];
+				group = [
+					"ngaynhap",
+					"hsd",
+					"mathang.malh",
+					"madv",
 				];
 			}
 
@@ -106,11 +117,6 @@ class MathangController {
 			else if (orderQuery == "soluong")
 				order.push([orderQuery, "ASC"]);
 
-			const limit = req.query.page ? 10 : null;
-			const offset = limit
-				? limit * req.query.page
-				: 0;
-
 			// Lấy tất cả mặt hàng
 			const allMH = await MatHangModel.findAll({
 				attributes,
@@ -128,9 +134,18 @@ class MathangController {
 				offset,
 				group,
 			});
-			const total = await MatHangModel.count({
-				where,
-			});
+			let total = 0;
+			if (group) {
+				total = await MatHangModel.findAll({
+					attributes: ["malh"],
+					where,
+					group,
+				}).then((data) => data.length);
+			} else {
+				total = await MatHangModel.count({
+					where,
+				});
+			}
 			return res.status(200).json({
 				data: allMH.map((mh) => mh.toJSON()),
 				total,
