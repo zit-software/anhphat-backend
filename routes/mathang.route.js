@@ -9,6 +9,8 @@ const {
 	laySoLuong,
 	layMotMathang,
 	phanra,
+	laymathangSapHetHan,
+	layloaihangSapHet,
 } = require("~/controllers/mathang.controller");
 
 const router = Router();
@@ -18,6 +20,8 @@ router
 	.post(themmathang)
 	.get(laytatcamathang)
 	.get(laymotmathang);
+router.route("/saphethan").get(laymathangSapHetHan);
+router.route("/saphet").get(layloaihangSapHet);
 
 router
 	.route("/:ma")
