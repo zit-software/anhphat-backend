@@ -497,7 +497,23 @@ class XuatHangController {
 				},
 				{ transaction: t }
 			);
-
+			// Tích điểm cho nhà phân phối
+			const manpp = phieuxuat.dataValues.manpp;
+			let totalDiem = 0;
+			for (let mh of savedMH) {
+				const diem = await (
+					await DonViModel.findOne({
+						where: { ma: mh.madv },
+					})
+				).toJSON();
+				totalDiem += +diem;
+			}
+			await NhaPhanPhoiModel.update(
+				{
+					diem: sequelize.col("diem") + totalDiem,
+				},
+				{ transaction: t, where: { ma: manpp } }
+			);
 			await t.commit();
 
 			return res.status(200).json({
