@@ -4,6 +4,7 @@ const DonViModel = require("~/models/donvi.model");
 const KhuyenMaiGiamModel = require("~/models/khuyenmaigiam.model");
 const KhuyenMaiTangModel = require("~/models/khuyenmaitang.model");
 const LoaiHangModel = require("~/models/loaihang.model");
+const LogDiemModel = require("~/models/logdiem.model");
 const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 const PhieuXuatModel = require("~/models/phieuxuat.model");
@@ -352,6 +353,10 @@ class XuatHangController {
 			// Kiểm tra phiếu xuất có tồn tại không
 			const phieuxuat = await PhieuXuatModel.findOne({
 				where: { ma },
+				include: {
+					model: NhaPhanPhoiModel,
+					as: "npp",
+				},
 				transaction: t,
 			});
 			if (!phieuxuat)
@@ -501,18 +506,31 @@ class XuatHangController {
 			const manpp = phieuxuat.dataValues.manpp;
 			let totalDiem = 0;
 			for (let mh of savedMH) {
-				const diem = await (
+				const donvi = await (
 					await DonViModel.findOne({
+						attributes: ["ma", "diem"],
 						where: { ma: mh.madv },
 					})
 				).toJSON();
-				totalDiem += +diem;
+				totalDiem += +donvi.diem;
 			}
+			console.log(totalDiem);
 			await NhaPhanPhoiModel.update(
 				{
-					diem: sequelize.col("diem") + totalDiem,
+					diem: sequelize.literal(
+						`diem + ${totalDiem}`
+					),
 				},
 				{ transaction: t, where: { ma: manpp } }
+			);
+			await LogDiemModel.create(
+				{
+					diem: totalDiem,
+					ghichu: `Cộng điểm cho ${phieuxuat.dataValues.npp.ten}: mã hóa đơn xuất ${phieuxuat.dataValues.ma}`,
+					manpp,
+					mauser: phieuxuat.dataValues.mauser,
+				},
+				{ transaction: t }
 			);
 			await t.commit();
 

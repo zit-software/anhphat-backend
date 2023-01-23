@@ -190,7 +190,6 @@ class MathangController {
 			const donviQuery = req.query.donvi;
 			const ngaynhapQuery = req.query.ngaynhap;
 			const orderQuery = req.query.order;
-			console.log(req.query.page);
 
 			const limit = req.query.page
 				? 20

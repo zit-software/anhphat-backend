@@ -1,4 +1,7 @@
+const LogDiemModel = require("~/models/logdiem.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
+const UserModel = require("~/models/user.model");
+const sequelize = require("~/services/sequelize.service");
 
 class NhaPhanPhoiControler {
 	/**
@@ -136,6 +139,90 @@ class NhaPhanPhoiControler {
 			res.send({
 				message: "Xóa nhà phân phối thành công",
 			});
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async capnhatdiem(req, res) {
+		const t = await sequelize.transaction();
+		try {
+			const ma = req.params.ma;
+			const currentNPP =
+				await NhaPhanPhoiModel.findOne({
+					where: { ma },
+					attributes: ["ma", "ten", "diem"],
+				}).then((data) => data.toJSON());
+			if (!currentNPP)
+				throw new Error(
+					"Nhà phân phối không tồn tại"
+				);
+			const currentDiem = currentNPP.diem;
+			const currentUser = req.currentUser;
+			const { diem, ghichu } = req.body;
+			console.log(currentNPP);
+			console.log(diem, currentDiem);
+			console.log(diem - currentDiem);
+			await LogDiemModel.create(
+				{
+					diem: diem - currentDiem,
+					ghichu,
+					mauser: currentUser.ma,
+					manpp: ma,
+				},
+				{ transaction: t }
+			);
+			await NhaPhanPhoiModel.update(
+				{
+					diem,
+				},
+				{ where: { ma }, transaction: t }
+			);
+			await t.commit();
+			return res.status(200).json({
+				manpp: ma,
+				diem,
+				ghichu,
+			});
+		} catch (error) {
+			await t.rollback();
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async getAllLogDiem(req, res) {
+		try {
+			const limit = req.query.page >= 0 ? 20 : null;
+			const offset = limit
+				? limit * req.query.page
+				: 0;
+			const allLogsDiem = await LogDiemModel.findAll({
+				include: [
+					{ model: NhaPhanPhoiModel, as: "npp" },
+					{
+						model: UserModel,
+						as: "user",
+					},
+				],
+				limit,
+				offset,
+			}).then((data) => data.map((e) => e.toJSON()));
+			const total = await LogDiemModel.count({});
+			return res
+				.status(200)
+				.json({ data: allLogsDiem, total });
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
