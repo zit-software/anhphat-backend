@@ -34,8 +34,18 @@ class MathangController {
 				currentDate.getDate() + dayUntilExpired
 			);
 
+			const limit = req.query.page
+				? 10
+				: req.query.page === 0
+				? 10
+				: null;
+			const offset = limit
+				? limit * req.query.page
+				: 0;
+
 			const allNearExpired =
 				await MatHangModel.findAll({
+					attributes: ["ma", "ngaynhap", "hsd"],
 					where: {
 						hsd: {
 							[Op.between]: [
@@ -45,10 +55,31 @@ class MathangController {
 						},
 						xuatvao: { [Op.eq]: null },
 					},
+					include: [
+						{ model: LoaiHangModel },
+						{ model: DonViModel },
+					],
+					limit,
+					offset,
 				}).then((data) =>
 					data.map((e) => e.toJSON())
 				);
-			return res.status(200).json(allNearExpired);
+			const total = await MatHangModel.count({
+				where: {
+					hsd: {
+						[Op.between]: [
+							currentDate,
+							dateMax,
+						],
+					},
+					xuatvao: { [Op.eq]: null },
+				},
+			});
+			await t.commit();
+			return res.status(200).json({
+				data: allNearExpired,
+				total,
+			});
 		} catch (error) {
 			await t.rollback();
 			res.status(400).send({
@@ -126,7 +157,6 @@ class MathangController {
 			const result = [];
 			// Lặp qua các loại hàng để kiểm tra, loại hàng nào còn ít hơn 12 thì thông báo
 			for (let loaihang of soluongtheoLoaiHang) {
-				console.log(loaihang);
 				if (loaihang.soluong < minimunSoLuong) {
 					result.push({
 						ma: loaihang.loaihang.ma,
