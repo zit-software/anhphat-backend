@@ -6,7 +6,8 @@
 	"scripts": {
 		"start": "node ./bin/www",
 		"dev": "nodemon",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"lint": "eslint --fix"
 	},
 	"_moduleAliases": {
 		"~": "./"
