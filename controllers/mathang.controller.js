@@ -18,6 +18,161 @@ class MathangController {
 			});
 		}
 	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async laymathangSapHetHan(req, res) {
+		const t = await sequelize.transaction();
+		try {
+			// Kiểm tra Mặt hàng có hạn sử dụng < 1 tháng
+			const dayUntilExpired = 30;
+			const currentDate = new Date();
+			let dateMax = new Date();
+			dateMax.setDate(
+				currentDate.getDate() + dayUntilExpired
+			);
+
+			const limit = req.query.page
+				? 10
+				: req.query.page === 0
+				? 10
+				: null;
+			const offset = limit
+				? limit * req.query.page
+				: 0;
+
+			const allNearExpired =
+				await MatHangModel.findAll({
+					attributes: ["ma", "ngaynhap", "hsd"],
+					where: {
+						hsd: {
+							[Op.between]: [
+								currentDate,
+								dateMax,
+							],
+						},
+						xuatvao: { [Op.eq]: null },
+					},
+					include: [
+						{ model: LoaiHangModel },
+						{ model: DonViModel },
+					],
+					limit,
+					offset,
+				}).then((data) =>
+					data.map((e) => e.toJSON())
+				);
+			const total = await MatHangModel.count({
+				where: {
+					hsd: {
+						[Op.between]: [
+							currentDate,
+							dateMax,
+						],
+					},
+					xuatvao: { [Op.eq]: null },
+				},
+			});
+			await t.commit();
+			return res.status(200).json({
+				data: allNearExpired,
+				total,
+			});
+		} catch (error) {
+			await t.rollback();
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async layloaihangSapHet(req, res) {
+		try {
+			// Lấy tất cả số lượng dựa theo loại hàng
+			const minimunSoLuong = 1200;
+			const allSoLuongLoaiHang =
+				await MatHangModel.findAll({
+					attributes: [
+						"malh",
+						"madv",
+						[
+							sequelize.fn(
+								"count",
+								sequelize.col("mathang.ma")
+							),
+							"soluong",
+						],
+					],
+					where: {
+						xuatvao: {
+							[Op.eq]: null,
+						},
+					},
+					include: { model: LoaiHangModel },
+					group: ["malh", "madv"],
+				}).then((res) =>
+					res.map((e) => e.toJSON())
+				);
+			// Chuyển đổi về số lượng của quy cách nhỏ nhất
+			const soluongtheoLoaiHang = [];
+			for (let loaihang of allSoLuongLoaiHang) {
+				const dvnnObj =
+					await QuyCachUtil.convertToSmallestUnit(
+						loaihang.madv,
+						loaihang.soluong
+					);
+				const soluongDonViNhoNhat = dvnnObj.soluong;
+				const donviNhoNhat = dvnnObj.donvi;
+				const foundIndex =
+					soluongtheoLoaiHang.findIndex(
+						(thongke) =>
+							thongke?.loaihang.ma ===
+							loaihang.malh
+					);
+				if (foundIndex !== -1) {
+					soluongtheoLoaiHang[foundIndex] = {
+						...soluongtheoLoaiHang[foundIndex],
+						soluong:
+							soluongtheoLoaiHang[foundIndex]
+								.soluong +
+							soluongDonViNhoNhat,
+					};
+				} else {
+					soluongtheoLoaiHang.push({
+						loaihang: {
+							ma: loaihang.malh,
+							ten: loaihang.loaihang.ten,
+						},
+						soluong: soluongDonViNhoNhat,
+						donvi: donviNhoNhat,
+					});
+				}
+			}
+			const result = [];
+			// Lặp qua các loại hàng để kiểm tra, loại hàng nào còn ít hơn 12 thì thông báo
+			for (let loaihang of soluongtheoLoaiHang) {
+				if (loaihang.soluong < minimunSoLuong) {
+					result.push({
+						ma: loaihang.loaihang.ma,
+						ten: loaihang.loaihang.ten,
+						soluong: loaihang.soluong,
+						donvi: loaihang.donvi,
+					});
+				}
+			}
+			return res.status(200).json(result);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
 
 	/**
 	 *
@@ -65,7 +220,6 @@ class MathangController {
 			const donviQuery = req.query.donvi;
 			const ngaynhapQuery = req.query.ngaynhap;
 			const orderQuery = req.query.order;
-			console.log(req.query.page);
 
 			const limit = req.query.page
 				? 20
@@ -78,16 +232,11 @@ class MathangController {
 			let group = null;
 			let attributes = null;
 			if (req.query.group) {
-				group = [
-					"ngaynhap",
-					"hsd",
-					"mathang.malh",
-					"madv",
-					"donvi.gianhap",
-				];
 				attributes = [
 					"hsd",
 					"ngaynhap",
+					"madv",
+					"malh",
 					[
 						sequelize.fn(
 							"count",
@@ -95,6 +244,12 @@ class MathangController {
 						),
 						"soluong",
 					],
+				];
+				group = [
+					"ngaynhap",
+					"hsd",
+					"mathang.malh",
+					"madv",
 				];
 			}
 
@@ -133,9 +288,18 @@ class MathangController {
 				offset,
 				group,
 			});
-			const total = await MatHangModel.count({
-				where,
-			});
+			let total = 0;
+			if (group) {
+				total = await MatHangModel.findAll({
+					attributes: ["malh"],
+					where,
+					group,
+				}).then((data) => data.length);
+			} else {
+				total = await MatHangModel.count({
+					where,
+				});
+			}
 			return res.status(200).json({
 				data: allMH.map((mh) => mh.toJSON()),
 				total,
