@@ -439,6 +439,109 @@ class ThongkeController {
 			});
 		}
 	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async thongkeTheoMotTinh(req, res) {
+		try {
+			const ngaybd = req.query.ngaybd;
+			const ngaykt = req.query.ngaykt;
+			const tinh = req.params.matinh;
+			if (!(tinh >= 0))
+				throw new Error("Mã Tỉnh không hợp lệ");
+			const npp = [];
+			let sumDoanhThu = 0;
+			const thongkeLoaiHangNPP =
+				await sequelize.query(
+					`SELECT npp.ma, npp.ten, mh.madv, mh.malh AS 'loaihang.ma', lh.ten AS 'loaihang.ten', COUNT(mh.ma) AS soluongmh FROM nhaphanphois AS npp JOIN phieuxuats AS px ON px.manpp = npp.ma JOIN chitietphieuxuats AS ctpx ON ctpx.maphieuxuat = px.ma JOIN mathangs AS mh ON ctpx.mamathang = mh.ma JOIN loaihangs AS lh ON mh.malh = lh.ma WHERE npp.tinh = ${tinh} and npp.xoavao is null and px.xoavao is null and ctpx.xoavao is null and mh.xoavao is null and lh.xoavao is null and px.ngayxuat between '${ngaybd}' and '${ngaykt}' GROUP BY mh.malh , mh.madv , npp.ma ORDER BY npp.ma;`,
+					{ nest: true }
+				);
+			for (let thongke of thongkeLoaiHangNPP) {
+				let findIndex = npp.findIndex(
+					(npp) => npp.ma === thongke.ma
+				);
+				const loaihang = {
+					...thongke.loaihang,
+				};
+				const dvnn =
+					await QuyCachUtil.convertToSmallestUnit(
+						thongke.madv,
+						thongke.soluongmh
+					);
+				loaihang.soluong = dvnn.soluong;
+				loaihang.donvi = dvnn.donvi;
+				if (findIndex === -1) {
+					const thongkeNPP = {
+						ma: thongke.ma,
+						ten: thongke.ten,
+						loaihang: [],
+					};
+					thongkeNPP.loaihang.push(loaihang);
+					npp.push(thongkeNPP);
+				} else {
+					const currentNPP = npp[findIndex];
+
+					currentNPP.loaihang.push(loaihang);
+				}
+			}
+			const thongkeDoanhThuNpp =
+				await sequelize.query(
+					`SELECT npp.ma, sum(px.tongtien) as doanhthu FROM nhaphanphois AS npp JOIN phieuxuats AS px ON npp.ma = px.manpp where px.xoavao is null and npp.xoavao is null and npp.tinh = ${tinh} and px.daluu = 1 and px.ngayxuat between '${ngaybd}' and '${ngaykt}' group by npp.ma order by npp.ma;`,
+					{ nest: true }
+				);
+			for (let thongke of thongkeDoanhThuNpp) {
+				const currentNPP = npp.find(
+					(npp) => npp.ma === thongke.ma
+				);
+				currentNPP.doanhthu = thongke.doanhthu;
+				sumDoanhThu += +currentNPP.doanhthu;
+			}
+			const result = {
+				tinh,
+				npp,
+				doanhthu: sumDoanhThu,
+			};
+
+			return res.status(200).json(result);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+
+	async getAllTinh(req, res) {
+		try {
+			const allTinhs = await NhaPhanPhoiModel.findAll(
+				{
+					attributes: [
+						[
+							sequelize.fn(
+								"DISTINCT",
+								sequelize.col("tinh")
+							),
+							"tinh",
+						],
+					],
+				}
+			).then((data) =>
+				data.map((e) => e.toJSON().tinh)
+			);
+			return res.status(200).json(allTinhs);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
 }
 
 module.exports = new ThongkeController();
