@@ -3,7 +3,7 @@ const MatHangModel = require("./mathang.model");
 const PhieuNhapModel = require("./phieunhap.model");
 
 const ChiTietPhieuNhapModel = sequelize.define(
-	"ChiTietPhieuNhap",
+	"chitietphieunhap",
 	{},
 	{
 		timestamps: true,
