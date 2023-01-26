@@ -166,6 +166,21 @@ class MathangController {
 					});
 				}
 			}
+			const allLH = await LoaiHangModel.findAll({
+				attributes: ["ma", "ten"],
+			});
+			for (let lh of allLH) {
+				const findIndex = result.findIndex(
+					(ele) => ele.ma === lh.ma
+				);
+				if (findIndex === -1) {
+					result.push({
+						ma: lh.ma,
+						ten: lh.ten,
+						soluong: 0,
+					});
+				}
+			}
 			return res.status(200).json(result);
 		} catch (error) {
 			res.status(400).send({

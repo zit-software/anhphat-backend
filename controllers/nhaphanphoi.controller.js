@@ -218,6 +218,7 @@ class NhaPhanPhoiControler {
 				],
 				limit,
 				offset,
+				order: [["createdAt", "desc"]],
 			}).then((data) => data.map((e) => e.toJSON()));
 			const total = await LogDiemModel.count({});
 			return res
