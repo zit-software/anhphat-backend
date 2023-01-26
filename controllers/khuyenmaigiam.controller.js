@@ -118,6 +118,27 @@ class KhuyenmaigiamController {
 			});
 		}
 	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async getKhuyenmaigiam(req, res) {
+		try {
+			const ma = req.params.ma;
+			const khuyenmai =
+				await KhuyenMaiGiamModel.findOne({
+					where: { ma },
+				});
+
+			res.send(khuyenmai.toJSON());
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
 }
 
 module.exports = new KhuyenmaigiamController();

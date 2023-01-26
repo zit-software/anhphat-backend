@@ -484,6 +484,7 @@ class XuatHangController {
 					tongtien,
 					tongsl,
 					daluu: true,
+					kmg: req.body.kmg,
 				},
 				{ where: { ma }, transaction: t }
 			);
