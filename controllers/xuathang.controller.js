@@ -89,7 +89,6 @@ class XuatHangController {
 				npp,
 				kmg,
 				kmt,
-				ma: phieuxuat.ma,
 			};
 
 			return res.status(200).json(result);

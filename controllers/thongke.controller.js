@@ -1,12 +1,8 @@
-const { sortBy, orderBy } = require("lodash");
 const { Op } = require("sequelize");
-const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
 const DonViModel = require("~/models/donvi.model");
 const LoaiHangModel = require("~/models/loaihang.model");
 const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
-const PhieuXuatModel = require("~/models/phieuxuat.model");
-const QuyCachModel = require("~/models/quycach.model");
 const ThongKeModel = require("~/models/thongke.model");
 const sequelize = require("~/services/sequelize.service");
 const { addDays } = require("~/utils/common.util");

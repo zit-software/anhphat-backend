@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const ChiTietPhieuNhapModel = require("~/models/chitietphieunhap.model");
 const DonViModel = require("~/models/donvi.model");
 const LoaiHangModel = require("~/models/loaihang.model");
@@ -190,6 +191,7 @@ class NhaphangController {
 			const limit = parseInt(req.query.limit || 10);
 			const offset =
 				limit * parseInt(req.query.page || 0);
+			const thuhang = req.query.thuhang || false;
 
 			const daluu = !!JSON.parse(req.query.daluu);
 			const xoavao = req.query.xoavao || null;
@@ -222,7 +224,14 @@ class NhaphangController {
 							as: "npp",
 						},
 					],
-					where: { daluu, xoavao },
+					where: {
+						daluu,
+						xoavao,
+						manpp: {
+							[thuhang ? Op.not : Op.is]:
+								null,
+						},
+					},
 				});
 			const result = [];
 			for (let phieunhap of allphieunhap) {

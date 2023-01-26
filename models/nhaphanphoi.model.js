@@ -3,7 +3,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("~/services/sequelize.service");
 
 const NhaPhanPhoiModel = sequelize.define(
-	"NhaPhanPhoi",
+	"nhaphanphoi",
 	{
 		ma: {
 			type: DataTypes.INTEGER,
