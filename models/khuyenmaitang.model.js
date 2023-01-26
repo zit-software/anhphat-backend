@@ -14,26 +14,6 @@ const KhuyenMaiTangModel = sequelize.define(
 			type: DataTypes.TEXT,
 			allowNull: false,
 		},
-		ngaybd: {
-			type: DataTypes.DATE,
-			defaultValue: new Date(),
-		},
-		ngaykt: {
-			type: DataTypes.DATE,
-			defaultValue: new Date(),
-			validate: {
-				lonHonNgayBatDau(value) {
-					if (
-						new Date(value) <
-						new Date(this.ngaybd)
-					) {
-						throw new Error(
-							"Ngày kết thúc không được sớm hơn ngày bắt đầu"
-						);
-					}
-				},
-			},
-		},
 	},
 
 	{
