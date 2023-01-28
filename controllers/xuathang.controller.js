@@ -368,7 +368,6 @@ class XuatHangController {
 							ma: mathang.mh,
 							xuatvao: { [Op.eq]: null },
 						},
-						attributes: ["ma", "giaban"],
 						include: {
 							model: LoaiHangModel,
 							attributes: ["ma", "ten"],
@@ -417,14 +416,6 @@ class XuatHangController {
 							madv,
 							malh,
 						},
-						attributes: [
-							"ma",
-							"ngaynhap",
-							"hsd",
-							"mathang.malh",
-							"madv",
-							"donvi.gianhap",
-						],
 						include: [
 							{
 								model: DonViModel,
@@ -484,7 +475,7 @@ class XuatHangController {
 					tongtien,
 					tongsl,
 					daluu: true,
-					kmg: req.body.kmg,
+					makmg: req.body.kmg,
 				},
 				{ where: { ma }, transaction: t }
 			);
@@ -512,9 +503,8 @@ class XuatHangController {
 						where: { ma: mh.madv },
 					})
 				).toJSON();
-				totalDiem += +donvi.diem;
+				totalDiem += donvi.diem;
 			}
-			console.log(totalDiem);
 			await NhaPhanPhoiModel.update(
 				{
 					diem: sequelize.literal(
