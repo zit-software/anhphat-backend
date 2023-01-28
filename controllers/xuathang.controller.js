@@ -261,12 +261,7 @@ class XuatHangController {
 					},
 					{
 						model: KhuyenMaiGiamModel,
-						attributes: ["ma"],
 						as: "kmg",
-						include: {
-							model: LoaiHangModel,
-							attributes: ["ma", "ten"],
-						},
 					},
 					{
 						model: KhuyenMaiTangModel,
@@ -468,6 +463,14 @@ class XuatHangController {
 				throw new Error(
 					"Hóa đơn này đã được lưu trước đó"
 				);
+			}
+
+			const kmg = await KhuyenMaiGiamModel.findOne({
+				where: { ma: req.body.kmg },
+			});
+
+			if (kmg) {
+				tongtien -= tongtien * kmg.tile;
 			}
 
 			await PhieuXuatModel.update(
