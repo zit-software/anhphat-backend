@@ -34,6 +34,11 @@ const PhieuXuatModel = sequelize.define(
 				min: 0,
 			},
 		},
+		istrahang: {
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			default: false,
+		},
 		daluu: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,

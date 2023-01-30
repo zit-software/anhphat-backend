@@ -1,6 +1,5 @@
 const sequelize = require("~/services/sequelize.service");
 const { DataTypes } = require("sequelize");
-const LoaiHangModel = require("./loaihang.model");
 
 const KhuyenMaiGiamModel = sequelize.define(
 	"khuyenmaigiam",
@@ -23,26 +22,6 @@ const KhuyenMaiGiamModel = sequelize.define(
 			},
 			defaultValue: 0,
 		},
-		ngaybd: {
-			type: DataTypes.DATE,
-			defaultValue: new Date(),
-		},
-		ngaykt: {
-			type: DataTypes.DATE,
-			defaultValue: new Date(),
-			validate: {
-				lonHonNgayBatDau(value) {
-					if (
-						new Date(value) <
-						new Date(this.ngaybd)
-					) {
-						throw new Error(
-							"Ngày kết thúc không được sớm hơn ngày bắt đầu"
-						);
-					}
-				},
-			},
-		},
 	},
 
 	{
@@ -51,12 +30,5 @@ const KhuyenMaiGiamModel = sequelize.define(
 		deletedAt: "xoavao",
 	}
 );
-
-KhuyenMaiGiamModel.belongsTo(LoaiHangModel, {
-	foreignKey: {
-		name: "malh",
-		allowNull: false,
-	},
-});
 
 module.exports = KhuyenMaiGiamModel;

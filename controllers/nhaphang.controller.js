@@ -316,6 +316,7 @@ class NhaphangController {
 								model: DonViModel,
 							},
 						],
+						paranoid: false,
 					},
 				],
 			};

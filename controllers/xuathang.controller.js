@@ -26,6 +26,7 @@ class XuatHangController {
 				mauser,
 				makmg,
 				makmt,
+				istrahang,
 			} = req.body;
 
 			// Nếu như phiếu xuất có khuyến mãi giảm thì lấy thông tin khuyến mãi giảm
@@ -72,6 +73,7 @@ class XuatHangController {
 				manpp,
 				makmg,
 				makmt,
+				istrahang: istrahang || 0,
 			});
 			phieuxuat = phieuxuat.toJSON();
 
@@ -105,6 +107,7 @@ class XuatHangController {
 	 */
 	async laytatcaphieuxuat(req, res) {
 		try {
+			const trahang = req.query.trahang || 0;
 			const page = parseInt(req.query.page || 0);
 			const limit = parseInt(req.query.limit || 10);
 			const daluu = req.query.daluu || false;
@@ -138,12 +141,8 @@ class XuatHangController {
 						},
 						{
 							model: KhuyenMaiGiamModel,
-							attributes: ["ma"],
+							attributes: ["ma", "tile"],
 							as: "kmg",
-							include: {
-								model: LoaiHangModel,
-								attributes: ["ma", "ten"],
-							},
 						},
 						{
 							model: KhuyenMaiTangModel,
@@ -151,7 +150,7 @@ class XuatHangController {
 							as: "kmt",
 						},
 					],
-					where: { xoavao: null, daluu },
+					where: { xoavao: null, daluu, trahang },
 					limit,
 					offset: limit * page,
 				}
@@ -470,7 +469,14 @@ class XuatHangController {
 			});
 
 			if (kmg) {
-				tongtien -= tongtien * kmg.tile;
+				const giamgia = Math.max(
+					phieuxuat.npp.chietkhau,
+					kmg.tile
+				);
+				tongtien -= tongtien * giamgia;
+			} else {
+				tongtien -=
+					tongtien * phieuxuat.npp.chietkhau;
 			}
 
 			await PhieuXuatModel.update(

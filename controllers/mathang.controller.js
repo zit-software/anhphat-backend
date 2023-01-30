@@ -95,7 +95,7 @@ class MathangController {
 	async layloaihangSapHet(req, res) {
 		try {
 			// Lấy tất cả số lượng dựa theo loại hàng
-			const minimunSoLuong = 1200;
+			const minimunSoLuong = 300;
 			const allSoLuongLoaiHang =
 				await MatHangModel.findAll({
 					attributes: [
@@ -347,6 +347,11 @@ class MathangController {
 	 */
 	async xoamathang(req, res) {
 		try {
+			const ma = req.params.ma;
+			await MatHangModel.destroy({ where: { ma } });
+			return res.status(200).json({
+				msg: `Xóa mặt hàng với mã ${ma} thành công.`,
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,
@@ -419,6 +424,7 @@ class MathangController {
 		const t = await sequelize.transaction();
 		try {
 			const ma = req.params.ma;
+			const madvphanra = req.body.madvphanra;
 			// Xóa mặt hàng hiện tại, thêm các mặt hàng mới ở đơn vị nhỏ hơn
 
 			// Kiểm tra xem đã xuất chưa
@@ -436,19 +442,19 @@ class MathangController {
 					"Mặt hàng không tồn tại, kiếm tra lại đã xuất kho hay chưa"
 				);
 
-			const converted =
-				await QuyCachUtil.convertToSmallestUnit(
-					currentMatHang.madv,
-					1
-				);
-			const soluongDVNN = converted.soluong;
-			if (soluongDVNN === 1)
+			const converted = await QuyCachUtil.convertUnit(
+				currentMatHang.madv,
+				madvphanra,
+				1
+			);
+			const soluongDVN = converted.soluong;
+			if (soluongDVN === 1)
 				throw new Error(
-					"Mặt Hàng Hiện Đã Ở Đơn Vị Nhỏ Nhất"
+					"Không tồn tại quy cách để chuyển đổi 2 đơn vị này"
 				);
-			const dvnn = converted.donvi;
+			const dvn = converted.donvi;
 			const createdMatHangs = [];
-			for (let i = 0; i < soluongDVNN; i++) {
+			for (let i = 0; i < soluongDVN; i++) {
 				const newMH = await MatHangModel.create(
 					{
 						ngaynhap: currentMatHang.ngaynhap,
@@ -456,7 +462,7 @@ class MathangController {
 						gianhap: currentMatHang.gianhap,
 						giaban: currentMatHang.giaban,
 						malh: currentMatHang.malh,
-						madv: dvnn.ma,
+						madv: dvn.ma,
 					},
 					{ transaction: t }
 				).then((data) => data.toJSON());

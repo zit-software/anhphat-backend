@@ -1,5 +1,4 @@
 const KhuyenMaiGiamModel = require("~/models/khuyenmaigiam.model");
-const LoaiHangModel = require("~/models/loaihang.model");
 
 class KhuyenmaigiamController {
 	/**
@@ -36,7 +35,6 @@ class KhuyenmaigiamController {
 			const kmg = (
 				await KhuyenMaiGiamModel.findAll({
 					where,
-					include: LoaiHangModel,
 				})
 			).map((e) => e.toJSON());
 

@@ -228,6 +228,9 @@ class ThongkeController {
 					ngaynhap: {
 						[Op.between]: [ngaybd, ngaykt],
 					},
+					gianhap: {
+						[Op.ne]: 0,
+					},
 				},
 				include: LoaiHangModel,
 				attributes: [
@@ -377,7 +380,7 @@ class ThongkeController {
 				let sumDoanhThu = 0;
 				const thongkeLoaiHangNPP =
 					await sequelize.query(
-						`SELECT npp.ma, npp.ten, mh.madv, mh.malh AS 'loaihang.ma', lh.ten AS 'loaihang.ten', COUNT(mh.ma) AS soluongmh FROM nhaphanphois AS npp JOIN phieuxuats AS px ON px.manpp = npp.ma JOIN chitietphieuxuats AS ctpx ON ctpx.maphieuxuat = px.ma JOIN mathangs AS mh ON ctpx.mamathang = mh.ma JOIN loaihangs AS lh ON mh.malh = lh.ma WHERE npp.tinh = ${tinh.tinh} and npp.xoavao is null and px.xoavao is null and ctpx.xoavao is null and mh.xoavao is null and lh.xoavao is null and px.ngayxuat between '${ngaybd}' and '${ngaykt}' GROUP BY mh.malh , mh.madv , npp.ma ORDER BY npp.ma;`,
+						`SELECT npp.ma, npp.ten, mh.madv, mh.malh AS 'loaihang.ma', lh.ten AS 'loaihang.ten', COUNT(mh.ma) AS soluongmh FROM nhaphanphois AS npp JOIN phieuxuats AS px ON px.manpp = npp.ma JOIN chitietphieuxuats AS ctpx ON ctpx.maphieuxuat = px.ma JOIN mathangs AS mh ON ctpx.mamathang = mh.ma JOIN loaihangs AS lh ON mh.malh = lh.ma WHERE npp.tinh = ${tinh.tinh} AND px.istrahang = 0 and npp.xoavao is null and px.xoavao is null and ctpx.xoavao is null and mh.xoavao is null and lh.xoavao is null and px.ngayxuat between '${ngaybd}' and '${ngaykt}' GROUP BY mh.malh , mh.madv , npp.ma ORDER BY npp.ma;`,
 						{ nest: true }
 					);
 				for (let thongke of thongkeLoaiHangNPP) {
@@ -411,7 +414,7 @@ class ThongkeController {
 				console.log(npp);
 				const thongkeDoanhThuNpp =
 					await sequelize.query(
-						`SELECT npp.ma, sum(px.tongtien) as doanhthu FROM nhaphanphois AS npp JOIN phieuxuats AS px ON npp.ma = px.manpp where px.xoavao is null and npp.xoavao is null and npp.tinh = ${tinh.tinh} and px.daluu = 1 and px.ngayxuat between '${ngaybd}' and '${ngaykt}' group by npp.ma order by npp.ma;`,
+						`SELECT npp.ma, sum(px.tongtien) as doanhthu FROM nhaphanphois AS npp JOIN phieuxuats AS px ON npp.ma = px.manpp where px.xoavao is null AND px.istrahang = 0 and npp.xoavao is null and npp.tinh = ${tinh.tinh} and px.daluu = 1 and px.ngayxuat between '${ngaybd}' and '${ngaykt}' group by npp.ma order by npp.ma;`,
 						{ nest: true }
 					);
 				for (let thongke of thongkeDoanhThuNpp) {
@@ -452,11 +455,11 @@ class ThongkeController {
 			let sumDoanhThu = 0;
 			const thongkeLoaiHangNPP =
 				await sequelize.query(
-					`SELECT npp.ma, npp.ten, mh.madv, mh.malh AS 'loaihang.ma', lh.ten AS 'loaihang.ten', COUNT(mh.ma) AS soluongmh FROM nhaphanphois AS npp JOIN phieuxuats AS px ON px.manpp = npp.ma JOIN chitietphieuxuats AS ctpx ON ctpx.maphieuxuat = px.ma JOIN mathangs AS mh ON ctpx.mamathang = mh.ma JOIN loaihangs AS lh ON mh.malh = lh.ma WHERE npp.tinh = ${tinh} and npp.xoavao is null and px.xoavao is null and ctpx.xoavao is null and mh.xoavao is null and lh.xoavao is null and px.ngayxuat between '${ngaybd}' and '${ngaykt}' GROUP BY mh.malh , mh.madv , npp.ma ORDER BY npp.ma;`,
+					`SELECT npp.ma, npp.ten, mh.madv, mh.malh AS 'loaihang.ma', lh.ten AS 'loaihang.ten', COUNT(mh.ma) AS soluongmh FROM nhaphanphois AS npp JOIN phieuxuats AS px ON px.manpp = npp.ma JOIN chitietphieuxuats AS ctpx ON ctpx.maphieuxuat = px.ma JOIN mathangs AS mh ON ctpx.mamathang = mh.ma JOIN loaihangs AS lh ON mh.malh = lh.ma WHERE npp.tinh = ${tinh} AND px.istrahang = 0 and npp.xoavao is null and px.xoavao is null and ctpx.xoavao is null and mh.xoavao is null and lh.xoavao is null and px.ngayxuat between '${ngaybd}' and '${ngaykt}' GROUP BY mh.malh , mh.madv , npp.ma ORDER BY npp.ma;`,
 					{ nest: true }
 				);
-			for (let thongke of thongkeLoaiHangNPP) {
-				let findIndex = npp.findIndex(
+			for (const thongke of thongkeLoaiHangNPP) {
+				const findIndex = npp.findIndex(
 					(npp) => npp.ma === thongke.ma
 				);
 				const loaihang = {
@@ -467,7 +470,7 @@ class ThongkeController {
 						thongke.madv,
 						thongke.soluongmh
 					);
-				loaihang.soluong = dvnn.soluong;
+				loaihang.soluong = +dvnn.soluong;
 				loaihang.donvi = dvnn.donvi;
 				if (findIndex === -1) {
 					const thongkeNPP = {
@@ -480,12 +483,22 @@ class ThongkeController {
 				} else {
 					const currentNPP = npp[findIndex];
 
-					currentNPP.loaihang.push(loaihang);
+					const foundIndex =
+						currentNPP.loaihang.findIndex(
+							(lh) => lh.ma === loaihang.ma
+						);
+					if (foundIndex === -1) {
+						currentNPP.loaihang.push(loaihang);
+					} else {
+						currentNPP.loaihang[
+							foundIndex
+						].soluong += loaihang.soluong;
+					}
 				}
 			}
 			const thongkeDoanhThuNpp =
 				await sequelize.query(
-					`SELECT npp.ma, sum(px.tongtien) as doanhthu FROM nhaphanphois AS npp JOIN phieuxuats AS px ON npp.ma = px.manpp where px.xoavao is null and npp.xoavao is null and npp.tinh = ${tinh} and px.daluu = 1 and px.ngayxuat between '${ngaybd}' and '${ngaykt}' group by npp.ma order by npp.ma;`,
+					`SELECT npp.ma, sum(px.tongtien) as doanhthu FROM nhaphanphois AS npp JOIN phieuxuats AS px ON npp.ma = px.manpp where px.xoavao is null AND px.istrahang = 0 and npp.xoavao is null and npp.tinh = ${tinh} and px.daluu = 1 and px.ngayxuat between '${ngaybd}' and '${ngaykt}' group by npp.ma order by npp.ma;`,
 					{ nest: true }
 				);
 			for (let thongke of thongkeDoanhThuNpp) {
@@ -500,7 +513,6 @@ class ThongkeController {
 				npp,
 				doanhthu: sumDoanhThu,
 			};
-
 			return res.status(200).json(result);
 		} catch (error) {
 			res.status(400).send({

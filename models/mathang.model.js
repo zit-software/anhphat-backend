@@ -19,7 +19,7 @@ const MatHangModel = sequelize.define(
 			defaultValue: new Date(),
 		},
 		hsd: {
-			type: DataTypes.DATE,
+			type: DataTypes.DATEONLY,
 			allowNull: false,
 			validate: {
 				lonHonNgayNhap(value) {
