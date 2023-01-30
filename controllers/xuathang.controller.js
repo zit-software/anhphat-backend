@@ -150,7 +150,11 @@ class XuatHangController {
 							as: "kmt",
 						},
 					],
-					where: { xoavao: null, daluu, trahang },
+					where: {
+						xoavao: null,
+						daluu,
+						istrahang: trahang,
+					},
 					limit,
 					offset: limit * page,
 				}
