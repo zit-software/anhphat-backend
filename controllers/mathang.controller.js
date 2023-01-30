@@ -95,7 +95,7 @@ class MathangController {
 	async layloaihangSapHet(req, res) {
 		try {
 			// Lấy tất cả số lượng dựa theo loại hàng
-			const minimunSoLuong = 1200;
+			const minimunSoLuong = 300;
 			const allSoLuongLoaiHang =
 				await MatHangModel.findAll({
 					attributes: [
@@ -347,6 +347,11 @@ class MathangController {
 	 */
 	async xoamathang(req, res) {
 		try {
+			const ma = req.params.ma;
+			await MatHangModel.destroy({ where: { ma } });
+			return res.status(200).json({
+				msg: `Xóa mặt hàng với mã ${ma} thành công.`,
+			});
 		} catch (error) {
 			res.status(400).send({
 				message: error.message,

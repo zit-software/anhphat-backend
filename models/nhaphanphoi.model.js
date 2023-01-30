@@ -30,10 +30,6 @@ const NhaPhanPhoiModel = sequelize.define(
 		tinh: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			validate: {
-				min: 0,
-				max: 97,
-			},
 		},
 		diem: {
 			type: DataTypes.INTEGER,
