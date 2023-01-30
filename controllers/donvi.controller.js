@@ -1,5 +1,6 @@
 const DonViModel = require("~/models/donvi.model");
 const LoaiHangModel = require("~/models/loaihang.model");
+const QuyCachModel = require("~/models/quycach.model");
 
 class DonViController {
 	/**
@@ -62,6 +63,25 @@ class DonViController {
 					},
 					where: { malh },
 				});
+				return res.status(200).json(allDonVi);
+			}
+			// Lấy các đơn vị nhỏ hơn đơn vị hiện tại
+			const madv1 = req.query.madv1;
+			console.log(madv1);
+			if (madv1) {
+				const allDonVi = await QuyCachModel.findAll(
+					{
+						attributes: ["ma"],
+						where: {
+							madv1: madv1,
+						},
+						include: {
+							model: DonViModel,
+						},
+					}
+				).then((data) =>
+					data.map((e) => e.toJSON().donvi)
+				);
 				return res.status(200).json(allDonVi);
 			}
 			const allDonVi = await DonViModel.findAll({

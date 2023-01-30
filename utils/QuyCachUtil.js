@@ -22,6 +22,28 @@ const QuyCachUtil = {
 			}).then((res) => res.toJSON()),
 		};
 	},
+	async convertUnit(bigUnit, smallUnit, soluong) {
+		const quycach = await QuyCachModel.findOne({
+			where: {
+				madv1: bigUnit,
+				madv2: smallUnit,
+			},
+		}).then((data) => data.toJSON());
+		const donvinho = await DonViModel.findOne({
+			where: {
+				ma: quycach.madv2,
+			},
+		});
+		if (!quycach)
+			return {
+				soluong: 1,
+				donvi: {},
+			};
+		return {
+			soluong: soluong * quycach.soluong,
+			donvi: donvinho,
+		};
+	},
 };
 
 module.exports = QuyCachUtil;

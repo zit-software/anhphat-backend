@@ -8,6 +8,35 @@ class QuyCachController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
+	async laymotquycach(req, res) {
+		try {
+			const ma = req.query.ma;
+			if (ma) {
+				const quycach = await QuyCachModel.findOne({
+					where: { ma },
+				});
+				return res.status(200).json(quycach);
+			}
+			const madv1 = req.query.madv1;
+			const madv2 = req.query.madv2;
+			if (madv1 && madv2) {
+				const quycach = await QuyCachModel.findOne({
+					where: { madv1, madv2 },
+				});
+				return res.status(200).json(quycach);
+			}
+			return res.status(200);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
 	async themquycach(req, res) {
 		try {
 			const newQuyCach = await QuyCachModel.create(
