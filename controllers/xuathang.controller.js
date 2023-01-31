@@ -1,4 +1,5 @@
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
+const ChiTietKMT = require("~/models/chitietkmt.model");
 const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
 const DonViModel = require("~/models/donvi.model");
 const KhuyenMaiGiamModel = require("~/models/khuyenmaigiam.model");
@@ -73,7 +74,7 @@ class XuatHangController {
 				manpp,
 				makmg,
 				makmt,
-				istrahang: istrahang || 0,
+				istrahang: istrahang || false,
 			});
 			phieuxuat = phieuxuat.toJSON();
 
@@ -107,7 +108,7 @@ class XuatHangController {
 	 */
 	async laytatcaphieuxuat(req, res) {
 		try {
-			const trahang = req.query.trahang || 0;
+			const trahang = req.query.trahang || false;
 			const page = parseInt(req.query.page || 0);
 			const limit = parseInt(req.query.limit || 10);
 			const daluu = req.query.daluu || false;
@@ -268,7 +269,6 @@ class XuatHangController {
 					},
 					{
 						model: KhuyenMaiTangModel,
-						attributes: ["ma"],
 						as: "kmt",
 					},
 				],
@@ -321,16 +321,61 @@ class XuatHangController {
 			}
 
 			// Lấy tất cả chi tiết thuộc phiếu xuất
-			let allChiTiet =
-				await ChiTietPhieuXuatModel.findAll(
-					options
+			let allChiTietMua =
+				await ChiTietPhieuXuatModel.findAll({
+					...options,
+					where: {
+						tang: false,
+						maphieuxuat: ma,
+					},
+				});
+			let allChiTietTang =
+				await ChiTietPhieuXuatModel.findAll({
+					...options,
+					where: {
+						maphieuxuat: ma,
+						tang: true,
+					},
+				});
+			let kmt = null;
+			if (phieuxuat.kmt?.ma) {
+				const kmtDetails = await ChiTietKMT.findAll(
+					{
+						where: { makmt: phieuxuat.kmt.ma },
+						include: [
+							{
+								model: LoaiHangModel,
+								as: "lh",
+							},
+							{
+								model: DonViModel,
+								as: "dvmua",
+							},
+							{
+								model: DonViModel,
+								as: "dvtang",
+							},
+						],
+					}
+				).then((data) =>
+					data.map((e) => e.toJSON())
 				);
+				kmt = {
+					...phieuxuat.kmt,
+					chitiet: kmtDetails,
+				};
+			}
 			const result = {
 				...phieuxuat,
-				chitiet: allChiTiet.map((chitiet) =>
+				kmt,
+				chitiet: allChiTietMua.map((chitiet) =>
+					chitiet.toJSON()
+				),
+				chitiettang: allChiTietTang.map((chitiet) =>
 					chitiet.toJSON()
 				),
 			};
+			console.log(result);
 			return res.status(200).json(result);
 		} catch (error) {
 			res.status(400).send({
@@ -357,7 +402,7 @@ class XuatHangController {
 				transaction: t,
 			});
 			if (!phieuxuat)
-				throw new Error("Không tồn tại phiếu nhập");
+				throw new Error("Không tồn tại phiếu xuất");
 			// Xử lý các mặt hàng manual
 			for (let mathang of manual) {
 				const matHangFound =
@@ -391,7 +436,7 @@ class XuatHangController {
 					{
 						xuatvao:
 							phieuxuat.dataValues.ngayxuat,
-						giaban: mathang.giaban,
+						giaban: +mathang.giaban,
 					},
 					{
 						where: { ma: matHangFound.ma },
@@ -406,11 +451,11 @@ class XuatHangController {
 				const malh = autoOption.malh;
 				const madv = autoOption.madv;
 				const soluong = autoOption.soluong;
-				const giaban = autoOption.giaban;
+				const giaban = +autoOption.giaban;
 				const allAvailables =
 					await MatHangModel.findAll({
 						where: {
-							xuatvao: { [Op.eq]: null },
+							xuatvao: { [Op.is]: null },
 							madv,
 							malh,
 						},
@@ -434,7 +479,7 @@ class XuatHangController {
 				for (let i = 0; i < soluong; i++) {
 					let available = allAvailables[i];
 					savedMH.push(available);
-					tongtien += +giaban;
+					tongtien += giaban;
 					tongsl += 1;
 					await ChiTietPhieuXuatModel.create(
 						{
@@ -468,27 +513,140 @@ class XuatHangController {
 				);
 			}
 
-			const kmg = await KhuyenMaiGiamModel.findOne({
-				where: { ma: req.body.kmg },
-			});
+			if (req.body.kmg) {
+				const kmg =
+					await KhuyenMaiGiamModel.findOne({
+						where: { ma: req.body.kmg },
+					});
 
-			if (kmg) {
-				const giamgia = Math.max(
-					phieuxuat.npp.chietkhau,
-					kmg.tile
-				);
-				tongtien -= tongtien * giamgia;
-			} else {
-				tongtien -=
-					tongtien * phieuxuat.npp.chietkhau;
+				if (kmg) {
+					const giamgia = Math.max(
+						phieuxuat.npp.chietkhau,
+						kmg.tile
+					);
+					tongtien -= tongtien * giamgia;
+				} else {
+					tongtien -=
+						tongtien * phieuxuat.npp.chietkhau;
+				}
 			}
+			if (req.body.kmt) {
+				const kmt =
+					await KhuyenMaiTangModel.findOne({
+						where: { ma: req.body.kmt },
+					});
 
+				if (kmt) {
+					const allChitietKMT =
+						await ChiTietKMT.findAll({
+							where: { makmt: req.body.kmt },
+							transaction: t,
+						}).then((data) =>
+							data.map((e) => e.toJSON())
+						);
+					const allChiTietPX =
+						await ChiTietPhieuXuatModel.findAll(
+							{
+								attributes: [
+									[
+										sequelize.fn(
+											"count",
+											sequelize.col(
+												"*"
+											)
+										),
+										"soluong",
+									],
+									"mathang.malh",
+									"mathang.madv",
+								],
+								where: { maphieuxuat: ma },
+								include: {
+									model: MatHangModel,
+								},
+								group: [
+									"mathang.malh",
+									"mathang.madv",
+								],
+								transaction: t,
+							}
+						).then((data) =>
+							data.map((e) => e.toJSON())
+						);
+					for (const chitiet of allChitietKMT) {
+						for (const ctpx of allChiTietPX) {
+							if (
+								chitiet.madvmua ===
+								ctpx.mathang.madv
+							) {
+								const soluongtang =
+									Math.floor(
+										ctpx.soluong /
+											chitiet.soluongmua
+									) * chitiet.soluongtang;
+								for (
+									let i = 0;
+									i < soluongtang;
+									i++
+								) {
+									const mathang =
+										await MatHangModel.findOne(
+											{
+												where: {
+													madv: chitiet.madvtang,
+													xuatvao:
+														{
+															[Op.is]:
+																null,
+														},
+												},
+												transaction:
+													t,
+											}
+										).then((data) =>
+											data?.toJSON()
+										);
+									if (!mathang)
+										throw new Error(
+											"Không tồn tại mặt hàng để tặng"
+										);
+									await ChiTietPhieuXuatModel.create(
+										{
+											maphieuxuat: ma,
+											mamathang:
+												mathang.ma,
+											tang: true,
+										},
+										{
+											transaction: t,
+										}
+									);
+									await MatHangModel.update(
+										{
+											xuatvao:
+												new Date(),
+											giaban: 0,
+										},
+										{
+											where: {
+												ma: mathang.ma,
+											},
+											transaction: t,
+										}
+									);
+								}
+							}
+						}
+					}
+				}
+			}
 			await PhieuXuatModel.update(
 				{
 					tongtien,
 					tongsl,
 					daluu: true,
 					makmg: req.body.kmg,
+					makmt: req.body.kmt,
 				},
 				{ where: { ma }, transaction: t }
 			);

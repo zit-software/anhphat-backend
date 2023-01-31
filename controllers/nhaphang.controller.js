@@ -401,7 +401,7 @@ class NhaphangController {
 				.map((e) => e.toJSON())
 				.reduce(
 					(prev, curr) =>
-						prev + curr.mathang.gianhap,
+						prev + +curr.mathang.gianhap,
 					0
 				);
 
