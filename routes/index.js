@@ -17,26 +17,22 @@ router.use(
 router.use(
 	"/loaihang",
 	AuthMiddleware,
-	AdminMiddleware,
 	require("./loaihang.route")
 );
 
 router.use(
 	"/donvi",
 	AuthMiddleware,
-	AdminMiddleware,
 	require("./donvi.route")
 );
 router.use(
 	"/quycach",
 	AuthMiddleware,
-	AdminMiddleware,
 	require("./quycach.route")
 );
 router.use(
 	"/npp",
 	AuthMiddleware,
-	AdminMiddleware,
 	require("./nhaphanphoi.route")
 );
 router.use(

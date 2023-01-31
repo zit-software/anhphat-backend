@@ -5,9 +5,14 @@ const {
 	updateQuyCach,
 	laymotquycach,
 } = require("~/controllers/quycach.controller");
+const AdminMiddleware = require("~/middleware/admin.middleware");
 const router = Router();
 
-router.route("/").post(themquycach).get(laytatcaquycach);
+router
+	.route("/")
+	.post(AdminMiddleware, themquycach)
+	.get(laytatcaquycach);
+
 router.route("/laymot").get(laymotquycach);
-router.route("/:ma").put(updateQuyCach);
+router.route("/:ma").put(AdminMiddleware, updateQuyCach);
 module.exports = router;
