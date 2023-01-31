@@ -73,7 +73,7 @@ class XuatHangController {
 				manpp,
 				makmg,
 				makmt,
-				istrahang: istrahang || 0,
+				istrahang: istrahang || false,
 			});
 			phieuxuat = phieuxuat.toJSON();
 
@@ -107,7 +107,7 @@ class XuatHangController {
 	 */
 	async laytatcaphieuxuat(req, res) {
 		try {
-			const trahang = req.query.trahang || 0;
+			const trahang = req.query.trahang || false;
 			const page = parseInt(req.query.page || 0);
 			const limit = parseInt(req.query.limit || 10);
 			const daluu = req.query.daluu || false;
