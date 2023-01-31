@@ -134,6 +134,19 @@ class QuyCachController {
 			});
 		}
 	}
+	async xoaQuyCach(req, res) {
+		try {
+			const ma = req.params.ma;
+			await QuyCachModel.destroy({ where: { ma } });
+			return res.status(200).json({
+				msg: "Xóa thành công",
+			});
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
 }
 
 module.exports = new QuyCachController();
