@@ -1,3 +1,4 @@
+const PinModel = require("~/models/pin.model");
 const UserModel = require("~/models/user.model");
 const { compare } = require("~/utils/password.util");
 const { sign } = require("~/utils/token.util");
@@ -42,6 +43,28 @@ class AuthController {
 		} catch (error) {
 			console.log(error);
 			return res.status(500).json(error);
+		}
+	}
+	async kiemtrapin(req, res) {
+		try {
+			const currentUser = req.currentUser;
+			const pinInput = req.body.pin;
+			const pin = await PinModel.findOne({
+				where: {
+					pin: pinInput,
+					mauser: currentUser.ma,
+				},
+			});
+			if (!pin)
+				return res.status(403).json({
+					message: "Mã pin không chính xác",
+				});
+			return res.status(200);
+		} catch (error) {
+			console.log(error);
+			return res
+				.status(500)
+				.json({ message: error.message });
 		}
 	}
 }

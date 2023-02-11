@@ -11,5 +11,6 @@ router.get(
 	AuthController.xacthucnguoidung
 );
 router.post("/login", AuthController.dangnhap);
+router.post("/pin", AuthController.kiemtrapin);
 
 module.exports = router;
