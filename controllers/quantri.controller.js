@@ -1,4 +1,6 @@
+const PinModel = require("~/models/pin.model");
 const UserModel = require("~/models/user.model");
+const sequelize = require("~/services/sequelize.service");
 const { hash } = require("~/utils/password.util");
 
 class QuantriController {
@@ -61,6 +63,8 @@ class QuantriController {
 	 * @param {import('express').Response} res
 	 */
 	async suataikhoan(req, res) {
+		const t = await sequelize.transaction();
+
 		try {
 			const ma = req.params.ma;
 
@@ -77,13 +81,35 @@ class QuantriController {
 
 			// Nếu có mật khẩu trong request thì hash mật khẩu trước khi sửa
 			if (newUser.mk) newUser.mk = hash(newUser.mk);
-			await UserModel.update(newUser, {
-				where: { ma },
-			});
+			await UserModel.update(
+				{
+					mk: newUser.mk,
+					ten: newUser.ten,
+					sdt: newUser.sdt,
+				},
+				{
+					where: { ma },
+					transaction: t,
+				}
+			);
+			if (newUser.pin)
+				await PinModel.update(
+					{
+						pin: newUser.pin,
+					},
+					{
+						where: {
+							mauser: ma,
+						},
+						transaction: t,
+					}
+				);
+			await t.commit();
 			return res
 				.status(200)
 				.json({ message: "Sửa thành công" });
 		} catch (error) {
+			await t.rollback();
 			res.status(400).send({
 				message: error.message,
 			});

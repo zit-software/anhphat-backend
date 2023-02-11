@@ -26,8 +26,8 @@ class MathangController {
 	async laymathangSapHetHan(req, res) {
 		const t = await sequelize.transaction();
 		try {
-			// Kiểm tra Mặt hàng có hạn sử dụng < 1 tháng
-			const dayUntilExpired = 30;
+			// Kiểm tra Mặt hàng có hạn sử dụng < 1 năm
+			const dayUntilExpired = 365;
 			const currentDate = new Date();
 			let dateMax = new Date();
 			dateMax.setDate(
@@ -95,7 +95,7 @@ class MathangController {
 	async layloaihangSapHet(req, res) {
 		try {
 			// Lấy tất cả số lượng dựa theo loại hàng
-			const minimunSoLuong = 300;
+			const minimunSoLuong = 72;
 			const allSoLuongLoaiHang =
 				await MatHangModel.findAll({
 					attributes: [

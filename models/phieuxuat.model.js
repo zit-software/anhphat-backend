@@ -39,6 +39,11 @@ const PhieuXuatModel = sequelize.define(
 			allowNull: false,
 			default: false,
 		},
+		thue: {
+			type: DataTypes.FLOAT,
+			allowNull: true,
+			defaultValue: 0,
+		},
 		daluu: {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false,

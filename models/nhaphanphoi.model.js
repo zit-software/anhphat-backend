@@ -32,7 +32,7 @@ const NhaPhanPhoiModel = sequelize.define(
 			allowNull: false,
 		},
 		diem: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			allowNull: false,
 			validate: { min: 0 },
 			defaultValue: 0,
