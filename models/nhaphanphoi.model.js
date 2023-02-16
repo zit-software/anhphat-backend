@@ -39,7 +39,7 @@ const NhaPhanPhoiModel = sequelize.define(
 		},
 		truocthue: {
 			type: DataTypes.BOOLEAN,
-			defaultValue: true,
+			defaultValue: false,
 		},
 	},
 	{

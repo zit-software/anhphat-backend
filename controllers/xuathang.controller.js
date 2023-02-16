@@ -1,4 +1,4 @@
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const ChiTietKMT = require("~/models/chitietkmt.model");
 const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
 const DonViModel = require("~/models/donvi.model");
@@ -702,9 +702,9 @@ class XuatHangController {
 			await LogDiemModel.create(
 				{
 					diem: totalDiem,
-					ghichu: `Cộng điểm cho ${phieuxuat.dataValues.npp.ten}: mã hóa đơn xuất ${phieuxuat.dataValues.ma}`,
+					ghichu: `Cộng điểm cho ${phieuxuat.npp.ten}: mã hóa đơn xuất ${phieuxuat.ma}`,
 					manpp,
-					mauser: phieuxuat.dataValues.mauser,
+					mauser: phieuxuat.mauser,
 				},
 				{ transaction: t }
 			);
