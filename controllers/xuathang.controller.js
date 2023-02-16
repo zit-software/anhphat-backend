@@ -517,6 +517,8 @@ class XuatHangController {
 				tongtien += tongtien * thue;
 			}
 
+			let tilegiam = phieuxuat.npp.chietkhau;
+
 			if (req.body.kmg) {
 				const kmg =
 					await KhuyenMaiGiamModel.findOne({
@@ -524,16 +526,14 @@ class XuatHangController {
 					});
 
 				if (kmg) {
-					const giamgia = Math.max(
-						phieuxuat.npp.chietkhau,
-						kmg.tile
-					);
-					tongtien -= tongtien * giamgia;
+					tilegiam = Math.max(tilegiam, kmg.tile);
 				} else {
 					tongtien -=
 						tongtien * phieuxuat.npp.chietkhau;
 				}
 			}
+
+			tongtien -= tongtien * tilegiam;
 
 			// Nhà phân phối trước thuế thì cộng thuế sau khi giảm giá chiết khẩu hoặc khuyến mãi
 
