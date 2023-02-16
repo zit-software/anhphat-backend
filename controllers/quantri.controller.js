@@ -33,10 +33,12 @@ class QuantriController {
 					transaction: t,
 				}
 			);
+			await t.commit();
 			return res
 				.status(200)
 				.json({ message: "Tạo thành công" });
 		} catch (error) {
+			t.rollback();
 			res.status(400).send({
 				message: error.message,
 			});
