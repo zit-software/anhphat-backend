@@ -10,16 +10,29 @@ class QuantriController {
 	 * @param {import('express').Response} res
 	 */
 	async themtaikhoan(req, res) {
+		const t = await sequelize.transaction();
 		try {
 			const ten = req.body.ten;
 			const matkhau = req.body.matkhau;
 			const laAdmin = req.body.laAdmin;
+			const pin = req.body.pin || "000000";
 
-			await UserModel.create({
-				ten,
-				mk: hash(matkhau),
-				laAdmin,
-			});
+			await UserModel.create(
+				{
+					ten,
+					mk: hash(matkhau),
+					laAdmin,
+				},
+				{ transaction: t }
+			);
+			await PinModel.create(
+				{
+					pin,
+				},
+				{
+					transaction: t,
+				}
+			);
 			return res
 				.status(200)
 				.json({ message: "Tạo thành công" });

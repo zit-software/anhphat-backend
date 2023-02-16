@@ -37,6 +37,10 @@ const NhaPhanPhoiModel = sequelize.define(
 			validate: { min: 0 },
 			defaultValue: 0,
 		},
+		truocthue: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true,
+		},
 	},
 	{
 		timestamps: true,

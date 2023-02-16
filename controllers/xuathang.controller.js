@@ -389,11 +389,12 @@ class XuatHangController {
 			const ma = req.params.ma;
 			const manual = req.body.manual;
 			const auto = req.body.auto;
+			const thue = req.body.thue || 0;
 			const savedMH = [];
 			let tongtien = 0;
 			let tongsl = 0;
 			// Kiểm tra phiếu xuất có tồn tại không
-			const phieuxuat = await PhieuXuatModel.findOne({
+			let phieuxuat = await PhieuXuatModel.findOne({
 				where: { ma },
 				include: {
 					model: NhaPhanPhoiModel,
@@ -404,6 +405,7 @@ class XuatHangController {
 			if (!phieuxuat)
 				throw new Error("Không tồn tại phiếu xuất");
 			// Xử lý các mặt hàng manual
+			phieuxuat = phieuxuat.toJSON();
 			for (let mathang of manual) {
 				const matHangFound =
 					await MatHangModel.findOne({
@@ -513,6 +515,11 @@ class XuatHangController {
 				);
 			}
 
+			// Nhà phân phối sau thuế thì cộng thuế trước khi giảm giá chiết khẩu hoặc khuyến mãi
+			if (!phieuxuat.npp.truocthue) {
+				tongtien += tongtien * thue;
+			}
+
 			if (req.body.kmg) {
 				const kmg =
 					await KhuyenMaiGiamModel.findOne({
@@ -530,6 +537,13 @@ class XuatHangController {
 						tongtien * phieuxuat.npp.chietkhau;
 				}
 			}
+
+			// Nhà phân phối trước thuế thì cộng thuế sau khi giảm giá chiết khẩu hoặc khuyến mãi
+
+			if (phieuxuat.npp.truocthue) {
+				tongtien += tongtien * thue;
+			}
+
 			if (req.body.kmt) {
 				const kmt =
 					await KhuyenMaiTangModel.findOne({
@@ -647,6 +661,7 @@ class XuatHangController {
 					daluu: true,
 					makmg: req.body.kmg,
 					makmt: req.body.kmt,
+					thue,
 				},
 				{ where: { ma }, transaction: t }
 			);
