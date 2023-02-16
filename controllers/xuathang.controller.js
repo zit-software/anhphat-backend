@@ -389,7 +389,7 @@ class XuatHangController {
 			const ma = req.params.ma;
 			const manual = req.body.manual;
 			const auto = req.body.auto;
-			const thue = req.body.thue || 0;
+			const thue = req.body.thue;
 			const savedMH = [];
 			let tongtien = 0;
 			let tongsl = 0;
@@ -436,8 +436,7 @@ class XuatHangController {
 				);
 				await MatHangModel.update(
 					{
-						xuatvao:
-							phieuxuat.dataValues.ngayxuat,
+						xuatvao: phieuxuat.ngayxuat,
 						giaban: +mathang.giaban,
 					},
 					{
@@ -492,9 +491,7 @@ class XuatHangController {
 					);
 					await MatHangModel.update(
 						{
-							xuatvao:
-								phieuxuat.dataValues
-									.ngayxuat,
+							xuatvao: phieuxuat.ngayxuat,
 							giaban,
 						},
 						{
@@ -680,7 +677,7 @@ class XuatHangController {
 				{ transaction: t }
 			);
 			// Tích điểm cho nhà phân phối
-			const manpp = phieuxuat.dataValues.manpp;
+			const manpp = phieuxuat.manpp;
 			let totalDiem = 0;
 			for (let mh of savedMH) {
 				const donvi = await (
