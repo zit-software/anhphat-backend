@@ -59,7 +59,7 @@ class AuthController {
 				return res.status(403).json({
 					message: "Mã pin không chính xác",
 				});
-			return res.status(200);
+			return res.status(200).end();
 		} catch (error) {
 			console.log(error);
 			return res
