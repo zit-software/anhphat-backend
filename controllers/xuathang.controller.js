@@ -662,49 +662,52 @@ class XuatHangController {
 				},
 				{ where: { ma }, transaction: t }
 			);
-			const previousLog = await ThongKeModel.findOne({
-				order: [["ngay", "DESC"]],
-				transaction: t,
-			}).then((data) => data?.toJSON());
+			if (!phieuxuat.istrahang) {
+				const previousLog =
+					await ThongKeModel.findOne({
+						order: [["ngay", "DESC"]],
+						transaction: t,
+					}).then((data) => data?.toJSON());
 
-			const prevConLai = previousLog?.conlai || 0;
-			await ThongKeModel.create(
-				{
-					thu: tongtien,
-					conlai: tongtien + prevConLai,
-					maphieuxuat: ma,
-				},
-				{ transaction: t }
-			);
-			// Tích điểm cho nhà phân phối
-			const manpp = phieuxuat.manpp;
-			let totalDiem = 0;
-			for (let mh of savedMH) {
-				const donvi = await (
-					await DonViModel.findOne({
-						attributes: ["ma", "diem"],
-						where: { ma: mh.madv },
-					})
-				).toJSON();
-				totalDiem += donvi.diem;
+				const prevConLai = previousLog?.conlai || 0;
+				await ThongKeModel.create(
+					{
+						thu: tongtien,
+						conlai: tongtien + prevConLai,
+						maphieuxuat: ma,
+					},
+					{ transaction: t }
+				);
+				// Tích điểm cho nhà phân phối
+				const manpp = phieuxuat.manpp;
+				let totalDiem = 0;
+				for (let mh of savedMH) {
+					const donvi = await (
+						await DonViModel.findOne({
+							attributes: ["ma", "diem"],
+							where: { ma: mh.madv },
+						})
+					).toJSON();
+					totalDiem += donvi.diem;
+				}
+				await NhaPhanPhoiModel.update(
+					{
+						diem: sequelize.literal(
+							`diem + ${totalDiem}`
+						),
+					},
+					{ transaction: t, where: { ma: manpp } }
+				);
+				await LogDiemModel.create(
+					{
+						diem: totalDiem,
+						ghichu: `Cộng điểm cho ${phieuxuat.npp.ten}: mã hóa đơn xuất ${phieuxuat.ma}`,
+						manpp,
+						mauser: phieuxuat.mauser,
+					},
+					{ transaction: t }
+				);
 			}
-			await NhaPhanPhoiModel.update(
-				{
-					diem: sequelize.literal(
-						`diem + ${totalDiem}`
-					),
-				},
-				{ transaction: t, where: { ma: manpp } }
-			);
-			await LogDiemModel.create(
-				{
-					diem: totalDiem,
-					ghichu: `Cộng điểm cho ${phieuxuat.npp.ten}: mã hóa đơn xuất ${phieuxuat.ma}`,
-					manpp,
-					mauser: phieuxuat.mauser,
-				},
-				{ transaction: t }
-			);
 			await t.commit();
 
 			return res.status(200).json({
