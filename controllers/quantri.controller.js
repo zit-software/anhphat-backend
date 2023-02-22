@@ -17,7 +17,7 @@ class QuantriController {
 			const laAdmin = req.body.laAdmin;
 			const pin = req.body.pin || "000000";
 
-			await UserModel.create(
+			const newUser = await UserModel.create(
 				{
 					ten,
 					mk: hash(matkhau),
@@ -28,6 +28,7 @@ class QuantriController {
 			await PinModel.create(
 				{
 					pin,
+					mauser: newUser.dataValues.ma,
 				},
 				{
 					transaction: t,
