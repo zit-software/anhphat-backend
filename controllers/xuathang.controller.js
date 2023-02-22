@@ -512,11 +512,6 @@ class XuatHangController {
 				);
 			}
 
-			// Nhà phân phối sau thuế thì cộng thuế trước khi giảm giá chiết khẩu hoặc khuyến mãi
-			if (!phieuxuat.npp.truocthue) {
-				tongtien += tongtien * thue;
-			}
-
 			let tilegiam = phieuxuat.npp.chietkhau;
 
 			if (req.body.kmg) {
@@ -533,12 +528,15 @@ class XuatHangController {
 				}
 			}
 
-			tongtien -= tongtien * tilegiam;
+			// tongtien -= tongtien * tilegiam;
 
 			// Nhà phân phối trước thuế thì cộng thuế sau khi giảm giá chiết khẩu hoặc khuyến mãi
 
 			if (phieuxuat.npp.truocthue) {
-				tongtien += tongtien * thue;
+				tongtien -=
+					(tongtien / (1 + thue)) * tilegiam;
+			} else {
+				tongtien -= tongtien * tilegiam;
 			}
 
 			if (req.body.kmt) {
