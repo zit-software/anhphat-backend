@@ -11,16 +11,19 @@ class NhaPhanPhoiControler {
 	 */
 	async themnpp(req, res) {
 		try {
+			console.log(req.body);
 			const ten = req.body.ten;
 			const chietkhau = req.body.chietkhau;
 			const sdt = req.body.sdt || null;
 			const tinh = req.body.tinh;
+			const truocthue = req.body.truocthue;
 
 			const newNpp = await NhaPhanPhoiModel.create({
 				ten,
 				chietkhau,
 				sdt,
 				tinh,
+				truocthue,
 			});
 
 			return res.send({

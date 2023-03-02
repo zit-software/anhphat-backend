@@ -1,4 +1,4 @@
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const ChiTietKMT = require("~/models/chitietkmt.model");
 const ChiTietPhieuXuatModel = require("~/models/chitietphieuxuat.model");
 const DonViModel = require("~/models/donvi.model");
@@ -389,11 +389,12 @@ class XuatHangController {
 			const ma = req.params.ma;
 			const manual = req.body.manual;
 			const auto = req.body.auto;
+			const thue = req.body.thue;
 			const savedMH = [];
 			let tongtien = 0;
 			let tongsl = 0;
 			// Kiểm tra phiếu xuất có tồn tại không
-			const phieuxuat = await PhieuXuatModel.findOne({
+			let phieuxuat = await PhieuXuatModel.findOne({
 				where: { ma },
 				include: {
 					model: NhaPhanPhoiModel,
@@ -404,6 +405,7 @@ class XuatHangController {
 			if (!phieuxuat)
 				throw new Error("Không tồn tại phiếu xuất");
 			// Xử lý các mặt hàng manual
+			phieuxuat = phieuxuat.toJSON();
 			for (let mathang of manual) {
 				const matHangFound =
 					await MatHangModel.findOne({
@@ -434,8 +436,7 @@ class XuatHangController {
 				);
 				await MatHangModel.update(
 					{
-						xuatvao:
-							phieuxuat.dataValues.ngayxuat,
+						xuatvao: phieuxuat.ngayxuat,
 						giaban: +mathang.giaban,
 					},
 					{
@@ -490,9 +491,7 @@ class XuatHangController {
 					);
 					await MatHangModel.update(
 						{
-							xuatvao:
-								phieuxuat.dataValues
-									.ngayxuat,
+							xuatvao: phieuxuat.ngayxuat,
 							giaban,
 						},
 						{
@@ -513,6 +512,8 @@ class XuatHangController {
 				);
 			}
 
+			let tilegiam = phieuxuat.npp.chietkhau;
+
 			if (req.body.kmg) {
 				const kmg =
 					await KhuyenMaiGiamModel.findOne({
@@ -520,16 +521,24 @@ class XuatHangController {
 					});
 
 				if (kmg) {
-					const giamgia = Math.max(
-						phieuxuat.npp.chietkhau,
-						kmg.tile
-					);
-					tongtien -= tongtien * giamgia;
+					tilegiam = Math.max(tilegiam, kmg.tile);
 				} else {
 					tongtien -=
 						tongtien * phieuxuat.npp.chietkhau;
 				}
 			}
+
+			// tongtien -= tongtien * tilegiam;
+
+			// Nhà phân phối trước thuế thì cộng thuế sau khi giảm giá chiết khẩu hoặc khuyến mãi
+
+			if (phieuxuat.npp.truocthue) {
+				tongtien -=
+					(tongtien / (1 + thue)) * tilegiam;
+			} else {
+				tongtien -= tongtien * tilegiam;
+			}
+
 			if (req.body.kmt) {
 				const kmt =
 					await KhuyenMaiTangModel.findOne({
@@ -647,52 +656,56 @@ class XuatHangController {
 					daluu: true,
 					makmg: req.body.kmg,
 					makmt: req.body.kmt,
+					thue,
 				},
 				{ where: { ma }, transaction: t }
 			);
-			const previousLog = await ThongKeModel.findOne({
-				order: [["ngay", "DESC"]],
-				transaction: t,
-			}).then((data) => data?.toJSON());
+			if (!phieuxuat.istrahang) {
+				const previousLog =
+					await ThongKeModel.findOne({
+						order: [["ngay", "DESC"]],
+						transaction: t,
+					}).then((data) => data?.toJSON());
 
-			const prevConLai = previousLog?.conlai || 0;
-			await ThongKeModel.create(
-				{
-					thu: tongtien,
-					conlai: tongtien + prevConLai,
-					maphieuxuat: ma,
-				},
-				{ transaction: t }
-			);
-			// Tích điểm cho nhà phân phối
-			const manpp = phieuxuat.dataValues.manpp;
-			let totalDiem = 0;
-			for (let mh of savedMH) {
-				const donvi = await (
-					await DonViModel.findOne({
-						attributes: ["ma", "diem"],
-						where: { ma: mh.madv },
-					})
-				).toJSON();
-				totalDiem += donvi.diem;
+				const prevConLai = previousLog?.conlai || 0;
+				await ThongKeModel.create(
+					{
+						thu: tongtien,
+						conlai: tongtien + prevConLai,
+						maphieuxuat: ma,
+					},
+					{ transaction: t }
+				);
+				// Tích điểm cho nhà phân phối
+				const manpp = phieuxuat.manpp;
+				let totalDiem = 0;
+				for (let mh of savedMH) {
+					const donvi = await (
+						await DonViModel.findOne({
+							attributes: ["ma", "diem"],
+							where: { ma: mh.madv },
+						})
+					).toJSON();
+					totalDiem += donvi.diem;
+				}
+				await NhaPhanPhoiModel.update(
+					{
+						diem: sequelize.literal(
+							`diem + ${totalDiem}`
+						),
+					},
+					{ transaction: t, where: { ma: manpp } }
+				);
+				await LogDiemModel.create(
+					{
+						diem: totalDiem,
+						ghichu: `Cộng điểm cho ${phieuxuat.npp.ten}: mã hóa đơn xuất ${phieuxuat.ma}`,
+						manpp,
+						mauser: phieuxuat.mauser,
+					},
+					{ transaction: t }
+				);
 			}
-			await NhaPhanPhoiModel.update(
-				{
-					diem: sequelize.literal(
-						`diem + ${totalDiem}`
-					),
-				},
-				{ transaction: t, where: { ma: manpp } }
-			);
-			await LogDiemModel.create(
-				{
-					diem: totalDiem,
-					ghichu: `Cộng điểm cho ${phieuxuat.dataValues.npp.ten}: mã hóa đơn xuất ${phieuxuat.dataValues.ma}`,
-					manpp,
-					mauser: phieuxuat.dataValues.mauser,
-				},
-				{ transaction: t }
-			);
 			await t.commit();
 
 			return res.status(200).json({

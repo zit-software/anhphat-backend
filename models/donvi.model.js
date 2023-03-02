@@ -31,7 +31,7 @@ const DonViModel = sequelize.define(
 			},
 		},
 		diem: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.FLOAT,
 			allowNull: false,
 			defaultValue: 1,
 			validate: {
