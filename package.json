@@ -27,7 +27,7 @@
 		"morgan": "~1.10.0",
 		"mysql2": "^3.3.3",
 		"query-parser": "^0.0.1",
-		"sequelize": "^6.31.1"
+		"sequelize": "^6.32.0"
 	},
 	"devDependencies": {
 		"eslint": "^8.42.0",
