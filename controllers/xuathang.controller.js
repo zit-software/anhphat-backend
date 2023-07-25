@@ -117,8 +117,6 @@ class XuatHangController {
 				{
 					attributes: {
 						exclude: [
-							"createdAt",
-							"updatedAt",
 							"manpp",
 							"mauser",
 							"makmg",
