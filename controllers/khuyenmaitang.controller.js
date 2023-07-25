@@ -102,6 +102,11 @@ class KhuyenmaitangController {
 				throw new Error(
 					"Không tồn tại khuyến mãi tặng này"
 				);
+			// Xóa hết chi tiết cũ và tạo lại chi tiết mới
+
+			await ChiTietKMT.destroy({
+				where: { makmt },
+			});
 
 			const chitietKMT = req.body.chitiet;
 			for (let chitiet of chitietKMT) {
@@ -110,6 +115,7 @@ class KhuyenmaitangController {
 					makmt,
 				});
 			}
+
 			return res.status(200).json({
 				message:
 					"Thêm các chi tiết khuyến mãi thành công",
@@ -139,9 +145,12 @@ class KhuyenmaitangController {
 				);
 
 			const chitietKMT = req.body.chitiet;
+			console.log(chitietKMT);
 			const malh = req.body.malh;
+			const madvmua = chitietKMT.madvmua;
+			const madvtang = chitietKMT.madvtang;
 			await ChiTietKMT.update(chitietKMT, {
-				where: { makmt, malh },
+				where: { makmt, malh, madvmua, madvtang },
 			});
 			return res.status(200).json({
 				message:
