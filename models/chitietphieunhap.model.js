@@ -9,7 +9,7 @@ const ChiTietPhieuNhapModel = sequelize.define(
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
-	}
+	},
 );
 ChiTietPhieuNhapModel.belongsTo(PhieuNhapModel, {
 	foreignKey: {

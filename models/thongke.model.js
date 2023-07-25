@@ -42,7 +42,7 @@ const ThongKeModel = sequelize.define(
 			defaultValue: null,
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 ThongKeModel.belongsTo(PhieuNhapModel, {
 	foreignKey: {

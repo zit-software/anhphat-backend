@@ -24,7 +24,7 @@ const LogDiemModel = sequelize.define(
 	},
 	{
 		timestamps: true,
-	}
+	},
 );
 LogDiemModel.belongsTo(NhaPhanPhoiModel, {
 	foreignKey: {

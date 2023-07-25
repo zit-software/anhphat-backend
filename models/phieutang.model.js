@@ -21,7 +21,7 @@ const PhieuTangModel = sequelize.define(
 			},
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 PhieuTangModel.belongsTo(PhieuXuatModel, {

@@ -20,7 +20,7 @@ const LoaiHangModel = sequelize.define(
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
-	}
+	},
 );
 
 module.exports = LoaiHangModel;

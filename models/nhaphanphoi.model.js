@@ -46,7 +46,7 @@ const NhaPhanPhoiModel = sequelize.define(
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
-	}
+	},
 );
 
 module.exports = NhaPhanPhoiModel;

@@ -8,13 +8,13 @@ const router = Router();
 router.get(
 	"/",
 	AuthMiddleware,
-	AuthController.xacthucnguoidung
+	AuthController.xacthucnguoidung,
 );
 router.post("/login", AuthController.dangnhap);
 router.post(
 	"/pin",
 	AuthMiddleware,
-	AuthController.kiemtrapin
+	AuthController.kiemtrapin,
 );
 
 module.exports = router;

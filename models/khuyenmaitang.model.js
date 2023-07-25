@@ -28,7 +28,7 @@ const KhuyenMaiTangModel = sequelize.define(
 						new Date(this.ngaybd)
 					) {
 						throw new Error(
-							"Ngày kết thúc không được sớm hơn ngày bắt đầu"
+							"Ngày kết thúc không được sớm hơn ngày bắt đầu",
 						);
 					}
 				},
@@ -40,7 +40,7 @@ const KhuyenMaiTangModel = sequelize.define(
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
-	}
+	},
 );
 
 module.exports = KhuyenMaiTangModel;

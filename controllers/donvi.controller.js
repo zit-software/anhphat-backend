@@ -11,7 +11,7 @@ class DonViController {
 	async taodonvi(req, res) {
 		try {
 			const newDonVi = await DonViModel.create(
-				req.body
+				req.body,
 			);
 			const loaiHang = await LoaiHangModel.findOne({
 				where: { ma: req.body.malh },
@@ -78,9 +78,9 @@ class DonViController {
 						include: {
 							model: DonViModel,
 						},
-					}
+					},
 				).then((data) =>
-					data.map((e) => e.toJSON().donvi)
+					data.map((e) => e.toJSON().donvi),
 				);
 				return res.status(200).json(allDonVi);
 			}

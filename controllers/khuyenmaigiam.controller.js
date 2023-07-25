@@ -67,7 +67,7 @@ class KhuyenmaigiamController {
 
 			if (!km) {
 				throw new Error(
-					"Mã khuyến mãi không tồn tại"
+					"Mã khuyến mãi không tồn tại",
 				);
 			}
 
@@ -99,7 +99,7 @@ class KhuyenmaigiamController {
 			});
 			if (!km) {
 				throw new Error(
-					"Mã khuyến mãi không tồn tại"
+					"Mã khuyến mãi không tồn tại",
 				);
 			}
 

@@ -16,7 +16,7 @@ const AuthMiddleware = async (req, res, next) => {
 
 		const accessToken = String(authorization).replace(
 			"Bearer ",
-			""
+			"",
 		);
 		if (!accessToken) {
 			throw new Error("Access token is required");

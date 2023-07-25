@@ -70,7 +70,7 @@ class NhaPhanPhoiControler {
 
 			if (!npp) {
 				throw new Error(
-					"Nhà phân phối không tồn tại"
+					"Nhà phân phối không tồn tại",
 				);
 			}
 
@@ -97,7 +97,7 @@ class NhaPhanPhoiControler {
 
 			if (!npp) {
 				throw new Error(
-					"Nhà phân phối không tồn tại"
+					"Nhà phân phối không tồn tại",
 				);
 			}
 
@@ -131,7 +131,7 @@ class NhaPhanPhoiControler {
 
 			if (!npp) {
 				throw new Error(
-					"Nhà phân phối không tồn tại"
+					"Nhà phân phối không tồn tại",
 				);
 			}
 
@@ -164,7 +164,7 @@ class NhaPhanPhoiControler {
 				}).then((data) => data.toJSON());
 			if (!currentNPP)
 				throw new Error(
-					"Nhà phân phối không tồn tại"
+					"Nhà phân phối không tồn tại",
 				);
 			const currentDiem = currentNPP.diem;
 			const currentUser = req.currentUser;
@@ -179,13 +179,13 @@ class NhaPhanPhoiControler {
 					mauser: currentUser.ma,
 					manpp: ma,
 				},
-				{ transaction: t }
+				{ transaction: t },
 			);
 			await NhaPhanPhoiModel.update(
 				{
 					diem,
 				},
-				{ where: { ma }, transaction: t }
+				{ where: { ma }, transaction: t },
 			);
 			await t.commit();
 			return res.status(200).json({
