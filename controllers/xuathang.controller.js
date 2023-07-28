@@ -389,6 +389,7 @@ class XuatHangController {
 			const manual = req.body.manual;
 			const auto = req.body.auto;
 			const maKMT = req.body.maKMT;
+			console.log(req.body);
 			let kmt;
 			kmt = await KhuyenMaiTangModel.findOne({
 				where: {
@@ -417,20 +418,20 @@ class XuatHangController {
 				);
 				tongSoLuongMap.set(
 					product.madv,
-					soLuongXuatMap.get(product.madv) + 1 ||
+					tongSoLuongMap.get(product.madv) + 1 ||
 						1
 				);
 			}
 			for (const product of auto) {
 				soLuongXuatMap.set(
 					product.madv,
-					soLuongXuatMap.get(product.madv) + 1 ||
-						1
+					soLuongXuatMap.get(product.madv) +
+						product.soluong || product.soluong
 				);
 				tongSoLuongMap.set(
 					product.madv,
-					soLuongXuatMap.get(product.madv) + 1 ||
-						1
+					tongSoLuongMap.get(product.madv) +
+						product.soluong || product.soluong
 				);
 			}
 			const allChitietKMT = await ChiTietKMT.findAll({
@@ -442,10 +443,10 @@ class XuatHangController {
 					chitiet.madvmua
 				);
 				if (!soLuongXuat) continue;
-				const soLuongTang = Math.floor(
-					(soLuongXuat / chitiet.soluongmua) *
-						chitiet.soluongtang
-				);
+				const soLuongTang =
+					Math.floor(
+						soLuongXuat / chitiet.soluongmua
+					) * chitiet.soluongtang;
 				soLuongTangMap.set(
 					chitiet.madvtang,
 					soLuongTangMap.get(chitiet.madvtang) +
@@ -458,7 +459,6 @@ class XuatHangController {
 				);
 			}
 			const missing = [];
-
 			for (const madv of tongSoLuongMap.keys()) {
 				const soLuongMHTheoDonVi =
 					await MatHangModel.count({
