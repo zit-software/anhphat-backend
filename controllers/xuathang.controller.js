@@ -124,6 +124,7 @@ class XuatHangController {
 					},
 					include: [
 						{
+							paranoid: false,
 							model: NhaPhanPhoiModel,
 							attributes: {
 								exclude: [
@@ -191,6 +192,7 @@ class XuatHangController {
 						"xoavao",
 					],
 					include: {
+						paranoid: false,
 						model: NhaPhanPhoiModel,
 						attributes: [
 							"ma",
@@ -247,6 +249,7 @@ class XuatHangController {
 				},
 				include: [
 					{
+						paranoid: false,
 						model: NhaPhanPhoiModel,
 						attributes: {
 							exclude: [
@@ -505,6 +508,7 @@ class XuatHangController {
 			let phieuxuat = await PhieuXuatModel.findOne({
 				where: { ma },
 				include: {
+					paranoid: false,
 					model: NhaPhanPhoiModel,
 					as: "npp",
 				},
