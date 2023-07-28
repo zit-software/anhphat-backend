@@ -381,6 +381,116 @@ class XuatHangController {
 			});
 		}
 	}
+	async kiemTraTang(req, res) {
+		try {
+			const manual = req.body.manual;
+			const auto = req.body.auto;
+			const maKMT = req.body.maKMT;
+			let kmt;
+			kmt = await KhuyenMaiTangModel.findOne({
+				where: {
+					ma: maKMT,
+				},
+			});
+			if (!kmt)
+				throw new Error(
+					"Không tồn tại khuyến mãi tặng này"
+				);
+			kmt = kmt.toJSON();
+			const manualProduct = await Promise.all(
+				manual.map((mh) => {
+					return MatHangModel.findOne({
+						where: { ma: mh.mh },
+					}).then((data) => data.toJSON());
+				})
+			);
+			const tongSoLuongMap = new Map();
+			const soLuongXuatMap = new Map();
+			for (const product of manualProduct) {
+				soLuongXuatMap.set(
+					product.madv,
+					soLuongXuatMap.get(product.madv) + 1 ||
+						1
+				);
+				tongSoLuongMap.set(
+					product.madv,
+					soLuongXuatMap.get(product.madv) + 1 ||
+						1
+				);
+			}
+			for (const product of auto) {
+				soLuongXuatMap.set(
+					product.madv,
+					soLuongXuatMap.get(product.madv) + 1 ||
+						1
+				);
+				tongSoLuongMap.set(
+					product.madv,
+					soLuongXuatMap.get(product.madv) + 1 ||
+						1
+				);
+			}
+			const allChitietKMT = await ChiTietKMT.findAll({
+				where: { makmt: maKMT },
+			}).then((data) => data.map((e) => e.toJSON()));
+			const soLuongTangMap = new Map();
+			for (let chitiet of allChitietKMT) {
+				const soLuongXuat = soLuongXuatMap.get(
+					chitiet.madvmua
+				);
+				if (!soLuongXuat) continue;
+				const soLuongTang = Math.floor(
+					(soLuongXuat / chitiet.soluongmua) *
+						chitiet.soluongtang
+				);
+				soLuongTangMap.set(
+					chitiet.madvtang,
+					soLuongTangMap.get(chitiet.madvtang) +
+						soLuongTang || soLuongTang
+				);
+				tongSoLuongMap.set(
+					chitiet.madvtang,
+					tongSoLuongMap.get(chitiet.madvtang) +
+						soLuongTang || soLuongTang
+				);
+			}
+			const missing = [];
+
+			for (const madv of tongSoLuongMap.keys()) {
+				const soLuongMHTheoDonVi =
+					await MatHangModel.count({
+						where: {
+							madv,
+							xuatvao: null,
+						},
+					});
+				if (
+					tongSoLuongMap.get(madv) >
+					soLuongMHTheoDonVi
+				) {
+					const donvi = await DonViModel.findOne({
+						where: { ma: madv },
+						include: {
+							model: LoaiHangModel,
+						},
+					}).then((data) => data.toJSON());
+					missing.push({
+						...donvi,
+						soluong:
+							tongSoLuongMap.get(madv) -
+							soLuongMHTheoDonVi,
+					});
+				}
+			}
+			if (missing.length == 0)
+				return res.status(200).end();
+			return res.status(400).json({ missing });
+		} catch (error) {
+			return res
+				.status(400)
+				.json({ message: error.message });
+		}
+	}
 	async luuphieuxuat(req, res) {
 		const t = await sequelize.transaction();
 		try {

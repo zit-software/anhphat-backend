@@ -5,10 +5,10 @@ const {
 	suaphieuxuat,
 	xoaphieuxuat,
 	layphieuxuat,
-	themloaihangvaophieu,
 	luuphieuxuat,
 	taophieuxuatAuto,
 	taophieuxuatManual,
+	kiemTraTang,
 } = require("~/controllers/xuathang.controller");
 const router = Router();
 
@@ -16,6 +16,7 @@ router
 	.route("/phieuxuat")
 	.get(laytatcaphieuxuat)
 	.post(taophieuxuat);
+router.post("/phieuxuat/check-tang", kiemTraTang);
 router.post("/phieuxuat/auto/:ma", taophieuxuatAuto);
 router.post("/phieuxuat/manual/:ma", taophieuxuatManual);
 router
