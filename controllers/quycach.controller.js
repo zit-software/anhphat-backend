@@ -40,7 +40,7 @@ class QuyCachController {
 	async themquycach(req, res) {
 		try {
 			const newQuyCach = await QuyCachModel.create(
-				req.body
+				req.body,
 			);
 
 			const dv1 = await DonViModel.findOne({
@@ -54,7 +54,7 @@ class QuyCachController {
 
 			if (dv1.dataValues.malh != dv2.dataValues.malh)
 				throw new Error(
-					"Không thể quy đổi đơn vị giữa hai loại hàng khác nhau"
+					"Không thể quy đổi đơn vị giữa hai loại hàng khác nhau",
 				);
 
 			if (!dv1 || !dv2)
@@ -80,7 +80,7 @@ class QuyCachController {
 	async laytatcaquycach(req, res) {
 		try {
 			const allQuyCach = await QuyCachModel.findAll(
-				{}
+				{},
 			);
 			const result = [];
 			for (let quycach of allQuyCach) {

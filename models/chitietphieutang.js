@@ -5,7 +5,7 @@ const PhieuTangModel = require("./phieutang.model");
 const ChiTietPhieuTangModel = sequelize.define(
 	"chitietphieutang",
 	{},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 ChiTietPhieuTangModel.belongsTo(PhieuTangModel, {
 	foreignKey: {

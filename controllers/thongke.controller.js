@@ -37,7 +37,7 @@ class ThongkeController {
 				}
 				default:
 					throw new Error(
-						"Kiểu thống kê không hợp lệ"
+						"Kiểu thống kê không hợp lệ",
 					);
 			}
 
@@ -78,19 +78,19 @@ class ThongkeController {
 			const tongThu = allThongKeThu.reduce(
 				(total, chitiet) =>
 					total + chitiet.dataValues.thu,
-				0
+				0,
 			);
 			const tongChi = allThongKeChi.reduce(
 				(total, chitiet) =>
 					total + chitiet.dataValues.chi,
-				0
+				0,
 			);
 			return res.status(200).json({
 				chitietnhap: allThongKeChi.map((thongke) =>
-					thongke.toJSON()
+					thongke.toJSON(),
 				),
 				chitietxuat: allThongKeThu.map((thongke) =>
-					thongke.toJSON()
+					thongke.toJSON(),
 				),
 				thongke: {
 					thu: tongThu,
@@ -119,14 +119,14 @@ class ThongkeController {
 				await LoaiHangModel.findAll({
 					attributes: ["ma", "ten"],
 				}).then((data) =>
-					data.map((e) => e.toJSON())
+					data.map((e) => e.toJSON()),
 				);
 			const allLoaiHang = [];
 			for (let loaihang of allLoaiHangInfo) {
 				const allDonvis = await DonViModel.findAll({
 					where: { malh: loaihang.ma },
 				}).then((data) =>
-					data.map((e) => e.toJSON())
+					data.map((e) => e.toJSON()),
 				);
 				allLoaiHang.push({
 					...loaihang,
@@ -142,7 +142,7 @@ class ThongkeController {
 					[
 						sequelize.fn(
 							"count",
-							sequelize.col("mathang.ma")
+							sequelize.col("mathang.ma"),
 						),
 						"soluong",
 					],
@@ -163,14 +163,14 @@ class ThongkeController {
 				const dvnnObj =
 					await QuyCachUtil.convertToSmallestUnit(
 						mathang.madv,
-						mathang.soluong
+						mathang.soluong,
 					);
 				const soluongDonViNhoNhat = dvnnObj.soluong;
 				const donviNhoNhat = dvnnObj.donvi;
 				const foundIndex = result.findIndex(
 					(thongke) =>
 						thongke?.loaihang.ma ===
-						mathang.malh
+						mathang.malh,
 				);
 				if (foundIndex !== -1) {
 					result[foundIndex] = {
@@ -207,14 +207,14 @@ class ThongkeController {
 				await LoaiHangModel.findAll({
 					attributes: ["ma", "ten"],
 				}).then((data) =>
-					data.map((e) => e.toJSON())
+					data.map((e) => e.toJSON()),
 				);
 			const allLoaiHang = [];
 			for (let loaihang of allLoaiHangInfo) {
 				const allDonvis = await DonViModel.findAll({
 					where: { malh: loaihang.ma },
 				}).then((data) =>
-					data.map((e) => e.toJSON())
+					data.map((e) => e.toJSON()),
 				);
 				allLoaiHang.push({
 					...loaihang,
@@ -239,7 +239,7 @@ class ThongkeController {
 					[
 						sequelize.fn(
 							"count",
-							sequelize.col("*")
+							sequelize.col("*"),
 						),
 						"soluong",
 					],
@@ -251,7 +251,7 @@ class ThongkeController {
 				const dvnnObj =
 					await QuyCachUtil.convertToSmallestUnit(
 						mathang.madv,
-						mathang.soluong
+						mathang.soluong,
 					);
 				const soluongDonViNhoNhat = dvnnObj.soluong;
 
@@ -259,7 +259,7 @@ class ThongkeController {
 				const foundIndex = result.findIndex(
 					(thongke) =>
 						thongke?.loaihang.ma ===
-						mathang.malh
+						mathang.malh,
 				);
 				if (foundIndex !== -1) {
 					result[foundIndex] = {
@@ -309,19 +309,19 @@ class ThongkeController {
 						prev,
 						current.thu,
 						current.chi,
-						current.conlai
+						current.conlai,
 					),
-				-Infinity
+				-Infinity,
 			);
 
 			const tongthu = thongke.reduce(
 				(prev, current) => prev + current.thu,
-				0
+				0,
 			);
 
 			const tongchi = thongke.reduce(
 				(prev, current) => prev + current.chi,
-				0
+				0,
 			);
 
 			const lastLast = await ThongKeModel.findOne({
@@ -367,12 +367,12 @@ class ThongkeController {
 						[
 							sequelize.fn(
 								"DISTINCT",
-								sequelize.col("tinh")
+								sequelize.col("tinh"),
 							),
 							"tinh",
 						],
 					],
-				}
+				},
 			).then((data) => data.map((e) => e.toJSON()));
 			const result = [];
 			for (let tinh of allTinhs) {
@@ -381,11 +381,11 @@ class ThongkeController {
 				const thongkeLoaiHangNPP =
 					await sequelize.query(
 						`SELECT npp.ma, npp.ten, mh.madv, mh.malh AS 'loaihang.ma', lh.ten AS 'loaihang.ten', COUNT(mh.ma) AS soluongmh FROM nhaphanphois AS npp JOIN phieuxuats AS px ON px.manpp = npp.ma JOIN chitietphieuxuats AS ctpx ON ctpx.maphieuxuat = px.ma JOIN mathangs AS mh ON ctpx.mamathang = mh.ma JOIN loaihangs AS lh ON mh.malh = lh.ma WHERE npp.tinh = ${tinh.tinh} AND px.istrahang = 0 and npp.xoavao is null and px.xoavao is null and ctpx.xoavao is null and mh.xoavao is null and lh.xoavao is null and px.ngayxuat between '${ngaybd}' and '${ngaykt}' GROUP BY mh.malh , mh.madv , npp.ma ORDER BY npp.ma;`,
-						{ nest: true }
+						{ nest: true },
 					);
 				for (let thongke of thongkeLoaiHangNPP) {
 					let findIndex = npp.findIndex(
-						(npp) => npp.ma === thongke.ma
+						(npp) => npp.ma === thongke.ma,
 					);
 					const loaihang = {
 						...thongke.loaihang,
@@ -393,7 +393,7 @@ class ThongkeController {
 					const dvnn =
 						await QuyCachUtil.convertToSmallestUnit(
 							thongke.madv,
-							thongke.soluongmh
+							thongke.soluongmh,
 						);
 					loaihang.soluong = dvnn.soluong;
 					loaihang.donvi = dvnn.donvi;
@@ -415,11 +415,11 @@ class ThongkeController {
 				const thongkeDoanhThuNpp =
 					await sequelize.query(
 						`SELECT npp.ma, sum(px.tongtien) as doanhthu FROM nhaphanphois AS npp JOIN phieuxuats AS px ON npp.ma = px.manpp where px.xoavao is null AND px.istrahang = 0 and npp.xoavao is null and npp.tinh = ${tinh.tinh} and px.daluu = 1 and px.ngayxuat between '${ngaybd}' and '${ngaykt}' group by npp.ma order by npp.ma;`,
-						{ nest: true }
+						{ nest: true },
 					);
 				for (let thongke of thongkeDoanhThuNpp) {
 					const currentNPP = npp.find(
-						(npp) => npp.ma === thongke.ma
+						(npp) => npp.ma === thongke.ma,
 					);
 					currentNPP.doanhthu = thongke.doanhthu;
 					sumDoanhThu += +currentNPP.doanhthu;
@@ -456,11 +456,11 @@ class ThongkeController {
 			const thongkeLoaiHangNPP =
 				await sequelize.query(
 					`SELECT npp.ma, npp.ten, mh.madv, mh.malh AS 'loaihang.ma', lh.ten AS 'loaihang.ten', COUNT(mh.ma) AS soluongmh FROM nhaphanphois AS npp JOIN phieuxuats AS px ON px.manpp = npp.ma JOIN chitietphieuxuats AS ctpx ON ctpx.maphieuxuat = px.ma JOIN mathangs AS mh ON ctpx.mamathang = mh.ma JOIN loaihangs AS lh ON mh.malh = lh.ma WHERE npp.tinh = ${tinh} AND px.istrahang = 0 and npp.xoavao is null and px.xoavao is null and ctpx.xoavao is null and mh.xoavao is null and lh.xoavao is null and px.ngayxuat between '${ngaybd}' and '${ngaykt}' GROUP BY mh.malh , mh.madv , npp.ma ORDER BY npp.ma;`,
-					{ nest: true }
+					{ nest: true },
 				);
 			for (const thongke of thongkeLoaiHangNPP) {
 				const findIndex = npp.findIndex(
-					(npp) => npp.ma === thongke.ma
+					(npp) => npp.ma === thongke.ma,
 				);
 				const loaihang = {
 					...thongke.loaihang,
@@ -468,7 +468,7 @@ class ThongkeController {
 				const dvnn =
 					await QuyCachUtil.convertToSmallestUnit(
 						thongke.madv,
-						thongke.soluongmh
+						thongke.soluongmh,
 					);
 				loaihang.soluong = +dvnn.soluong;
 				loaihang.donvi = dvnn.donvi;
@@ -485,7 +485,7 @@ class ThongkeController {
 
 					const foundIndex =
 						currentNPP.loaihang.findIndex(
-							(lh) => lh.ma === loaihang.ma
+							(lh) => lh.ma === loaihang.ma,
 						);
 					if (foundIndex === -1) {
 						currentNPP.loaihang.push(loaihang);
@@ -499,11 +499,11 @@ class ThongkeController {
 			const thongkeDoanhThuNpp =
 				await sequelize.query(
 					`SELECT npp.ma, sum(px.tongtien) as doanhthu FROM nhaphanphois AS npp JOIN phieuxuats AS px ON npp.ma = px.manpp where px.xoavao is null AND px.istrahang = 0 and npp.xoavao is null and npp.tinh = ${tinh} and px.daluu = 1 and px.ngayxuat between '${ngaybd}' and '${ngaykt}' group by npp.ma order by npp.ma;`,
-					{ nest: true }
+					{ nest: true },
 				);
 			for (let thongke of thongkeDoanhThuNpp) {
 				const currentNPP = npp.find(
-					(npp) => npp.ma === thongke.ma
+					(npp) => npp.ma === thongke.ma,
 				);
 				currentNPP.doanhthu = thongke.doanhthu;
 				sumDoanhThu += +currentNPP.doanhthu;
@@ -534,14 +534,14 @@ class ThongkeController {
 						[
 							sequelize.fn(
 								"DISTINCT",
-								sequelize.col("tinh")
+								sequelize.col("tinh"),
 							),
 							"tinh",
 						],
 					],
-				}
+				},
 			).then((data) =>
-				data.map((e) => e.toJSON().tinh)
+				data.map((e) => e.toJSON().tinh),
 			);
 			return res.status(200).json(allTinhs);
 		} catch (error) {

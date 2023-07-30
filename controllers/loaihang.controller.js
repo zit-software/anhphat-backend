@@ -10,7 +10,7 @@ class LoaiHangController {
 	async themloaihang(req, res) {
 		try {
 			const newLoaiHang = await LoaiHangModel.create(
-				req.body
+				req.body,
 			);
 			return res.status(200).json(newLoaiHang);
 		} catch (error) {
@@ -29,14 +29,14 @@ class LoaiHangController {
 		try {
 			const allLoaiHang =
 				await LoaiHangModel.findAll().then((data) =>
-					data.map((e) => e.toJSON())
+					data.map((e) => e.toJSON()),
 				);
 			const result = [];
 			for (let loaihang of allLoaiHang) {
 				const allDonvis = await DonViModel.findAll({
 					where: { malh: loaihang.ma },
 				}).then((data) =>
-					data.map((e) => e.toJSON())
+					data.map((e) => e.toJSON()),
 				);
 				result.push({
 					...loaihang,
@@ -107,7 +107,7 @@ class LoaiHangController {
 				});
 			if (!currentLoaiHang)
 				throw new Error(
-					"Không tồn tại mã loại hàng"
+					"Không tồn tại mã loại hàng",
 				);
 			const newLoaiHang = req.body;
 			await LoaiHangModel.update(newLoaiHang, {
@@ -136,11 +136,11 @@ class LoaiHangController {
 				});
 			if (!currentLoaiHang)
 				throw new Error(
-					"Không tồn tại mã loại hàng"
+					"Không tồn tại mã loại hàng",
 				);
 			await LoaiHangModel.update(
 				{ xoavao: new Date() },
-				{ where: { ma } }
+				{ where: { ma } },
 			);
 			return res.status(200).json({
 				message: "Xóa Thành Công",

@@ -81,7 +81,7 @@ async function startServer() {
 		switch (error.code) {
 			case "EACCES":
 				console.error(
-					bind + " requires elevated privileges"
+					bind + " requires elevated privileges",
 				);
 				process.exit(1);
 				break;

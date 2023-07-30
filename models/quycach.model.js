@@ -17,7 +17,7 @@ const QuyCachModel = sequelize.define(
 			allowNull: false,
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 QuyCachModel.belongsTo(DonViModel, {
 	foreignKey: {

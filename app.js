@@ -15,14 +15,14 @@ app.use(
 		parseUndefined: true,
 		parseBoolean: true,
 		parseNumber: true,
-	})
+	}),
 );
 app.use(bodyParser.json());
 app.use(
 	cors({
 		origin: config.fontend.origin,
 		optionsSuccessStatus: 200,
-	})
+	}),
 );
 
 app.use(logger("dev"));

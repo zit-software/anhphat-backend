@@ -54,7 +54,7 @@ class ThongBaoController {
 							matb: ma,
 							mauser: mauser,
 						},
-						{ transaction: t }
+						{ transaction: t },
 					);
 			}
 			await t.commit();

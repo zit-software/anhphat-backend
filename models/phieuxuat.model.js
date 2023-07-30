@@ -53,7 +53,7 @@ const PhieuXuatModel = sequelize.define(
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
-	}
+	},
 );
 PhieuXuatModel.belongsTo(UserModel, {
 	foreignKey: {

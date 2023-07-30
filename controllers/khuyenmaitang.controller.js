@@ -69,7 +69,7 @@ class KhuyenmaitangController {
 			const kmtData = req.body.kmt;
 			const chitietKMT = req.body.chitiet;
 			const newKMT = await KhuyenMaiTangModel.create(
-				kmtData
+				kmtData,
 			);
 			for (let chitiet of chitietKMT) {
 				await ChiTietKMT.create({
@@ -100,7 +100,7 @@ class KhuyenmaitangController {
 			});
 			if (!kmt)
 				throw new Error(
-					"Không tồn tại khuyến mãi tặng này"
+					"Không tồn tại khuyến mãi tặng này",
 				);
 			// Xóa hết chi tiết cũ và tạo lại chi tiết mới
 
@@ -141,7 +141,7 @@ class KhuyenmaitangController {
 			});
 			if (!kmt)
 				throw new Error(
-					"Không tồn tại khuyến mãi tặng này"
+					"Không tồn tại khuyến mãi tặng này",
 				);
 
 			const chitietKMT = req.body.chitiet;
@@ -205,7 +205,7 @@ class KhuyenmaitangController {
 
 			if (!kmt) {
 				throw new Error(
-					"Mã khuyến mãi không tồn tại"
+					"Mã khuyến mãi không tồn tại",
 				);
 			}
 
@@ -238,7 +238,7 @@ class KhuyenmaitangController {
 
 			if (!kmt) {
 				throw new Error(
-					"Mã khuyến mãi không tồn tại"
+					"Mã khuyến mãi không tồn tại",
 				);
 			}
 

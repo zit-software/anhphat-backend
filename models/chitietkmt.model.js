@@ -26,7 +26,7 @@ const ChiTietKMT = sequelize.define(
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
-	}
+	},
 );
 ChiTietKMT.belongsTo(DonViModel, {
 	foreignKey: {

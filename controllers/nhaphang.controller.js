@@ -61,7 +61,7 @@ class NhaphangController {
 			const date = new Date();
 			await PhieuNhapModel.update(
 				{ xoavao: date },
-				{ where: { ma } }
+				{ where: { ma } },
 			);
 			// Thực hiện xóa mềm các chi tiết phiếu nhập
 			await ChiTietPhieuNhapModel.destroy({
@@ -114,7 +114,7 @@ class NhaphangController {
 				throw new Error("Không tồn tại phiếu nhập");
 			if (phieunhap.dataValues.daluu)
 				throw new Error(
-					"Không thể thêm sản phẩm vào phiếu đã lưu"
+					"Không thể thêm sản phẩm vào phiếu đã lưu",
 				);
 
 			// Lấy dữ liệu loại hàng và đơn vị để trả về
@@ -127,7 +127,7 @@ class NhaphangController {
 			});
 			if (!donvi || !loaiHang)
 				throw new Error(
-					"Kiểm tra lại mã đơn vị và mã loại hàng"
+					"Kiểm tra lại mã đơn vị và mã loại hàng",
 				);
 
 			// Tạo các mặt hàng vào kho
@@ -245,7 +245,7 @@ class NhaphangController {
 				result.push({
 					...phieunhap,
 					chitiet: allchitiet.map((chitiet) =>
-						chitiet.toJSON()
+						chitiet.toJSON(),
 					),
 				});
 			}
@@ -339,7 +339,7 @@ class NhaphangController {
 
 			const allChiTiet =
 				await ChiTietPhieuNhapModel.findAll(
-					options
+					options,
 				);
 
 			return res.status(200).json({
@@ -402,7 +402,7 @@ class NhaphangController {
 				.reduce(
 					(prev, curr) =>
 						prev + +curr.mathang.gianhap,
-					0
+					0,
 				);
 
 			if (
@@ -411,13 +411,13 @@ class NhaphangController {
 				})
 			) {
 				throw new Error(
-					"Hóa đơn này đã được lưu trước đó"
+					"Hóa đơn này đã được lưu trước đó",
 				);
 			}
 
 			await PhieuNhapModel.update(
 				{ daluu: true, tongtien },
-				{ where: { ma }, transaction: t }
+				{ where: { ma }, transaction: t },
 			);
 
 			const lastThongke = await ThongKeModel.findOne({
@@ -432,7 +432,7 @@ class NhaphangController {
 						(lastThongke?.conlai || 0) -
 						tongtien,
 				},
-				{ transaction: t }
+				{ transaction: t },
 			);
 
 			await t.commit();

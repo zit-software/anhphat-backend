@@ -48,7 +48,7 @@ const PhieuNhapModel = sequelize.define(
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
-	}
+	},
 );
 PhieuNhapModel.belongsTo(UserModel, {
 	foreignKey: {

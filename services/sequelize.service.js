@@ -9,7 +9,7 @@ const sequelize = new Sequelize(
 	{
 		host: config.db.host,
 		dialect: config.db.dialect,
-	}
+	},
 );
 
 // Chạy câu lệnh này với mysql

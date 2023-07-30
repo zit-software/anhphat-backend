@@ -18,7 +18,7 @@ const PinModel = sequelize.define(
 			defaultValue: "000000",
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 PinModel.belongsTo(UserModel, {

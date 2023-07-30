@@ -157,7 +157,7 @@ class XuatHangController {
 					},
 					limit,
 					offset: limit * page,
-				}
+				},
 			);
 			return res.status(200).json({
 				data: allPhieuXuat,
@@ -215,7 +215,7 @@ class XuatHangController {
 			const currentDate = new Date();
 			await PhieuXuatModel.update(
 				{ xoavao: currentDate },
-				{ where: { ma } }
+				{ where: { ma } },
 			);
 			return res.status(200).json({
 				message: "Xóa phiếu xuất thành công",
@@ -307,14 +307,14 @@ class XuatHangController {
 					[
 						sequelize.fn(
 							"count",
-							sequelize.col("*")
+							sequelize.col("*"),
 						),
 						"soluong",
 					],
 					[
 						sequelize.fn(
 							"sum",
-							sequelize.col("mathang.giaban")
+							sequelize.col("mathang.giaban"),
 						),
 						"thanhtien",
 					],
@@ -357,9 +357,9 @@ class XuatHangController {
 								as: "dvtang",
 							},
 						],
-					}
+					},
 				).then((data) =>
-					data.map((e) => e.toJSON())
+					data.map((e) => e.toJSON()),
 				);
 				kmt = {
 					...phieuxuat.kmt,
@@ -370,10 +370,10 @@ class XuatHangController {
 				...phieuxuat,
 				kmt,
 				chitiet: allChiTietMua.map((chitiet) =>
-					chitiet.toJSON()
+					chitiet.toJSON(),
 				),
 				chitiettang: allChiTietTang.map((chitiet) =>
-					chitiet.toJSON()
+					chitiet.toJSON(),
 				),
 			};
 			console.log(result);
@@ -533,7 +533,7 @@ class XuatHangController {
 					}).then((data) => data?.toJSON());
 				if (!matHangFound)
 					throw new Error(
-						`Không tìm thấy mặt hàng với mã ${mathang.mh}`
+						`Không tìm thấy mặt hàng với mã ${mathang.mh}`,
 					);
 				savedMH.push(matHangFound);
 				tongtien += +mathang.giaban;
@@ -544,7 +544,7 @@ class XuatHangController {
 						maphieuxuat: ma,
 						mamathang: mathang.mh,
 					},
-					{ transaction: t }
+					{ transaction: t },
 				);
 				await MatHangModel.update(
 					{
@@ -554,7 +554,7 @@ class XuatHangController {
 					{
 						where: { ma: matHangFound.ma },
 						transaction: t,
-					}
+					},
 				);
 			}
 
@@ -599,7 +599,7 @@ class XuatHangController {
 							maphieuxuat: ma,
 							mamathang: available.ma,
 						},
-						{ transaction: t }
+						{ transaction: t },
 					);
 					await MatHangModel.update(
 						{
@@ -609,7 +609,7 @@ class XuatHangController {
 						{
 							where: { ma: available.ma },
 							transaction: t,
-						}
+						},
 					);
 				}
 			}
@@ -620,7 +620,7 @@ class XuatHangController {
 				})
 			) {
 				throw new Error(
-					"Hóa đơn này đã được lưu trước đó"
+					"Hóa đơn này đã được lưu trước đó",
 				);
 			}
 
@@ -663,7 +663,7 @@ class XuatHangController {
 							where: { makmt: req.body.kmt },
 							transaction: t,
 						}).then((data) =>
-							data.map((e) => e.toJSON())
+							data.map((e) => e.toJSON()),
 						);
 					const allChiTietPX =
 						await ChiTietPhieuXuatModel.findAll(
@@ -673,8 +673,8 @@ class XuatHangController {
 										sequelize.fn(
 											"count",
 											sequelize.col(
-												"*"
-											)
+												"*",
+											),
 										),
 										"soluong",
 									],
@@ -690,9 +690,9 @@ class XuatHangController {
 									"mathang.madv",
 								],
 								transaction: t,
-							}
+							},
 						).then((data) =>
-							data.map((e) => e.toJSON())
+							data.map((e) => e.toJSON()),
 						);
 					for (const chitiet of allChitietKMT) {
 						for (const ctpx of allChiTietPX) {
@@ -703,7 +703,7 @@ class XuatHangController {
 								const soluongtang =
 									Math.floor(
 										ctpx.soluong /
-											chitiet.soluongmua
+											chitiet.soluongmua,
 									) * chitiet.soluongtang;
 								for (
 									let i = 0;
@@ -723,13 +723,13 @@ class XuatHangController {
 												},
 												transaction:
 													t,
-											}
+											},
 										).then((data) =>
-											data?.toJSON()
+											data?.toJSON(),
 										);
 									if (!mathang)
 										throw new Error(
-											"Không tồn tại mặt hàng để tặng"
+											"Không tồn tại mặt hàng để tặng",
 										);
 									await ChiTietPhieuXuatModel.create(
 										{
@@ -740,7 +740,7 @@ class XuatHangController {
 										},
 										{
 											transaction: t,
-										}
+										},
 									);
 									await MatHangModel.update(
 										{
@@ -753,7 +753,7 @@ class XuatHangController {
 												ma: mathang.ma,
 											},
 											transaction: t,
-										}
+										},
 									);
 								}
 							}
@@ -770,7 +770,7 @@ class XuatHangController {
 					makmt: req.body.kmt,
 					thue,
 				},
-				{ where: { ma }, transaction: t }
+				{ where: { ma }, transaction: t },
 			);
 			if (!phieuxuat.istrahang) {
 				const previousLog =
@@ -786,7 +786,7 @@ class XuatHangController {
 						conlai: tongtien + prevConLai,
 						maphieuxuat: ma,
 					},
-					{ transaction: t }
+					{ transaction: t },
 				);
 				// Tích điểm cho nhà phân phối
 				const manpp = phieuxuat.manpp;
@@ -803,10 +803,13 @@ class XuatHangController {
 				await NhaPhanPhoiModel.update(
 					{
 						diem: sequelize.literal(
-							`diem + ${totalDiem}`
+							`diem + ${totalDiem}`,
 						),
 					},
-					{ transaction: t, where: { ma: manpp } }
+					{
+						transaction: t,
+						where: { ma: manpp },
+					},
 				);
 				await LogDiemModel.create(
 					{
@@ -815,7 +818,7 @@ class XuatHangController {
 						manpp,
 						mauser: phieuxuat.mauser,
 					},
-					{ transaction: t }
+					{ transaction: t },
 				);
 			}
 			await t.commit();
@@ -864,7 +867,7 @@ class XuatHangController {
 					],
 					order: [["hsd", "ASC"]],
 				}).then((data) =>
-					data.map((e) => e.toJSON())
+					data.map((e) => e.toJSON()),
 				);
 			if (allAvailables.length < soluong)
 				throw new Error({
@@ -887,7 +890,7 @@ class XuatHangController {
 					tongsl: soluong,
 					tongtien,
 				},
-				{ where: { ma } }
+				{ where: { ma } },
 			);
 
 			const phieuxuat = await PhieuXuatModel.findOne({
@@ -928,7 +931,7 @@ class XuatHangController {
 				chitiet: savedMH.map((mathang) => {
 					const giamgia = Math.max(
 						phieuxuat.npp.chietkhau,
-						phieuxuat.kmg.tile
+						phieuxuat.kmg.tile,
 					);
 					return {
 						...mathang,
@@ -984,7 +987,7 @@ class XuatHangController {
 					tongsl: mathangArr.length,
 					tongtien,
 				},
-				{ where: { ma } }
+				{ where: { ma } },
 			);
 
 			const phieuxuat = await PhieuXuatModel.findOne({
@@ -1026,7 +1029,7 @@ class XuatHangController {
 				chitiet: savedMH.map((mathang) => {
 					const giamgia = Math.max(
 						phieuxuat.npp.chietkhau,
-						phieuxuat.kmg.tile
+						phieuxuat.kmg.tile,
 					);
 					return {
 						...mathang,

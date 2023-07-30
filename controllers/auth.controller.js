@@ -13,16 +13,16 @@ class AuthController {
 
 			if (!user)
 				throw new Error(
-					"Tài khoản hoặc mật khẩu không đúng"
+					"Tài khoản hoặc mật khẩu không đúng",
 				);
 
 			const isValidPassword = compare(
 				matkhau,
-				user.mk
+				user.mk,
 			);
 			if (!isValidPassword)
 				throw new Error(
-					"Tài khoản hoặc mật khẩu không đúng"
+					"Tài khoản hoặc mật khẩu không đúng",
 				);
 
 			if (user && isValidPassword) {

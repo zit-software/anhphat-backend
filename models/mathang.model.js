@@ -25,7 +25,7 @@ const MatHangModel = sequelize.define(
 				lonHonNgayNhap(value) {
 					if (value <= this.ngaynhap) {
 						throw new Error(
-							"Hạn sử dụng không được sớm hơn ngày nhập"
+							"Hạn sử dụng không được sớm hơn ngày nhập",
 						);
 					}
 				},
@@ -55,7 +55,7 @@ const MatHangModel = sequelize.define(
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
-	}
+	},
 );
 MatHangModel.belongsTo(LoaiHangModel, {
 	foreignKey: {

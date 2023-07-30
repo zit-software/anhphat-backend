@@ -39,7 +39,7 @@ const DonViModel = sequelize.define(
 			},
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 DonViModel.belongsTo(LoaiHangModel, {
 	foreignKey: {
