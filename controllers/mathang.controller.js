@@ -415,6 +415,46 @@ class MathangController {
 			});
 		}
 	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async demSoLuongKho(req, res) {
+		try {
+			const result = await MatHangModel.findAll({
+				attributes: [
+					[
+						sequelize.fn(
+							"count",
+							sequelize.col("mathang.ma")
+						),
+						"soluong",
+					],
+				],
+				where: {
+					xoavao: null,
+					xuatvao: { [Op.eq]: null },
+				},
+				include: [
+					{
+						model: DonViModel,
+						include: {
+							model: LoaiHangModel,
+						},
+					},
+				],
+				group: ["madv"],
+			});
+			return res.status(200).json(result);
+		} catch (error) {
+			res.status(400).send({
+				message: error.message,
+			});
+		}
+	}
+
 	/**
 	 *
 	 * @param {import('express').Request} req

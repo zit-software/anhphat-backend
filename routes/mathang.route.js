@@ -11,6 +11,7 @@ const {
 	phanra,
 	laymathangSapHetHan,
 	layloaihangSapHet,
+	demSoLuongKho,
 } = require("~/controllers/mathang.controller");
 
 const router = Router();
@@ -22,13 +23,13 @@ router
 	.get(laymotmathang);
 router.route("/saphethan").get(laymathangSapHetHan);
 router.route("/saphet").get(layloaihangSapHet);
+router.route("/soluong-kho").get(demSoLuongKho);
 
 router
 	.route("/:ma")
 	.get(layMotMathang)
 	.put(chinhsuamathang)
 	.delete(xoamathang);
-
 router.route("/soluong/:madv").get(laySoLuong);
 router.route("/phanra/:ma").post(phanra);
 
