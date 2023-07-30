@@ -10,24 +10,11 @@ class MathangController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	async themmathang(req, res) {
-		try {
-		} catch (error) {
-			res.status(400).send({
-				message: error.message,
-			});
-		}
-	}
-	/**
-	 *
-	 * @param {import('express').Request} req
-	 * @param {import('express').Response} res
-	 */
 	async laymathangSapHetHan(req, res) {
 		const t = await sequelize.transaction();
 		try {
-			// Kiểm tra Mặt hàng có hạn sử dụng < 1 năm
-			const dayUntilExpired = 365;
+			// Kiểm tra Mặt hàng có hạn sử dụng < 6 tháng
+			const dayUntilExpired = 180;
 			const currentDate = new Date();
 			let dateMax = new Date();
 			dateMax.setDate(
@@ -42,10 +29,19 @@ class MathangController {
 			const offset = limit
 				? limit * req.query.page
 				: 0;
-
 			const allNearExpired =
 				await MatHangModel.findAll({
-					attributes: ["ma", "ngaynhap", "hsd"],
+					attributes: [
+						"ngaynhap",
+						"hsd",
+						[
+							sequelize.fn(
+								"count",
+								sequelize.col("mathang.ma")
+							),
+							"soluong",
+						],
+					],
 					where: {
 						hsd: {
 							[Op.between]: [
@@ -59,11 +55,13 @@ class MathangController {
 						{ model: LoaiHangModel },
 						{ model: DonViModel },
 					],
+					order: ["ngaynhap"],
+					group: ["madv", "ngaynhap", "hsd"],
 					limit,
 					offset,
-				}).then((data) =>
-					data.map((e) => e.toJSON())
-				);
+				}).then((data) => {
+					return data.map((e) => e.toJSON());
+				});
 			const total = await MatHangModel.count({
 				where: {
 					hsd: {
@@ -74,11 +72,12 @@ class MathangController {
 					},
 					xuatvao: { [Op.eq]: null },
 				},
+				group: ["madv", "ngaynhap", "hsd"],
 			});
 			await t.commit();
 			return res.status(200).json({
 				data: allNearExpired,
-				total,
+				total: total.length,
 			});
 		} catch (error) {
 			await t.rollback();
@@ -87,6 +86,32 @@ class MathangController {
 			});
 		}
 	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async tieuHuyMatHangSapHetHan(req, res) {
+		try {
+			const { madv, ngaynhap, hsd } = req.query;
+			console.log(req.query);
+			await MatHangModel.destroy({
+				where: {
+					xuatvao: { [Op.eq]: null },
+					madv,
+					ngaynhap,
+					hsd,
+				},
+			});
+			return res.status(200).end();
+		} catch (error) {
+			console.log(error);
+			return res
+				.status(400)
+				.json({ message: error.message });
+		}
+	}
+
 	/**
 	 *
 	 * @param {import('express').Request} req

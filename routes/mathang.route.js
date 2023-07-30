@@ -1,7 +1,6 @@
 const { Router } = require("express");
 
 const {
-	themmathang,
 	laytatcamathang,
 	chinhsuamathang,
 	xoamathang,
@@ -12,17 +11,18 @@ const {
 	laymathangSapHetHan,
 	layloaihangSapHet,
 	demSoLuongKho,
+	tieuHuyMatHangSapHetHan,
 } = require("~/controllers/mathang.controller");
 
 const router = Router();
 
+router.route("/").get(laytatcamathang).get(laymotmathang);
 router
-	.route("/")
-	.post(themmathang)
-	.get(laytatcamathang)
-	.get(laymotmathang);
-router.route("/saphethan").get(laymathangSapHetHan);
+	.route("/saphethan")
+	.get(laymathangSapHetHan)
+	.delete(tieuHuyMatHangSapHetHan);
 router.route("/saphet").get(layloaihangSapHet);
+
 router.route("/soluong-kho").get(demSoLuongKho);
 
 router
