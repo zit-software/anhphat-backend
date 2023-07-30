@@ -440,10 +440,8 @@ class MathangController {
 				include: [
 					{
 						model: DonViModel,
-						include: {
-							model: LoaiHangModel,
-						},
 					},
+					{ model: LoaiHangModel },
 				],
 				group: ["madv"],
 			});
