@@ -59,9 +59,9 @@ class MathangController {
 					group: ["madv", "ngaynhap", "hsd"],
 					limit,
 					offset,
-				}).then((data) =>
-					data.map((e) => e.toJSON())
-				);
+				}).then((data) => {
+					return data.map((e) => e.toJSON());
+				});
 			const total = await MatHangModel.count({
 				where: {
 					hsd: {
