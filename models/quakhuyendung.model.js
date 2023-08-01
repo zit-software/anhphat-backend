@@ -26,6 +26,6 @@ const QuaKhuyenDungModel = sequelize.define(
 			defaultValue: 0,
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true, paranoid: true }
 );
 module.exports = QuaKhuyenDungModel;

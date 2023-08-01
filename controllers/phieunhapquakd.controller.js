@@ -2,6 +2,8 @@ const ChiTietPhieuNhapQuaModel = require("../models/chitietnhapquakd.model");
 const PhieuNhapQuaKDModel = require("../models/phieunhapquakhuyendung.model");
 const sequelize = require("~/services/sequelize.service");
 const UserModel = require("~/models/user.model");
+const QuaKhuyenDungModel = require("~/models/quakhuyendung.model");
+const { Sequelize } = require("sequelize");
 
 class PhieuNhapQuaKhuyenDungController {
 	/**
@@ -36,6 +38,14 @@ class PhieuNhapQuaKhuyenDungController {
 						maPhieuNhapQuaKD: newPhieuNhap.ma,
 					},
 					{ transaction: t }
+				);
+				await QuaKhuyenDungModel.update(
+					{
+						soluong: Sequelize.literal(
+							`(soluong + ${soluong}) || 0`
+						),
+					},
+					{ where: { ma }, transaction: t }
 				);
 			}
 			await t.commit();
