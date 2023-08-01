@@ -8,6 +8,7 @@ const {
 	chinhsuachitiet,
 	laymotkhuyenmai,
 } = require("~/controllers/khuyenmaitang.controller");
+const AdminMiddleware = require("~/middleware/admin.middleware");
 
 const router = Router();
 
@@ -16,7 +17,7 @@ router.route("/").post(taokhuyenmai).get(laytatca);
 router
 	.route("/:ma")
 	.put(chinhsua)
-	.delete(xoa)
+	.delete(AdminMiddleware, xoa)
 	.get(laymotkhuyenmai);
 router
 	.route("/chitiet/:ma")

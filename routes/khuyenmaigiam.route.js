@@ -6,13 +6,14 @@ const {
 	xoa,
 	getKhuyenmaigiam,
 } = require("~/controllers/khuyenmaigiam.controller");
+const AdminMiddleware = require("~/middleware/admin.middleware");
 
 const router = Router();
 
 router
 	.route("/:ma")
 	.put(chinhsua)
-	.delete(xoa)
+	.delete(AdminMiddleware, xoa)
 	.get(getKhuyenmaigiam);
 
 router.route("/").post(taokhuyenmai).get(laytatca);
