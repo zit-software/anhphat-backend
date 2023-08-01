@@ -1,4 +1,9 @@
 const {
+	taophieunhap,
+	getAllPhieuNhapQuaKD,
+	deletePhieuNhapQuaKD,
+} = require("~/controllers/phieunhapquakd.controller");
+const {
 	layTatCaQuaKhuyenDung,
 	taoQuaKhuyenDung,
 } = require("~/controllers/quakhuyendung.controller");
@@ -10,4 +15,9 @@ router
 	.get(layTatCaQuaKhuyenDung)
 	.post(taoQuaKhuyenDung);
 
+router
+	.route("/nhap")
+	.post(taophieunhap)
+	.get(getAllPhieuNhapQuaKD);
+router.route("/nhap/:ma").delete(deletePhieuNhapQuaKD);
 module.exports = router;
