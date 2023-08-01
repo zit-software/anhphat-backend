@@ -11,10 +11,8 @@ class QuaKhuyenDungController {
 		try {
 			const { ten, page } = req.query;
 			const pageSize = 10;
-			const offset = page * pageSize;
-			const where = {
-				xuatvao: null,
-			};
+			const offset = (page || 0) * pageSize;
+			const where = {};
 			if (ten) {
 				where.ten = {
 					[Op.like]: `%${ten}%`,
