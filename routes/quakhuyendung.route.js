@@ -4,6 +4,10 @@ const {
 	deletePhieuNhapQuaKD,
 } = require("~/controllers/phieunhapquakd.controller");
 const {
+	taoPhieuXuatQuaKD,
+	getAllPhieuXuatQuaKD,
+} = require("~/controllers/phieuxuatquakd.controller");
+const {
 	layTatCaQuaKhuyenDung,
 	taoQuaKhuyenDung,
 	xoaQuaKhuyenDung,
@@ -22,5 +26,8 @@ router
 router.route("/nhap/:ma").delete(deletePhieuNhapQuaKD);
 router.route("/:ma").delete(xoaQuaKhuyenDung).put();
 
-router.route("/xuat");
+router
+	.route("/xuat")
+	.post(taoPhieuXuatQuaKD)
+	.get(getAllPhieuXuatQuaKD);
 module.exports = router;
