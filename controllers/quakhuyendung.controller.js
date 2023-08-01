@@ -48,7 +48,6 @@ class QuaKhuyenDungController {
 			const newQua = await QuaKhuyenDungModel.create(
 				{
 					...req.body,
-					soluong: 0,
 				},
 				{ plain: true }
 			);
@@ -59,5 +58,32 @@ class QuaKhuyenDungController {
 				.json({ message: error.message });
 		}
 	}
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async xoaQuaKhuyenDung(req, res) {
+		try {
+			const ma = req.params.ma;
+			await QuaKhuyenDungModel.destroy({
+				where: { ma },
+			});
+			return res
+				.status(200)
+				.json({ message: "Xóa Thành Công" });
+		} catch (error) {
+			return res
+				.status(400)
+				.json({ message: error.message });
+		}
+	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async suaQuaKhuyenDung(req, res) {}
 }
 module.exports = new QuaKhuyenDungController();

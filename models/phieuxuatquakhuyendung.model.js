@@ -1,8 +1,9 @@
 const sequelize = require("~/services/sequelize.service");
 const { DataTypes } = require("sequelize");
-const UserModel = require("../models/user.model");
-const PhieuNhapQuaKhuyenDungModel = sequelize.define(
-	"phieu_nhap_qua_khuyen_dung",
+const NhaPhanPhoiModel = require("./nhaphanphoi.model");
+const UserModel = require("./user.model");
+const PhieuXuatQuaKhuyenDungModel = sequelize.define(
+	"phieu_xuat_qua_khuyendung",
 	{
 		ma: {
 			primaryKey: true,
@@ -10,27 +11,32 @@ const PhieuNhapQuaKhuyenDungModel = sequelize.define(
 			allowNull: false,
 			autoIncrement: true,
 		},
-		ngaynhap: {
+		ngayxuat: {
 			type: DataTypes.DATE,
 			allowNull: false,
 			defaultValue: new Date(),
 		},
 		tongsl: {
 			type: DataTypes.INTEGER,
-			allowNull: false,
 			validate: {
-				min: 1,
+				min: 0,
 			},
 		},
 	},
 	{ timestamps: true }
 );
-PhieuNhapQuaKhuyenDungModel.belongsTo(UserModel, {
+
+PhieuXuatQuaKhuyenDungModel.belongsTo(NhaPhanPhoiModel, {
+	foreignKey: {
+		name: "manpp",
+		allowNull: false,
+	},
+});
+PhieuXuatQuaKhuyenDungModel.belongsTo(UserModel, {
 	foreignKey: {
 		name: "mauser",
 		allowNull: false,
 	},
-	as: "nguoinhap",
 });
 
-module.exports = PhieuNhapQuaKhuyenDungModel;
+module.exports = PhieuXuatQuaKhuyenDungModel;

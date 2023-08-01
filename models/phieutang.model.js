@@ -1,7 +1,6 @@
 const { DataTypes } = require("sequelize");
 
 const sequelize = require("~/services/sequelize.service");
-const KhuyenMaiTangModel = require("./khuyenmaitang.model");
 const PhieuXuatModel = require("./phieuxuat.model");
 
 const PhieuTangModel = sequelize.define(
@@ -21,7 +20,7 @@ const PhieuTangModel = sequelize.define(
 			},
 		},
 	},
-	{ timestamps: true },
+	{ timestamps: true }
 );
 
 PhieuTangModel.belongsTo(PhieuXuatModel, {
