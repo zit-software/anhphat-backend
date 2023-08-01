@@ -25,6 +25,8 @@ require("~/models/chitietphieuxuat.model");
 require("~/models/chitietkmt.model");
 require("~/models/thongke.model");
 require("~/models/quakhuyendung.model");
+require("~/models/phieunhapquakhuyendung.model");
+require("~/models/chitietnhapquakd.model");
 async function startServer() {
 	/**
 	 * Get port from environment and store in Express.

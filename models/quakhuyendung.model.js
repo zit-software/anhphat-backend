@@ -14,6 +14,7 @@ const QuaKhuyenDungModel = sequelize.define(
 		diem: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
+			validate: { min: 0 },
 		},
 		ten: {
 			type: DataTypes.STRING,
@@ -23,11 +24,6 @@ const QuaKhuyenDungModel = sequelize.define(
 			type: DataTypes.INTEGER,
 			allowNull: false,
 			defaultValue: 0,
-		},
-		xuatvao: {
-			type: DataTypes.DATE,
-			allowNull: true,
-			defaultValue: null,
 		},
 	},
 	{ timestamps: true }

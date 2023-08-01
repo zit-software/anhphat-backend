@@ -39,5 +39,27 @@ class QuaKhuyenDungController {
 				.end();
 		}
 	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async taoQuaKhuyenDung(req, res) {
+		try {
+			const newQua = await QuaKhuyenDungModel.create(
+				{
+					...req.body,
+					soluong: 0,
+				},
+				{ plain: true }
+			);
+			return res.status(200).json(newQua);
+		} catch (error) {
+			return res
+				.status(400)
+				.json({ message: error.message });
+		}
+	}
 }
 module.exports = new QuaKhuyenDungController();
