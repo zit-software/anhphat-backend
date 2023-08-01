@@ -1,5 +1,5 @@
 const ChiTietPhieuNhapQuaModel = require("../models/chitietnhapquakd.model")
-
+const PhieuNhapQuaKDModel
 class PhieuNhapQuaKhuyenDungController {
 	/**
 	 *
@@ -9,7 +9,7 @@ class PhieuNhapQuaKhuyenDungController {
 	async taophieunhap(req, res) {
 		try {
             const {...phieuNhapInfo, chitiets} = req.body
-            const newPhieuNhap = await
+            const newPhieuNhap = await 
             for (const chitiet of chitiets){
                 const {ma, soluong} = chitiet 
                 const newChiTiet = await ChiTietPhieuNhapQuaModel.create({maQuaKD: ma, soluong})
