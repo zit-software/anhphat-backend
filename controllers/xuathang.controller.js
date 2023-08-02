@@ -398,7 +398,7 @@ class XuatHangController {
 			});
 			if (!kmt)
 				throw new Error(
-					"Không tồn tại khuyến mãi tặng này"
+					"Không tồn tại khuyến mãi tặng này",
 				);
 			kmt = kmt.toJSON();
 			const manualProduct = await Promise.all(
@@ -406,7 +406,7 @@ class XuatHangController {
 					return MatHangModel.findOne({
 						where: { ma: mh.mh },
 					}).then((data) => data.toJSON());
-				})
+				}),
 			);
 			const tongSoLuongMap = new Map();
 			const soLuongXuatMap = new Map();
@@ -414,24 +414,24 @@ class XuatHangController {
 				soLuongXuatMap.set(
 					product.madv,
 					soLuongXuatMap.get(product.madv) + 1 ||
-						1
+						1,
 				);
 				tongSoLuongMap.set(
 					product.madv,
 					tongSoLuongMap.get(product.madv) + 1 ||
-						1
+						1,
 				);
 			}
 			for (const product of auto) {
 				soLuongXuatMap.set(
 					product.madv,
 					soLuongXuatMap.get(product.madv) +
-						product.soluong || product.soluong
+						product.soluong || product.soluong,
 				);
 				tongSoLuongMap.set(
 					product.madv,
 					tongSoLuongMap.get(product.madv) +
-						product.soluong || product.soluong
+						product.soluong || product.soluong,
 				);
 			}
 			const allChitietKMT = await ChiTietKMT.findAll({
@@ -440,22 +440,22 @@ class XuatHangController {
 			const soLuongTangMap = new Map();
 			for (let chitiet of allChitietKMT) {
 				const soLuongXuat = soLuongXuatMap.get(
-					chitiet.madvmua
+					chitiet.madvmua,
 				);
 				if (!soLuongXuat) continue;
 				const soLuongTang =
 					Math.floor(
-						soLuongXuat / chitiet.soluongmua
+						soLuongXuat / chitiet.soluongmua,
 					) * chitiet.soluongtang;
 				soLuongTangMap.set(
 					chitiet.madvtang,
 					soLuongTangMap.get(chitiet.madvtang) +
-						soLuongTang || soLuongTang
+						soLuongTang || soLuongTang,
 				);
 				tongSoLuongMap.set(
 					chitiet.madvtang,
 					tongSoLuongMap.get(chitiet.madvtang) +
-						soLuongTang || soLuongTang
+						soLuongTang || soLuongTang,
 				);
 			}
 			const missing = [];

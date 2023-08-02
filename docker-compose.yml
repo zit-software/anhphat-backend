@@ -8,9 +8,45 @@ services:
             - 3306:3306
         environment:
             MARIADB_ROOT_PASSWORD: 12345
+        networks:
+            - app-network
 
     adminer:
         image: adminer
         restart: always
         ports:
             - 8080:8080
+        depends_on:
+            - db
+        networks:
+            - app-network
+
+    api:
+        image: node:18-alpine
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - 5000:5000
+        volumes:
+            - .:/app
+            - ./node_modules:/app/node_modules
+        networks:
+            - app-network
+        command: npm run dev
+        depends_on:
+            - db
+        environment:
+            - DB_HOST=db
+            - DB_DIALECT=mariadb
+            - DB_PORT=3306
+            - DB_USERNAME=root
+            - DB_PASSWORD=12345
+            - DB_DATABASE=dbname
+            - FRONTEND_ORIGIN="*"
+            - PORT=5000
+            - JWT_SECRET="Dont use this on production!"
+
+networks:
+    app-network:
+        driver: bridge
