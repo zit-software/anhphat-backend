@@ -84,6 +84,18 @@ class QuaKhuyenDungController {
 	 * @param {import('express').Request} req
 	 * @param {import('express').Response} res
 	 */
-	async suaQuaKhuyenDung(req, res) {}
+	async suaQuaKhuyenDung(req, res) {
+		try {
+			const ma = req.params.ma;
+			await QuaKhuyenDungModel.update(
+				{ ...req.body },
+				{ where: { ma } }
+			);
+		} catch (error) {
+			return res
+				.status(400)
+				.json({ message: error.message });
+		}
+	}
 }
 module.exports = new QuaKhuyenDungController();

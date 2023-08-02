@@ -1,8 +1,10 @@
 const { Sequelize } = require("sequelize");
 const ChiTietXuatQuaKD = require("~/models/chitietxuatquakd.model");
+const LogDiemModel = require("~/models/logdiem.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 const PhieuXuatQuaKhuyenDungModel = require("~/models/phieuxuatquakhuyendung.model");
 const QuaKhuyenDungModel = require("~/models/quakhuyendung.model");
+const UserModel = require("~/models/user.model");
 const sequelize = require("~/services/sequelize.service");
 
 class PhieuXuatQuaKDController {
@@ -83,6 +85,26 @@ class PhieuXuatQuaKDController {
 				},
 				{ where: { ma: manpp }, transaction: t }
 			);
+			await LogDiemModel.create(
+				{
+					ghichu:
+						"Đổi điểm cho nhà phân phối " +
+						npp.ten,
+					diem: -tongdiem,
+					manpp,
+					mauser: currentUser.ma,
+				},
+				{ transaction: t }
+			);
+			await PhieuXuatQuaKhuyenDungModel.update(
+				{
+					tongdiem,
+				},
+				{
+					where: { ma: newPhieu.ma },
+					transaction: t,
+				}
+			);
 
 			await t.commit();
 			return res.status(200).json(newPhieu).end();
@@ -94,12 +116,6 @@ class PhieuXuatQuaKDController {
 				.end();
 		}
 	}
-	/**
-	 *
-	 * @param {import('express').Request} req
-	 * @param {import('express').Response} res
-	 */
-	async checkDiemVaSoluong(req, res) {}
 
 	/**
 	 *
@@ -117,6 +133,20 @@ class PhieuXuatQuaKDController {
 					{
 						offset,
 						limit: pageSize,
+						include: [
+							{
+								attributes: {
+									exclude: ["mk"],
+								},
+								model: UserModel,
+								as: "nguoinhap",
+							},
+							{
+								model: NhaPhanPhoiModel,
+								paranoid: false,
+								as: "npp",
+							},
+						],
 					},
 					{ plain: true }
 				);

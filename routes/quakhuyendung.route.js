@@ -11,6 +11,7 @@ const {
 	layTatCaQuaKhuyenDung,
 	taoQuaKhuyenDung,
 	xoaQuaKhuyenDung,
+	suaQuaKhuyenDung,
 } = require("~/controllers/quakhuyendung.controller");
 
 const router = require("express").Router();
@@ -24,7 +25,10 @@ router
 	.post(taophieunhap)
 	.get(getAllPhieuNhapQuaKD);
 router.route("/nhap/:ma").delete(deletePhieuNhapQuaKD);
-router.route("/:ma").delete(xoaQuaKhuyenDung).put();
+router
+	.route("/:ma")
+	.delete(xoaQuaKhuyenDung)
+	.put(suaQuaKhuyenDung);
 
 router
 	.route("/xuat")

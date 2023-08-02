@@ -22,6 +22,12 @@ const PhieuXuatQuaKhuyenDungModel = sequelize.define(
 				min: 0,
 			},
 		},
+		tongdiem: {
+			type: DataTypes.INTEGER,
+			validate: {
+				min: 0,
+			},
+		},
 	},
 	{ timestamps: true }
 );
@@ -31,12 +37,14 @@ PhieuXuatQuaKhuyenDungModel.belongsTo(NhaPhanPhoiModel, {
 		name: "manpp",
 		allowNull: false,
 	},
+	as: "npp",
 });
 PhieuXuatQuaKhuyenDungModel.belongsTo(UserModel, {
 	foreignKey: {
 		name: "mauser",
 		allowNull: false,
 	},
+	as: "nguoinhap",
 });
 
 module.exports = PhieuXuatQuaKhuyenDungModel;
