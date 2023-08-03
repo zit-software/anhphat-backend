@@ -72,4 +72,9 @@ router.use(
 	require("./thongke.route"),
 );
 
+router.use(
+	"/qua",
+	AuthMiddleware,
+	require("./quakhuyendung.route")
+);
 module.exports = router;

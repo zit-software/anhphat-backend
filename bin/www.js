@@ -24,6 +24,11 @@ require("~/models/chitietphieunhap.model");
 require("~/models/chitietphieuxuat.model");
 require("~/models/chitietkmt.model");
 require("~/models/thongke.model");
+require("~/models/quakhuyendung.model");
+require("~/models/phieunhapquakhuyendung.model");
+require("~/models/chitietnhapquakd.model");
+require("~/models/phieuxuatquakhuyendung.model");
+require("~/models/chitietxuatquakd.model");
 async function startServer() {
 	/**
 	 * Get port from environment and store in Express.
@@ -81,7 +86,7 @@ async function startServer() {
 		switch (error.code) {
 			case "EACCES":
 				console.error(
-					bind + " requires elevated privileges",
+					bind + " requires elevated privileges"
 				);
 				process.exit(1);
 				break;
