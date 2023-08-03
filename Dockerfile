@@ -1,11 +1,12 @@
-FROM node:18-alpine
+FROM node:latest
 
 WORKDIR /app
 
 COPY package.json .
 
-COPY . .
-
 RUN npm install
+RUN npm install bcrypt
+
+COPY . .
 
 CMD [ "npm", "start" ]
