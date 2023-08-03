@@ -31,9 +31,11 @@
 		"sequelize": "^6.32.1"
 	},
 	"devDependencies": {
+		"@commitlint/cli": "^17.6.7",
+		"@commitlint/config-conventional": "^17.6.7",
 		"eslint": "^8.46.0",
+		"husky": "^8.0.0",
 		"nodemon": "^3.0.1",
-		"prettier": "^3.0.0",
-		"husky": "^8.0.0"
+		"prettier": "^3.0.0"
 	}
 }

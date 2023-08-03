@@ -18,7 +18,7 @@ class MathangController {
 			const currentDate = new Date();
 			let dateMax = new Date();
 			dateMax.setDate(
-				currentDate.getDate() + dayUntilExpired
+				currentDate.getDate() + dayUntilExpired,
 			);
 
 			const limit = req.query.page
@@ -37,7 +37,7 @@ class MathangController {
 						[
 							sequelize.fn(
 								"count",
-								sequelize.col("mathang.ma")
+								sequelize.col("mathang.ma"),
 							),
 							"soluong",
 						],
@@ -129,7 +129,7 @@ class MathangController {
 						[
 							sequelize.fn(
 								"count",
-								sequelize.col("mathang.ma")
+								sequelize.col("mathang.ma"),
 							),
 							"soluong",
 						],
@@ -142,7 +142,7 @@ class MathangController {
 					include: { model: LoaiHangModel },
 					group: ["malh", "madv"],
 				}).then((res) =>
-					res.map((e) => e.toJSON())
+					res.map((e) => e.toJSON()),
 				);
 			// Chuyển đổi về số lượng của quy cách nhỏ nhất
 			const soluongtheoLoaiHang = [];
@@ -150,7 +150,7 @@ class MathangController {
 				const dvnnObj =
 					await QuyCachUtil.convertToSmallestUnit(
 						loaihang.madv,
-						loaihang.soluong
+						loaihang.soluong,
 					);
 				const soluongDonViNhoNhat = dvnnObj.soluong;
 				const donviNhoNhat = dvnnObj.donvi;
@@ -158,7 +158,7 @@ class MathangController {
 					soluongtheoLoaiHang.findIndex(
 						(thongke) =>
 							thongke?.loaihang.ma ===
-							loaihang.malh
+							loaihang.malh,
 					);
 				if (foundIndex !== -1) {
 					soluongtheoLoaiHang[foundIndex] = {
@@ -196,7 +196,7 @@ class MathangController {
 			});
 			for (let lh of allLH) {
 				const findIndex = result.findIndex(
-					(ele) => ele.ma === lh.ma
+					(ele) => ele.ma === lh.ma,
 				);
 				if (findIndex === -1) {
 					result.push({
@@ -280,7 +280,7 @@ class MathangController {
 					[
 						sequelize.fn(
 							"count",
-							sequelize.col("mathang.ma")
+							sequelize.col("mathang.ma"),
 						),
 						"soluong",
 					],
@@ -404,7 +404,7 @@ class MathangController {
 							},
 						],
 					})
-				).toJSON()
+				).toJSON(),
 			);
 		} catch (error) {
 			res.status(400).send({
@@ -453,7 +453,7 @@ class MathangController {
 					[
 						sequelize.fn(
 							"count",
-							sequelize.col("mathang.ma")
+							sequelize.col("mathang.ma"),
 						),
 						"soluong",
 					],
@@ -502,18 +502,18 @@ class MathangController {
 				}).then((data) => data?.toJSON());
 			if (!currentMatHang)
 				throw new Error(
-					"Mặt hàng không tồn tại, kiếm tra lại đã xuất kho hay chưa"
+					"Mặt hàng không tồn tại, kiếm tra lại đã xuất kho hay chưa",
 				);
 
 			const converted = await QuyCachUtil.convertUnit(
 				currentMatHang.madv,
 				madvphanra,
-				1
+				1,
 			);
 			const soluongDVN = converted.soluong;
 			if (soluongDVN === 1)
 				throw new Error(
-					"Không tồn tại quy cách để chuyển đổi 2 đơn vị này"
+					"Không tồn tại quy cách để chuyển đổi 2 đơn vị này",
 				);
 			const dvn = converted.donvi;
 			const createdMatHangs = [];
@@ -527,7 +527,7 @@ class MathangController {
 						malh: currentMatHang.malh,
 						madv: dvn.ma,
 					},
-					{ transaction: t }
+					{ transaction: t },
 				).then((data) => data.toJSON());
 				createdMatHangs.push(newMH);
 			}
