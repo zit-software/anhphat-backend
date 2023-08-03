@@ -1,12 +1,13 @@
-FROM node:latest
+FROM node:18
 
 WORKDIR /app
 
 COPY package.json .
 
-RUN npm install
-RUN npm install bcrypt
+RUN npm i
 
 COPY . .
+
+EXPOSE 5000
 
 CMD [ "npm", "start" ]
