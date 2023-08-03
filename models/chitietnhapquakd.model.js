@@ -15,7 +15,7 @@ const ChiTietNhapQuaKhuyenDung = sequelize.define(
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-	}
+	},
 );
 
 ChiTietNhapQuaKhuyenDung.belongsTo(QuaKhuyenDungModel, {
@@ -23,6 +23,7 @@ ChiTietNhapQuaKhuyenDung.belongsTo(QuaKhuyenDungModel, {
 		name: "maQuaKD",
 		allowNull: false,
 	},
+	as: "qua",
 });
 
 ChiTietNhapQuaKhuyenDung.belongsTo(
@@ -32,7 +33,7 @@ ChiTietNhapQuaKhuyenDung.belongsTo(
 			name: "maPhieuNhapQuaKD",
 			allowNull: false,
 		},
-	}
+	},
 );
 
 module.exports = ChiTietNhapQuaKhuyenDung;

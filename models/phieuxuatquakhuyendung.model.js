@@ -29,7 +29,7 @@ const PhieuXuatQuaKhuyenDungModel = sequelize.define(
 			},
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 
 PhieuXuatQuaKhuyenDungModel.belongsTo(NhaPhanPhoiModel, {

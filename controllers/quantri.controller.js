@@ -23,7 +23,7 @@ class QuantriController {
 					mk: hash(matkhau),
 					laAdmin,
 				},
-				{ transaction: t }
+				{ transaction: t },
 			);
 			await PinModel.create(
 				{
@@ -32,7 +32,7 @@ class QuantriController {
 				},
 				{
 					transaction: t,
-				}
+				},
 			);
 			await t.commit();
 			return res
@@ -90,7 +90,7 @@ class QuantriController {
 
 			if (!existingUser)
 				throw new Error(
-					"Tài khoản này không tồn lại"
+					"Tài khoản này không tồn lại",
 				);
 
 			const newUser = req.body;
@@ -114,7 +114,7 @@ class QuantriController {
 							mauser: ma,
 						},
 						transaction: t,
-					}
+					},
 				);
 			await t.commit();
 			return res
@@ -167,11 +167,11 @@ class QuantriController {
 
 			if (!existingUser)
 				throw new Error(
-					"Tài khoản này không tồn lại"
+					"Tài khoản này không tồn lại",
 				);
 			if (existingUser.dataValues.isAdmin)
 				throw new Error(
-					"Bạn không được phép xóa tài khoản admin"
+					"Bạn không được phép xóa tài khoản admin",
 				);
 
 			await UserModel.destroy({ where: { ma } });

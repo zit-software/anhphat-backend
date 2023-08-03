@@ -49,7 +49,7 @@ class QuaKhuyenDungController {
 				{
 					...req.body,
 				},
-				{ plain: true }
+				{ plain: true },
 			);
 			return res.status(200).json(newQua);
 		} catch (error) {
@@ -87,10 +87,12 @@ class QuaKhuyenDungController {
 	async suaQuaKhuyenDung(req, res) {
 		try {
 			const ma = req.params.ma;
-			await QuaKhuyenDungModel.update(
-				{ ...req.body },
-				{ where: { ma } }
-			);
+			const newQuaKD =
+				await QuaKhuyenDungModel.update(
+					{ ...req.body },
+					{ where: { ma }, plain: true },
+				);
+			return res.status(200).json(newQuaKD).end();
 		} catch (error) {
 			return res
 				.status(400)

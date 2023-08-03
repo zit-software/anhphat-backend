@@ -75,6 +75,6 @@ router.use(
 router.use(
 	"/qua",
 	AuthMiddleware,
-	require("./quakhuyendung.route")
+	require("./quakhuyendung.route"),
 );
 module.exports = router;
