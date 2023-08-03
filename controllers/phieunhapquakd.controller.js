@@ -23,11 +23,11 @@ class PhieuNhapQuaKhuyenDungController {
 						tongsl: chitiets.reduce(
 							(pre, current) =>
 								pre + current.soluong,
-							0
+							0,
 						),
 						mauser: currentUser.ma,
 					},
-					{ plain: true, transaction: t }
+					{ plain: true, transaction: t },
 				);
 			for (const chitiet of chitiets) {
 				const { ma, soluong } = chitiet;
@@ -37,15 +37,15 @@ class PhieuNhapQuaKhuyenDungController {
 						soluong,
 						maPhieuNhapQuaKD: newPhieuNhap.ma,
 					},
-					{ transaction: t }
+					{ transaction: t },
 				);
 				await QuaKhuyenDungModel.update(
 					{
 						soluong: Sequelize.literal(
-							`(soluong + ${soluong}) || 0`
+							`(soluong + ${soluong}) || 0`,
 						),
 					},
-					{ where: { ma }, transaction: t }
+					{ where: { ma }, transaction: t },
 				);
 			}
 			await t.commit();
@@ -85,7 +85,7 @@ class PhieuNhapQuaKhuyenDungController {
 							},
 						],
 					},
-					{ plain: true }
+					{ plain: true },
 				);
 			const total = await PhieuNhapQuaKDModel.count();
 			return res
@@ -120,6 +120,56 @@ class PhieuNhapQuaKhuyenDungController {
 				.json({ message: "Xóa thành công!" });
 		} catch (error) {
 			await t.rollback();
+			return res
+				.status(400)
+				.json({ message: error.message });
+		}
+	}
+	/**
+	 *
+	 * @param{import('express').Request} req,
+	 * @param{import('express').Response} res,
+	 */
+	async getOne(req, res) {
+		try {
+			const ma = req.params.ma;
+			const phieuNhap =
+				await PhieuNhapQuaKDModel.findOne(
+					{
+						attributes: { exclude: "mauser" },
+						where: { ma },
+						include: {
+							model: UserModel,
+							attributes: { exclude: ["mk"] },
+							as: "nguoinhap",
+						},
+					},
+					{
+						plain: true,
+					},
+				);
+			if (!phieuNhap)
+				throw new Error(
+					"Không tồn tại phiếu nhập quà khuyến dụng có mã là " +
+						ma,
+				);
+			const chitiets =
+				await ChiTietPhieuNhapQuaModel.findAll(
+					{
+						where: { maPhieuNhapQuaKD: ma },
+						include: {
+							model: QuaKhuyenDungModel,
+							as: "qua",
+						},
+					},
+					{ plain: true },
+				);
+
+			return res.status(200).json({
+				...phieuNhap.dataValues,
+				chitiets,
+			});
+		} catch (error) {
 			return res
 				.status(400)
 				.json({ message: error.message });

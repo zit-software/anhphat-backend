@@ -20,19 +20,20 @@ class PhieuXuatQuaKDController {
 				req.body;
 			const npp = await NhaPhanPhoiModel.findByPk(
 				manpp,
-				{ plain: true, transaction: t }
+				{ plain: true, transaction: t },
 			);
 			const currentUser = req.currentUser;
 			if (!npp)
 				throw new Error(
 					"Không tìm thấy nhà phân phối với mã " +
-						manpp
+						manpp,
 				);
 			const diemNPP = npp.diem;
 			const tongsl = chitiets.reduce(
 				(pre, current) => pre + current.soluong,
-				0
+				0,
 			);
+			let tongdiem = 0;
 			const newPhieu =
 				await PhieuXuatQuaKhuyenDungModel.create(
 					{
@@ -40,10 +41,10 @@ class PhieuXuatQuaKDController {
 						tongsl,
 						mauser: currentUser.ma,
 						manpp,
+						tongdiem,
 					},
-					{ transaction: t, plain: true }
+					{ transaction: t, plain: true },
 				);
-			let tongdiem = 0;
 			for (const chitiet of chitiets) {
 				const { ma, soluong } = chitiet;
 				const quaKD =
@@ -53,7 +54,11 @@ class PhieuXuatQuaKDController {
 							transaction: t,
 							plain: true,
 						},
-						{ transaction: t }
+						{ transaction: t },
+					);
+				if (quaKD.soluong < soluong)
+					throw new Error(
+						`Quà: '${quaKD.ten}' không đủ số lượng tồn kho, số lượng còn lại: ${quaKD.soluong}`,
 					);
 				await ChiTietXuatQuaKD.create(
 					{
@@ -61,29 +66,30 @@ class PhieuXuatQuaKDController {
 						soluong,
 						maPhieuXuatQuaKD: newPhieu.ma,
 					},
-					{ transaction: t }
+					{ transaction: t },
 				);
 				tongdiem += quaKD.diem * soluong;
 				await QuaKhuyenDungModel.update(
 					{
 						soluong: Sequelize.literal(
-							`soluong - ${soluong}`
+							`soluong - ${soluong}`,
 						),
 					},
-					{ where: { ma }, transaction: t }
+					{ where: { ma }, transaction: t },
 				);
 			}
+			console.log(tongdiem);
 			if (diemNPP < tongdiem)
 				throw new Error(
-					`Nhà phân phối này không đủ điểm để tặng những quà này (${diemNPP} < ${tongdiem})`
+					`Nhà phân phối này không đủ điểm để tặng những quà này (${diemNPP} < ${tongdiem})`,
 				);
 			await NhaPhanPhoiModel.update(
 				{
 					diem: Sequelize.literal(
-						`diem - ${tongdiem}`
+						`diem - ${tongdiem}`,
 					),
 				},
-				{ where: { ma: manpp }, transaction: t }
+				{ where: { ma: manpp }, transaction: t },
 			);
 			await LogDiemModel.create(
 				{
@@ -94,7 +100,7 @@ class PhieuXuatQuaKDController {
 					manpp,
 					mauser: currentUser.ma,
 				},
-				{ transaction: t }
+				{ transaction: t },
 			);
 			await PhieuXuatQuaKhuyenDungModel.update(
 				{
@@ -103,7 +109,7 @@ class PhieuXuatQuaKDController {
 				{
 					where: { ma: newPhieu.ma },
 					transaction: t,
-				}
+				},
 			);
 
 			await t.commit();
@@ -148,7 +154,7 @@ class PhieuXuatQuaKDController {
 							},
 						],
 					},
-					{ plain: true }
+					{ plain: true },
 				);
 			const total =
 				await PhieuXuatQuaKhuyenDungModel.count({});
@@ -160,6 +166,93 @@ class PhieuXuatQuaKDController {
 				.status(400)
 				.json({ message: error.message })
 				.end();
+		}
+	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async xoaPhieuXuatQuaKD(req, res) {
+		try {
+			const ma = req.params.ma;
+			await ChiTietXuatQuaKD.destroy({
+				where: { maPhieuXuatQuaKD: ma },
+			});
+			await PhieuXuatQuaKhuyenDungModel.destroy({
+				where: { ma },
+			});
+			return res
+				.status(200)
+				.json({ message: "Xóa Thành Công" });
+		} catch (error) {
+			return res
+				.status(400)
+				.json({ message: error.message });
+		}
+	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async getOnePhieuXuatQua(req, res) {
+		try {
+			const ma = req.params.ma;
+			const phieuXuat =
+				await PhieuXuatQuaKhuyenDungModel.findOne(
+					{
+						where: { ma },
+						attributes: { exclude: ["mauser"] },
+						include: [
+							{
+								model: UserModel,
+								as: "nguoinhap",
+								attributes: {
+									exclude: ["mk"],
+								},
+							},
+							{
+								model: NhaPhanPhoiModel,
+								as: "npp",
+							},
+						],
+					},
+					{ plain: true },
+				);
+			if (!phieuXuat)
+				throw new Error(
+					"Không tồn tại phiếu xuất có mã là " +
+						ma,
+				);
+			const chitiets = await ChiTietXuatQuaKD.findAll(
+				{
+					attributes: {
+						exclude: [
+							"maQuaKD",
+							"maPhieuXuatQuaKD",
+						],
+					},
+					where: { maPhieuXuatQuaKD: ma },
+					include: [
+						{
+							model: QuaKhuyenDungModel,
+							as: "qua",
+						},
+					],
+				},
+				{ plain: true },
+			);
+			return res.status(200).json({
+				...phieuXuat.dataValues,
+				chitiets,
+			});
+		} catch (error) {
+			return res
+				.status(400)
+				.json({ message: error.message });
 		}
 	}
 }

@@ -23,7 +23,7 @@ const PhieuNhapQuaKhuyenDungModel = sequelize.define(
 			},
 		},
 	},
-	{ timestamps: true }
+	{ timestamps: true },
 );
 PhieuNhapQuaKhuyenDungModel.belongsTo(UserModel, {
 	foreignKey: {
