@@ -4,8 +4,6 @@ const {
 	laytatcaphieunhap,
 	xoaphieunhap,
 	laymotphieunhap,
-	chinhsuaphieunhap,
-	themsanpham,
 	luuphieunhap,
 } = require("~/controllers/nhaphang.controller");
 
@@ -16,13 +14,13 @@ router
 	.post(taophieunhap)
 	.get(laytatcaphieunhap);
 
-router.post("/phieunhap/themsp", themsanpham);
+// router.post("/phieunhap/themsp", themsanpham);
 
 router
 	.route("/phieunhap/:ma")
 	.delete(xoaphieunhap)
-	.get(laymotphieunhap)
-	.put(chinhsuaphieunhap);
+	.get(laymotphieunhap);
+// .put(chinhsuaphieunhap);
 
 router.route("/phieunhap/:ma/luu").put(luuphieunhap);
 

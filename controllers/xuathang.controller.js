@@ -157,6 +157,7 @@ class XuatHangController {
 					},
 					limit,
 					offset: limit * page,
+					order: [["updatedAt", "desc"]],
 				},
 			);
 			return res.status(200).json({

@@ -42,7 +42,7 @@ class PhieuNhapQuaKhuyenDungController {
 				await QuaKhuyenDungModel.update(
 					{
 						soluong: Sequelize.literal(
-							`(soluong + ${soluong}) || 0`,
+							`soluong + ${soluong}`,
 						),
 					},
 					{ where: { ma }, transaction: t },
@@ -84,6 +84,7 @@ class PhieuNhapQuaKhuyenDungController {
 								as: "nguoinhap",
 							},
 						],
+						order: [["updatedAt", "desc"]],
 					},
 					{ plain: true },
 				);

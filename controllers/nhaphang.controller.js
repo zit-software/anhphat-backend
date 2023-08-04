@@ -96,6 +96,7 @@ class NhaphangController {
 	 * @param {import('express').Response} res
 	 */
 	async themsanpham(req, res) {
+		const t = await sequelize.transaction();
 		try {
 			const {
 				soluong,
@@ -107,6 +108,7 @@ class NhaphangController {
 			} = req.body;
 			const phieunhap = await PhieuNhapModel.findOne({
 				where: { ma: maphieunhap },
+				transaction: t,
 			});
 
 			// Kiểm tra phiếu nhập
@@ -121,9 +123,11 @@ class NhaphangController {
 			const loaiHang = await LoaiHangModel.findOne({
 				attributes: ["ma", "ten"],
 				where: { ma: malh },
+				transaction: t,
 			});
 			const donvi = await DonViModel.findOne({
 				where: { ma: madv, malh },
+				transaction: t,
 			});
 			if (!donvi || !loaiHang)
 				throw new Error(
@@ -133,14 +137,18 @@ class NhaphangController {
 			// Tạo các mặt hàng vào kho
 			const matHangDaTao = [];
 			for (let i = 0; i < soluong; i++) {
-				let mathang = await MatHangModel.create({
-					ngaynhap: phieunhap.dataValues.ngaynhap,
-					hsd: new Date(hsd),
-					gianhap,
-					giaban: donvi.dataValues.giaban,
-					malh,
-					madv,
-				});
+				let mathang = await MatHangModel.create(
+					{
+						ngaynhap:
+							phieunhap.dataValues.ngaynhap,
+						hsd: new Date(hsd),
+						gianhap,
+						giaban: donvi.dataValues.giaban,
+						malh,
+						madv,
+					},
+					{ transaction: t },
+				);
 				mathang = mathang.toJSON();
 				matHangDaTao.push({
 					ma: mathang.ma,
@@ -154,10 +162,13 @@ class NhaphangController {
 			const chiTietDaTao = [];
 			for (let i = 0; i < soluong; i++) {
 				let chitietNhap =
-					await ChiTietPhieuNhapModel.create({
-						maphieunhap,
-						mamathang: matHangDaTao[i].ma,
-					});
+					await ChiTietPhieuNhapModel.create(
+						{
+							maphieunhap,
+							mamathang: matHangDaTao[i].ma,
+						},
+						{ transaction: t },
+					);
 				chitietNhap = chitietNhap.toJSON();
 				chiTietDaTao.push({
 					ma: chitietNhap.id,
@@ -383,8 +394,87 @@ class NhaphangController {
 	async luuphieunhap(req, res) {
 		const t = await sequelize.transaction();
 		try {
-			const ma = req.params.ma;
+			// 1. Cập nhật thông tin phiếu nhập
+			// 2. Thêm chi tiết phiếu nhập
+			// 3. Lưu phiếu nhập
 
+			// 1. Cập nhật thông tin phiếu nhập
+			const ma = req.params.ma;
+			console.log(ma);
+			const {
+				chitiets: chitietsRequest,
+				...phieunhapInfo
+			} = req.body;
+			const phieunhap = await PhieuNhapModel.findOne({
+				where: { ma },
+				transaction: t,
+			});
+			if (!phieunhap)
+				throw new Error("Phiếu nhập không tồn tại");
+			if (phieunhap.dataValues.daluu)
+				throw new Error(
+					"Hóa đơn này đã được lưu trước đó",
+				);
+
+			// 2. Thêm chi tiết phiếu nhập: lặp qua chitietsRequest, sử dụng hàm thêm sản phẩm
+
+			for (const chitietRequest of chitietsRequest) {
+				const {
+					madv,
+					malh,
+					soluong,
+					hsd,
+					gianhap,
+				} = chitietRequest;
+				// Tạo các mặt hàng vào kho
+				const matHangDaTao = [];
+				for (let i = 0; i < soluong; i++) {
+					const donvi = await DonViModel.findOne({
+						where: { ma: madv, malh },
+						transaction: t,
+					});
+					let mathang = await MatHangModel.create(
+						{
+							ngaynhap:
+								phieunhapInfo.ngaynhap,
+							hsd: new Date(hsd),
+							gianhap,
+							giaban: donvi.dataValues.giaban,
+							malh,
+							madv,
+						},
+						{ transaction: t },
+					);
+					mathang = mathang.toJSON();
+					matHangDaTao.push({
+						ma: mathang.ma,
+						ngaynhap: mathang.ngaynhap,
+						hsd: mathang.hsd,
+						gianhap: mathang.gianhap,
+					});
+				}
+
+				// Tạo các chi tiết phiếu nhập
+				const chiTietDaTao = [];
+				for (let i = 0; i < soluong; i++) {
+					let chitietNhap =
+						await ChiTietPhieuNhapModel.create(
+							{
+								maphieunhap: ma,
+								mamathang:
+									matHangDaTao[i].ma,
+							},
+							{ transaction: t },
+						);
+					chitietNhap = chitietNhap.toJSON();
+					chiTietDaTao.push({
+						ma: chitietNhap.id,
+						mamathang: chitietNhap.mamathang,
+					});
+				}
+			}
+
+			// 3. Lưu phiếu nhập
 			const chitiets =
 				await ChiTietPhieuNhapModel.findAll({
 					where: {
@@ -395,6 +485,7 @@ class NhaphangController {
 							model: MatHangModel,
 						},
 					],
+					transaction: t,
 				});
 
 			const tongtien = chitiets
@@ -404,24 +495,14 @@ class NhaphangController {
 						prev + +curr.mathang.gianhap,
 					0,
 				);
-
-			if (
-				await PhieuNhapModel.findOne({
-					where: { ma, daluu: true },
-				})
-			) {
-				throw new Error(
-					"Hóa đơn này đã được lưu trước đó",
-				);
-			}
-
 			await PhieuNhapModel.update(
-				{ daluu: true, tongtien },
+				{ ...phieunhapInfo, daluu: true, tongtien },
 				{ where: { ma }, transaction: t },
 			);
 
 			const lastThongke = await ThongKeModel.findOne({
 				order: [["ngay", "desc"]],
+				transaction: t,
 			});
 
 			await ThongKeModel.create(

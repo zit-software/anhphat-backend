@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const LogDiemModel = require("~/models/logdiem.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 const UserModel = require("~/models/user.model");
@@ -42,8 +43,16 @@ class NhaPhanPhoiControler {
 	 */
 	async laytatcanpp(req, res) {
 		try {
-			const allNpp = await NhaPhanPhoiModel.findAll();
-			const total = NhaPhanPhoiModel.count({});
+			const ten = req.query.ten || null;
+			const where = {};
+			if (ten) where.ten = { [Op.like]: `%${ten}%` };
+			console.log(where);
+			const allNpp = await NhaPhanPhoiModel.findAll({
+				where,
+			});
+			const total = NhaPhanPhoiModel.count({
+				where,
+			});
 			return res.status(200).json({
 				data: allNpp.map((npp) => npp.toJSON()),
 				total,

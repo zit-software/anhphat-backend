@@ -139,6 +139,7 @@ class PhieuXuatQuaKDController {
 					{
 						offset,
 						limit: pageSize,
+						order: [["updatedAt", "desc"]],
 						include: [
 							{
 								attributes: {
