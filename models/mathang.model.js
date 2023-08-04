@@ -52,6 +52,13 @@ const MatHangModel = sequelize.define(
 		},
 	},
 	{
+		indexes: [
+			{
+				unique: false,
+				using: "BTREE",
+				fields: ["malh", "madv"],
+			},
+		],
 		timestamps: true,
 		paranoid: true,
 		deletedAt: "xoavao",
