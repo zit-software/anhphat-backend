@@ -43,8 +43,10 @@ async function startServer() {
 	const server = http.createServer(app);
 	try {
 		await sequelize.authenticate();
-
-		await sequelize.sync();
+		const environment = process.env.NODE_ENV;
+		await sequelize.sync({
+			alter: environment === "DEVELOPMENT",
+		});
 
 		/**
 		 * Listen on provided port, on all network interfaces.

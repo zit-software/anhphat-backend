@@ -4,6 +4,7 @@ const LoaiHangModel = require("~/models/loaihang.model");
 const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
 const PhieuNhapModel = require("~/models/phieunhap.model");
+const PhieuNhapQuaKhuyenDungModel = require("~/models/phieunhapquakhuyendung.model");
 const PhieuXuatModel = require("~/models/phieuxuat.model");
 const ThongKeModel = require("~/models/thongke.model");
 const sequelize = require("~/services/sequelize.service");
@@ -574,9 +575,17 @@ class ThongkeController {
 					},
 					transaction: t,
 				});
-			console.log(allPhieuNhap);
 			const allPhieuXuat =
 				await PhieuXuatModel.findAll({
+					where: {
+						xoavao: {
+							[Op.eq]: null,
+						},
+					},
+					transaction: t,
+				});
+			const allPhieuNhapQuaKD =
+				await PhieuNhapQuaKhuyenDungModel.findAll({
 					where: {
 						xoavao: {
 							[Op.eq]: null,
@@ -595,6 +604,12 @@ class ThongkeController {
 				...allPhieuXuat.map((ele) => ({
 					...ele,
 					type: "xuat",
+				})),
+			);
+			allPhieus.push(
+				...allPhieuNhapQuaKD.map((ele) => ({
+					...ele,
+					type: "nhapqua",
 				})),
 			);
 			allPhieus.sort(
@@ -639,6 +654,23 @@ class ThongkeController {
 								{ transaction: t },
 							);
 						lastThongke = thongke;
+						break;
+					}
+					case "nhapqua": {
+						const thongkeNhapQua =
+							await ThongKeModel.create(
+								{
+									maphieunhapquakd:
+										phieu.ma,
+									chi: phieu.tongtien,
+									conlai:
+										(lastThongke?.conlai ||
+											0) -
+										phieu.tongtien,
+								},
+								{ transaction: t },
+							);
+						lastThongke = thongkeNhapQua;
 						break;
 					}
 				}
