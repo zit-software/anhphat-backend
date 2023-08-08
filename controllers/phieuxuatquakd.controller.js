@@ -78,7 +78,6 @@ class PhieuXuatQuaKDController {
 					{ where: { ma }, transaction: t },
 				);
 			}
-			console.log(tongdiem);
 			if (diemNPP < tongdiem)
 				throw new Error(
 					`Nhà phân phối này không đủ điểm để tặng những quà này (${diemNPP} < ${tongdiem})`,

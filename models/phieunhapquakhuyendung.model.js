@@ -22,8 +22,18 @@ const PhieuNhapQuaKhuyenDungModel = sequelize.define(
 				min: 1,
 			},
 		},
+		tongtien: {
+			type: DataTypes.BIGINT,
+			allowNull: false,
+			validate: { min: 0 },
+			defaultValue: 0,
+		},
 	},
-	{ timestamps: true },
+	{
+		timestamps: true,
+		paranoid: true,
+		deletedAt: "xoavao",
+	},
 );
 PhieuNhapQuaKhuyenDungModel.belongsTo(UserModel, {
 	foreignKey: {

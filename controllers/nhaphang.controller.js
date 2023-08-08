@@ -501,7 +501,7 @@ class NhaphangController {
 			);
 
 			const lastThongke = await ThongKeModel.findOne({
-				order: [["ngay", "desc"]],
+				order: [["createdAt", "desc"]],
 				transaction: t,
 			});
 

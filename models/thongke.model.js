@@ -3,6 +3,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("~/services/sequelize.service");
 const PhieuNhapModel = require("./phieunhap.model");
 const PhieuXuatModel = require("./phieuxuat.model");
+const PhieuNhapQuaKhuyenDungModel = require("./phieunhapquakhuyendung.model");
 
 const ThongKeModel = sequelize.define(
 	"thongke",
@@ -52,6 +53,11 @@ ThongKeModel.belongsTo(PhieuNhapModel, {
 ThongKeModel.belongsTo(PhieuXuatModel, {
 	foreignKey: {
 		name: "maphieuxuat",
+	},
+});
+ThongKeModel.belongsTo(PhieuNhapQuaKhuyenDungModel, {
+	foreignKey: {
+		name: "maphieunhapquakd",
 	},
 });
 module.exports = ThongKeModel;

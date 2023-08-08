@@ -90,8 +90,13 @@ class QuaKhuyenDungController {
 			const newQuaKD =
 				await QuaKhuyenDungModel.update(
 					{ ...req.body },
-					{ where: { ma }, plain: true },
+					{
+						where: { ma },
+						plain: true,
+						returning: true,
+					},
 				);
+			console.log(newQuaKD);
 			return res.status(200).json(newQuaKD).end();
 		} catch (error) {
 			return res

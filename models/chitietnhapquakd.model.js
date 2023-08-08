@@ -15,6 +15,11 @@ const ChiTietNhapQuaKhuyenDung = sequelize.define(
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
+		gia: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0,
+		},
 	},
 );
 

@@ -776,7 +776,7 @@ class XuatHangController {
 			if (!phieuxuat.istrahang) {
 				const previousLog =
 					await ThongKeModel.findOne({
-						order: [["ngay", "DESC"]],
+						order: [["createdAt", "DESC"]],
 						transaction: t,
 					}).then((data) => data?.toJSON());
 

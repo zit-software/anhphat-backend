@@ -4,6 +4,7 @@ const sequelize = require("~/services/sequelize.service");
 const UserModel = require("~/models/user.model");
 const QuaKhuyenDungModel = require("~/models/quakhuyendung.model");
 const { Sequelize } = require("sequelize");
+const ThongKeModel = require("~/models/thongke.model");
 
 class PhieuNhapQuaKhuyenDungController {
 	/**
@@ -29,16 +30,19 @@ class PhieuNhapQuaKhuyenDungController {
 					},
 					{ plain: true, transaction: t },
 				);
+			let tongtien = 0;
 			for (const chitiet of chitiets) {
-				const { ma, soluong } = chitiet;
+				const { ma, soluong, gia } = chitiet;
 				await ChiTietPhieuNhapQuaModel.create(
 					{
 						maQuaKD: ma,
 						soluong,
 						maPhieuNhapQuaKD: newPhieuNhap.ma,
+						gia: +gia,
 					},
 					{ transaction: t },
 				);
+				tongtien += +gia * soluong;
 				await QuaKhuyenDungModel.update(
 					{
 						soluong: Sequelize.literal(
@@ -48,6 +52,31 @@ class PhieuNhapQuaKhuyenDungController {
 					{ where: { ma }, transaction: t },
 				);
 			}
+			console.log(tongtien);
+			await PhieuNhapQuaKDModel.update(
+				{
+					tongtien,
+				},
+				{
+					where: { ma: newPhieuNhap.ma },
+					transaction: t,
+				},
+			);
+			const lastThongke = await ThongKeModel.findOne({
+				order: [["createdAt", "desc"]],
+				transaction: t,
+			});
+
+			await ThongKeModel.create(
+				{
+					maphieunhapquakd: newPhieuNhap.ma,
+					chi: tongtien,
+					conlai:
+						(lastThongke?.conlai || 0) -
+						tongtien,
+				},
+				{ transaction: t },
+			);
 			await t.commit();
 			return res.status(200).json(newPhieuNhap);
 		} catch (error) {

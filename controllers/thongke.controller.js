@@ -3,6 +3,9 @@ const DonViModel = require("~/models/donvi.model");
 const LoaiHangModel = require("~/models/loaihang.model");
 const MatHangModel = require("~/models/mathang.model");
 const NhaPhanPhoiModel = require("~/models/nhaphanphoi.model");
+const PhieuNhapModel = require("~/models/phieunhap.model");
+const PhieuNhapQuaKhuyenDungModel = require("~/models/phieunhapquakhuyendung.model");
+const PhieuXuatModel = require("~/models/phieuxuat.model");
 const ThongKeModel = require("~/models/thongke.model");
 const sequelize = require("~/services/sequelize.service");
 const { addDays } = require("~/utils/common.util");
@@ -548,6 +551,141 @@ class ThongkeController {
 			res.status(400).send({
 				message: error.message,
 			});
+		}
+	}
+
+	/**
+	 *
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 */
+	async recheckThongKeByPhieu(req, res) {
+		const t = await sequelize.transaction();
+		try {
+			await ThongKeModel.destroy({
+				transaction: t,
+				where: {},
+			});
+			const allPhieuNhap =
+				await PhieuNhapModel.findAll({
+					where: {
+						xoavao: {
+							[Op.eq]: null,
+						},
+					},
+					transaction: t,
+				});
+			const allPhieuXuat =
+				await PhieuXuatModel.findAll({
+					where: {
+						xoavao: {
+							[Op.eq]: null,
+						},
+					},
+					transaction: t,
+				});
+			const allPhieuNhapQuaKD =
+				await PhieuNhapQuaKhuyenDungModel.findAll({
+					where: {
+						xoavao: {
+							[Op.eq]: null,
+						},
+					},
+					transaction: t,
+				});
+			const allPhieus = [];
+			allPhieus.push(
+				...allPhieuNhap.map((ele) => ({
+					...ele,
+					type: "nhap",
+				})),
+			);
+			allPhieus.push(
+				...allPhieuXuat.map((ele) => ({
+					...ele,
+					type: "xuat",
+				})),
+			);
+			allPhieus.push(
+				...allPhieuNhapQuaKD.map((ele) => ({
+					...ele,
+					type: "nhapqua",
+				})),
+			);
+			allPhieus.sort(
+				(a, b) =>
+					new Date(a.updatedAt).getTime() -
+					new Date(b.updatedAt).getTime(),
+			);
+			let lastThongke;
+			for (const {
+				dataValues: phieu,
+				type,
+			} of allPhieus) {
+				switch (type) {
+					case "nhap": {
+						const thongkeNhap =
+							await ThongKeModel.create(
+								{
+									maphieunhap: phieu.ma,
+									chi: phieu.tongtien,
+									conlai:
+										(lastThongke?.conlai ||
+											0) -
+										phieu.tongtien,
+								},
+								{ transaction: t },
+							);
+						lastThongke = thongkeNhap;
+						break;
+					}
+
+					case "xuat": {
+						const thongke =
+							await ThongKeModel.create(
+								{
+									thu: phieu.tongtien,
+									conlai:
+										phieu.tongtien +
+											lastThongke.conlai ||
+										0,
+									maphieuxuat: phieu.ma,
+								},
+								{ transaction: t },
+							);
+						lastThongke = thongke;
+						break;
+					}
+					case "nhapqua": {
+						const thongkeNhapQua =
+							await ThongKeModel.create(
+								{
+									maphieunhapquakd:
+										phieu.ma,
+									chi: phieu.tongtien,
+									conlai:
+										(lastThongke?.conlai ||
+											0) -
+										phieu.tongtien,
+								},
+								{ transaction: t },
+							);
+						lastThongke = thongkeNhapQua;
+						break;
+					}
+				}
+			}
+			await t.commit();
+			return res.status(200).send({
+				message:
+					"Check lại tất cả hóa đơn thành công",
+			});
+		} catch (error) {
+			console.log(error);
+			await t.rollback();
+			return res
+				.status(400)
+				.send({ message: error.message });
 		}
 	}
 }

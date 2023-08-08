@@ -25,6 +25,11 @@ const QuaKhuyenDungModel = sequelize.define(
 			allowNull: false,
 			defaultValue: 0,
 		},
+		gia: {
+			type: DataTypes.INTEGER,
+			allowNull: false,
+			defaultValue: 0,
+		},
 	},
 	{ timestamps: true, paranoid: true },
 );
