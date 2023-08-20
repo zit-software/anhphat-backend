@@ -259,6 +259,7 @@ class MathangController {
 			const loaihangQuery = req.query.loaihang;
 			const donviQuery = req.query.donvi;
 			const ngaynhapQuery = req.query.ngaynhap;
+			const tenQuery = req.query.ten;
 			const orderQuery = req.query.order;
 
 			const limit = req.query.page
@@ -277,6 +278,7 @@ class MathangController {
 					"ngaynhap",
 					"madv",
 					"malh",
+
 					[
 						sequelize.fn(
 							"count",
@@ -303,6 +305,12 @@ class MathangController {
 				where.ngaynhap = {
 					[Op.eq]: ngaynhapQuery,
 				};
+			const loaiHangWhere = {};
+			if (tenQuery) {
+				loaiHangWhere.ten = {
+					[Op.like]: `%${tenQuery}%`,
+				};
+			}
 			const order = [];
 			if (orderQuery == "hsd")
 				order.push([orderQuery, "ASC"]);
@@ -318,6 +326,7 @@ class MathangController {
 				include: [
 					{
 						model: LoaiHangModel,
+						where: loaiHangWhere,
 					},
 					{
 						model: DonViModel,
@@ -338,6 +347,10 @@ class MathangController {
 			} else {
 				total = await MatHangModel.count({
 					where,
+					include: {
+						model: LoaiHangModel,
+						where: loaiHangWhere,
+					},
 				});
 			}
 			return res.status(200).json({
