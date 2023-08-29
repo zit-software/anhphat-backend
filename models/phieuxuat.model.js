@@ -24,6 +24,16 @@ const PhieuXuatModel = sequelize.define(
 			allowNull: false,
 			defaultValue: new Date(),
 		},
+		chietkhau: {
+			type: DataTypes.FLOAT,
+			allowNull: true,
+			defaultValue: 0,
+		},
+		isTruocThue: {
+			type: DataTypes.BOOLEAN,
+			allowNull: true,
+			defaultValue: false,
+		},
 		tongsl: {
 			type: DataTypes.INTEGER,
 			allowNull: false,

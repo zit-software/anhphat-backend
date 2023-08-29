@@ -503,6 +503,8 @@ class XuatHangController {
 			const auto = req.body.auto;
 			const thue = req.body.thue;
 			const ghichu = req.body.ghichu;
+			const chietkhau = req.body.chietkhau;
+			const isTruocThue = req.body.truocthue;
 			const savedMH = [];
 			let tongtien = 0;
 			let tongsl = 0;
@@ -626,7 +628,7 @@ class XuatHangController {
 				);
 			}
 
-			let tilegiam = phieuxuat.npp.chietkhau;
+			let tilegiam = chietkhau;
 
 			if (req.body.kmg) {
 				const kmg =
@@ -637,8 +639,7 @@ class XuatHangController {
 				if (kmg) {
 					tilegiam = Math.max(tilegiam, kmg.tile);
 				} else {
-					tongtien -=
-						tongtien * phieuxuat.npp.chietkhau;
+					tongtien -= tongtien * chietkhau;
 				}
 			}
 
@@ -646,7 +647,7 @@ class XuatHangController {
 
 			// Nhà phân phối trước thuế thì cộng thuế sau khi giảm giá chiết khẩu hoặc khuyến mãi
 
-			if (phieuxuat.npp.truocthue) {
+			if (isTruocThue) {
 				tongtien -=
 					(tongtien / (1 + thue)) * tilegiam;
 			} else {
@@ -772,6 +773,8 @@ class XuatHangController {
 					makmt: req.body.kmt,
 					thue,
 					ghichu,
+					chietkhau,
+					isTruocThue,
 				},
 				{ where: { ma }, transaction: t },
 			);
