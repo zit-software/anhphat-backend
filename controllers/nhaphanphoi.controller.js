@@ -222,7 +222,11 @@ class NhaPhanPhoiControler {
 				: 0;
 			const allLogsDiem = await LogDiemModel.findAll({
 				include: [
-					{ model: NhaPhanPhoiModel, as: "npp" },
+					{
+						model: NhaPhanPhoiModel,
+						as: "npp",
+						paranoid: false,
+					},
 					{
 						model: UserModel,
 						as: "user",

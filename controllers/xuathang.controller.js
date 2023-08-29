@@ -502,6 +502,7 @@ class XuatHangController {
 			const manual = req.body.manual;
 			const auto = req.body.auto;
 			const thue = req.body.thue;
+			const ghichu = req.body.ghichu;
 			const savedMH = [];
 			let tongtien = 0;
 			let tongsl = 0;
@@ -770,6 +771,7 @@ class XuatHangController {
 					makmg: req.body.kmg,
 					makmt: req.body.kmt,
 					thue,
+					ghichu,
 				},
 				{ where: { ma }, transaction: t },
 			);

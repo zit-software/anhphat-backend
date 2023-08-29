@@ -8,7 +8,6 @@ const {
 	capnhatdiem,
 	getAllLogDiem,
 } = require("~/controllers/nhaphanphoi.controller");
-const AdminMiddleware = require("~/middleware/admin.middleware");
 
 const router = Router();
 router.route("/diem").get(getAllLogDiem);
@@ -17,7 +16,7 @@ router.route("/").post(themnpp).get(laytatcanpp);
 router
 	.route("/:ma")
 	.get(laymotnpp)
-	.put(AdminMiddleware, suamotnpp)
-	.delete(AdminMiddleware, xoamotnpp);
+	.put(suamotnpp)
+	.delete(xoamotnpp);
 
 module.exports = router;
