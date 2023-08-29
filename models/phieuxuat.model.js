@@ -15,6 +15,10 @@ const PhieuXuatModel = sequelize.define(
 			primaryKey: true,
 			allowNull: false,
 		},
+		ghichu: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+		},
 		ngayxuat: {
 			type: DataTypes.DATE,
 			allowNull: false,

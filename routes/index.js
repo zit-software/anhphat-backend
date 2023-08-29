@@ -68,7 +68,6 @@ router.use(
 router.use(
 	"/thongke",
 	AuthMiddleware,
-	AdminMiddleware,
 	require("./thongke.route"),
 );
 

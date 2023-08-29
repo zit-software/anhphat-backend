@@ -13,6 +13,10 @@ const PhieuNhapModel = sequelize.define(
 			primaryKey: true,
 			allowNull: false,
 		},
+		ghichu: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+		},
 		nguon: {
 			type: DataTypes.TEXT,
 		},
