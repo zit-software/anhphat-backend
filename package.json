@@ -27,7 +27,7 @@
 		"mariadb": "^3.2.0",
 		"module-alias": "^2.2.3",
 		"morgan": "~1.10.0",
-		"mysql2": "^3.6.0",
+		"mysql2": "^3.6.1",
 		"query-parser": "^0.0.1",
 		"sequelize": "^6.33.0"
 	},
