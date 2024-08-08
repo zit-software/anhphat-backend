@@ -29,7 +29,7 @@
 		"morgan": "~1.10.0",
 		"mysql2": "^3.9.3",
 		"query-parser": "^0.0.1",
-		"sequelize": "^6.33.0"
+		"sequelize": "^6.37.3"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^17.7.1",
